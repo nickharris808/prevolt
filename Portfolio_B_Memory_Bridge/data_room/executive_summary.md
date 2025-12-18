@@ -21,6 +21,8 @@ This portfolio is not just 4 ideas; it is **four foundational patent families** 
     - PF4-A: Direct-to-Source (Baseline Hardware Signal)
     - PF4-B: Adaptive Hysteresis (Stability Optimizer)
     - PF4-C: Predictive HWM (Online Learning Lead-Time)
+    - PF4-D: Credit Pacing (Fractional Deceleration)
+    - PF4-E: Buffer Partitioning (Multi-Tenant Isolation)
 
 ---
 
@@ -33,6 +35,8 @@ This portfolio is not just 4 ideas; it is **four foundational patent families** 
 - **Family Variations**:
     - PF5-A: Cache-Miss Sniper (Outlier Detection)
     - PF5-B: Graduated Sniper (ECN → Rate Limit → Drop)
+    - PF5-C: Aggregated Sniper (Defeats QP Spraying)
+    - PF5-D: UEC Priority Shield (Collective Traffic Protection)
 
 ---
 
@@ -46,6 +50,20 @@ This portfolio is not just 4 ideas; it is **four foundational patent families** 
     - PF6-A: Fixed Timeout (Deterministic Trigger)
     - PF6-B: Adaptive TTL (Congestion-Scaling)
     - PF6-C: Coordinated Valve (Cross-Switch Consensus)
+    - PF6-D: Credit Shuffling (Loop-Preventative)
+    - PF6-E: Fast Retransmit Valve (Hardware-Fast Path)
+
+---
+
+### Patent Family 7: Stranded Memory "Borrowing" protocol
+**The Problem**: Memory fragmentation causes OOM crashes despite free capacity elsewhere in the cluster.
+**The Solution**: A network-transparent CXL.mem borrowing protocol that maps virtual address spaces across multiple physical nodes.
+**Proof (Tournament-Validated)**:
+- **Zero OOM**: Increases job completion rate from 58% to **100%** in fragmented clusters.
+- **Family Variations**:
+    - PF7-A: Balanced Borrow (Headroom-Aware)
+    - PF7-B: Latency-Aware Tiering (Hop-Count Optimization)
+    - PF7-C: Jitter Mitigation (Tunneling Stability)
 
 ---
 
