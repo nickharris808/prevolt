@@ -126,6 +126,15 @@ def validate_all():
     results.append(("Entropy Scaling", run_test("27_Entropy_VDD_Scaling/vdd_subthreshold_sim.py", "Shannon VDD")))
     results.append(("Coherent Sync", run_test("28_Optical_Phase_Lock/optical_phase_determinism_sim.py", "THz Phase-Lock")))
     results.append(("Gradient Migration", run_test("29_Sparse_Gradient_Migration/planetary_gradient_migrator.py", "Sparsity Migration")))
+
+    # Tier 14: Omega-Tier Physics & Economy
+    print("\nOMEGA-TIER PHYSICS & ECONOMY (TIER 14)")
+    print("-" * 30)
+    results.append(("Silence Tokens", run_test("05_Memory_Orchestration/hbm_silence_token_enforcement.py", "Temporal Guard Band")))
+    results.append(("Multi-Phase Clock", run_test("25_Adiabatic_Recycling/multi_phase_resonant_clock.py", "EMI Shielded Resonance")))
+    results.append(("Cluster Breathing", run_test("22_Global_VPP/sub_harmonic_cluster_breathing.py", "Synthetic Inertia")))
+    results.append(("Entropy Credits", run_test("21_Thermodynamic_Settlement/entropy_credit_ledger.py", "AI Clearinghouse")))
+    results.append(("Power Audit", run_test("13_Sovereign_Security/power_signature_audit.py", "Physical Attestation")))
     
     # Summary
     print("\n" + "="*80)
