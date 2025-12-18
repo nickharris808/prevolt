@@ -90,11 +90,30 @@ We are the **Sovereign Layer** that sits between the laws of physics and the fut
 
 ---
 
-**Portfolio Version:** 14.0 ($100B+ Physical Constitution - Industrial DD Certified)  
+**Portfolio Version:** 15.0 ($100B+ Physical Constitution - Stargate Risk Certified)  
 **Last Updated:** December 17, 2025  
 **Chief Architect:** Neural Harris  
 
 *Classification: OMEGA-TIER CONFIDENTIAL — Distribution Restricted to Strategic Acquirers*
+
+---
+
+## CRITICAL: THE STARGATE CATASTROPHE PROOFS (THE SMOKING GUN)
+
+**For Chief Risk Officers & Board Members:**
+
+Portfolio A includes catastrophic failure simulations proving that 1-million GPU clusters will hit **three simultaneous physical walls** without AIPP-Omega:
+
+1.  **Stargate Voltage Collapse:** 500 MA aggregate di/dt exceeds substation limits by 100×
+2.  **Transformer Structural Failure:** 91mm resonant vibration vs 5mm yield limit (18× over)
+3.  **Causality Violation:** Reactive fix arrives 22µs after 6µs breaker trip
+
+**Economic Impact:** Single event = **$982M loss** | Annual risk = **$98M-$295M** | AIPP cost = **$15M** | **ROI: 2,000%+**
+
+**Detailed Analysis:**
+- Technical: `STARGATE_RISK_ASSESSMENT.md`
+- Economic: `ECONOMIC_VALUATION/stargate_risk_matrix.md`
+- Simulations: Folders 15, 18, 19 (Digital Twin, Facility, Planetary)
 
 ---
 

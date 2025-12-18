@@ -572,7 +572,31 @@ By providing synthetic inertia 100× faster than chemical batteries, AIPP-Omega 
 5.  **PTP Reality:** `ptp_guard_band_orchestration.py` - Standard IEEE 1588, ±1µs jitter, 1000 trials, 0% failures
 6.  **Hierarchical Control:** `aipp_fast_path.v` - Split-brain proving 1ns reflex despite 10ms CPU lag
 
-**Result:** Portfolio A passes the most brutal technical, economic, and strategic due diligence.
+---
+
+## THE THREE "CATASTROPHE" PROOFS (THE SMOKING GUN)
+
+**For Chief Risk Officers - The $1 Billion Fire:**
+
+### Catastrophe 1: Stargate Voltage Collapse
+**File:** `15_Grand_Unified_Digital_Twin/stargate_voltage_collapse.py`  
+**Finding:** 500 MA aggregate di/dt exceeds substation limits by 100×  
+**Impact:** Facility voltage collapses, breakers trip, $1B loss
+
+### Catastrophe 2: Transformer Structural Failure  
+**File:** `18_Facility_Scale_Moats/transformer_structural_failure.py`  
+**Finding:** 100Hz resonance creates 91mm vibration (18× over 5mm yield limit)  
+**Impact:** Transformer physically destroys itself, $50M replacement + 6-12mo downtime
+
+### Catastrophe 3: Causality Violation
+**File:** `19_Planetary_Orchestration/causality_violation_timeline.py`  
+**Finding:** Reactive systems arrive 22µs after 6µs breaker trip  
+**Impact:** Any non-network solution is PHYSICALLY TOO SLOW
+
+**Economic Analysis:** `ECONOMIC_VALUATION/stargate_risk_matrix.md`  
+**Risk Assessment:** `STARGATE_RISK_ASSESSMENT.md`
+
+**The Math:** $982M single-event cost | $98M-$295M annual expected loss | $15M AIPP cost = **2,000%+ ROI**
 
 ---
 
