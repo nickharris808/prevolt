@@ -121,8 +121,16 @@ def main():
     v2 = validate_pf5()
     v3 = validate_pf6()
     
+    # Add PF7 validation
+    print("\nValidating Patent Family 7: Stranded Memory Borrowing...")
+    from _04_Stranded_Memory_Borrowing.simulation import StrandedMemoryConfig, run_stranded_memory_simulation
+    config_pf7 = StrandedMemoryConfig(n_nodes=8, fragmentation_level=0.5)
+    results_pf7 = run_stranded_memory_simulation(config_pf7, 'balanced_borrow', seed=42)
+    p7 = results_pf7['completion_rate'] > 0.90
+    print_result("Job Completion Rate", results_pf7['completion_rate']*100, 90, "%", p7)
+    
     print("\n" + "="*60)
-    if v1 and v2 and v3:
+    if v1 and v2 and v3 and p7:
         print("OVERALL STATUS: ALL CRITERIA PASSED - DATA ROOM READY")
     else:
         print("OVERALL STATUS: CRITERIA NOT MET - REFINEMENT NEEDED")

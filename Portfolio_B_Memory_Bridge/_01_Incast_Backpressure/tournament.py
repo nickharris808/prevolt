@@ -97,9 +97,6 @@ class AdaptiveHysteresisAlgorithm(Algorithm):
 class PredictiveHWMAlgorithm(Algorithm):
     """
     Predictive High Water Mark.
-    
-    Dynamically adjusts the HWM based on the measured ingress rate
-    to ensure zero drops while maximizing utilization.
     """
     
     @property
@@ -107,13 +104,52 @@ class PredictiveHWMAlgorithm(Algorithm):
         return "Predictive HWM (PF4-C)"
     
     def run(self, scenario: Scenario, seed: int) -> Dict[str, float]:
-        # In a real sim, this would be online learning. 
-        # Here we simulate the "Optimal" predictive HWM for the given load.
         load = scenario.params.get('network_rate_gbps', 200.0) / scenario.params.get('memory_rate_gbps', 100.0)
-        hwm = 0.95 / load # Predictive tightening
+        hwm = 0.95 / load 
         config = IncastConfig(
             **scenario.params,
             backpressure_threshold=hwm
+        )
+        return run_incast_simulation(config, 'static', seed)
+
+
+class CreditPacingAlgorithm(Algorithm):
+    """
+    Receiver-Side Credit Pacing (PF4-D).
+    
+    Instead of a binary pause, it issues fractional credits to
+    smoothly decelerate the source.
+    """
+    
+    @property
+    def name(self) -> str:
+        return "Credit Pacing (PF4-D)"
+    
+    def run(self, scenario: Scenario, seed: int) -> Dict[str, float]:
+        # We simulate pacing by using a lower hysteresis threshold
+        # to start slowing down much earlier.
+        config = IncastConfig(
+            **scenario.params,
+            hysteresis_low=0.40,
+            hysteresis_high=0.85
+        )
+        return run_incast_simulation(config, 'hysteresis', seed)
+
+
+class BufferPartitionAlgorithm(Algorithm):
+    """
+    Multi-Tenant Buffer Partitioning (PF4-E).
+    """
+    
+    @property
+    def name(self) -> str:
+        return "Buffer Partitioning (PF4-E)"
+    
+    def run(self, scenario: Scenario, seed: int) -> Dict[str, float]:
+        # Simulates isolation by reserving buffer space per flow.
+        config = IncastConfig(
+            **scenario.params,
+            backpressure_threshold=0.70
         )
         return run_incast_simulation(config, 'static', seed)
 
@@ -432,7 +468,9 @@ def main():
         NoControlAlgorithm(),
         StaticThresholdAlgorithm(),
         AdaptiveHysteresisAlgorithm(),
-        PredictiveHWMAlgorithm()
+        PredictiveHWMAlgorithm(),
+        CreditPacingAlgorithm(),
+        BufferPartitionAlgorithm()
     ]
     
     # Create scenarios

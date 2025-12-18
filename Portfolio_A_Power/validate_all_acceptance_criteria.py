@@ -222,6 +222,31 @@ def validate_industrial_monopoly_tier():
             
     return overall_pass
 
+def validate_god_tier():
+    """Tier 7: God-Tier Upgrades (Digital Twin, RL Sovereign, Phase Change, Zero-Math)"""
+    print("\n" + "="*80)
+    print("TIER 7: GOD-TIER INDUSTRIAL UPGRADES")
+    print("="*80)
+    
+    tests = [
+        ("/Users/nharris/Desktop/portfolio/Portfolio_A_Power/15_Grand_Unified_Digital_Twin/cluster_digital_twin.py", "Unified Digital Twin"),
+        ("/Users/nharris/Desktop/portfolio/Portfolio_A_Power/14_ASIC_Implementation/control_plane_optimizer.py", "Zero-Math Data Plane"),
+        ("/Users/nharris/Desktop/portfolio/Portfolio_A_Power/16_Autonomous_Agent/rl_power_orchestrator.py", "RL Sovereign Agent"),
+        ("/Users/nharris/Desktop/portfolio/Portfolio_A_Power/08_Thermal_Orchestration/two_phase_cooling_physics.py", "Phase Change Safety")
+    ]
+    
+    overall_pass = True
+    for path, name in tests:
+        print(f"Validating {name}...")
+        res = subprocess.run([sys.executable, path], capture_output=True, text=True)
+        if res.returncode == 0:
+            print(f"  ✓ {name}: PASS")
+        else:
+            print(f"  ✗ {name}: FAIL")
+            overall_pass = False
+            
+    return overall_pass
+
 def main():
     print("="*80)
     print("PORTFOLIO A: MASTER ACCEPTANCE CRITERIA VALIDATION")
@@ -272,6 +297,12 @@ def main():
     except Exception as e:
         print(f"✗ Industrial Tier: ERROR - {e}")
         results.append(("Industrial Monopoly", False))
+
+    try:
+        results.append(("God-Tier Upgrades", validate_god_tier()))
+    except Exception as e:
+        print(f"✗ God-Tier: ERROR - {e}")
+        results.append(("God-Tier Upgrades", False))
     
     # Summary
     print("\n" + "="*80)
@@ -283,10 +314,10 @@ def main():
         print(f"{name:.<50} {status}")
     
     total_pass = sum(1 for _, p in results if p)
-    print(f"\nTotal: {total_pass}/7 components passed")
+    print(f"\nTotal: {total_pass}/8 components passed")
     
-    if total_pass == 7:
-        print("\n🎯 PORTFOLIO A IS VALIDATED AT THE $2 BILLION+ GLOBAL MONOPOLY TIER")
+    if total_pass == 8:
+        print("\n🎯 PORTFOLIO A IS VALIDATED AT THE $2 BILLION+ GLOBAL MONOPOLY TIER (GOD-MODE)")
     else:
         print("\n⚠️  Some acceptance criteria failed. Review output above.")
 

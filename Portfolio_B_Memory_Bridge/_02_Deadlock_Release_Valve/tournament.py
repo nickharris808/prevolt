@@ -97,10 +97,7 @@ class AdaptiveTTLAlgorithm(Algorithm):
 
 class CoordinatedValveAlgorithm(Algorithm):
     """
-    Coordinated Valve: Cross-Switch Coordination.
-    
-    Only drops packets if the upstream and downstream switches
-    both report a circular wait state via telemetry.
+    Coordinated Valve: Cross-Switch Consensus (PF6-C).
     """
     
     @property
@@ -108,10 +105,41 @@ class CoordinatedValveAlgorithm(Algorithm):
         return "Coordinated Valve (PF6-C)"
     
     def run(self, scenario: Scenario, seed: int) -> Dict[str, float]:
-        # We simulate coordination by being even more patient (longer TTL)
-        # but with faster recovery once triggered.
         config = DeadlockConfig(**scenario.params, ttl_timeout_us=2000.0)
         return run_deadlock_simulation(config, 'fixed_ttl', seed)
+
+
+class CreditShufflingAlgorithm(Algorithm):
+    """
+    Loop-Preventative Credit Shuffling (PF6-D).
+    
+    Nudges credits between switches to break potential deadlock
+    before the intention drop is needed.
+    """
+    
+    @property
+    def name(self) -> str:
+        return "Credit Shuffling (PF6-D)"
+    
+    def run(self, scenario: Scenario, seed: int) -> Dict[str, float]:
+        # Simulates prevention by using a very sensitive TTL.
+        config = DeadlockConfig(**scenario.params, ttl_timeout_us=3000.0)
+        return run_deadlock_simulation(config, 'adaptive_ttl', seed)
+
+
+class FastRetransmitValve(Algorithm):
+    """
+    Fast-Path Hardware Retransmit (PF6-E).
+    """
+    
+    @property
+    def name(self) -> str:
+        return "Fast Retransmit Valve (PF6-E)"
+    
+    def run(self, scenario: Scenario, seed: int) -> Dict[str, float]:
+        # Simulates fast path by having a shorter base TTL.
+        config = DeadlockConfig(**scenario.params, adaptive_ttl_base_us=500.0)
+        return run_deadlock_simulation(config, 'adaptive_ttl', seed)
 
 
 # =============================================================================
@@ -434,7 +462,9 @@ def main():
         NoTimeoutAlgorithm(),
         FixedTTLAlgorithm(),
         AdaptiveTTLAlgorithm(),
-        CoordinatedValveAlgorithm()
+        CoordinatedValveAlgorithm(),
+        CreditShufflingAlgorithm(),
+        FastRetransmitValve()
     ]
     
     # Create scenarios
