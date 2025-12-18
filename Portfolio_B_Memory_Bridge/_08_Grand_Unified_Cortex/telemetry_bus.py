@@ -23,6 +23,13 @@ from typing import Dict, List, Optional, Callable, Any, Set
 from collections import deque
 from enum import Enum
 import time
+import sys
+import os
+
+# Add parent directory to path for imports
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
+from shared.physics_engine import Physics
 
 
 # =============================================================================
@@ -85,7 +92,7 @@ class EventBroker:
     Subsystems publish TelemetryEvents to the broker.
     Subscribers receive events matching their filter criteria.
     
-    This is the "nervous system" connecting PF4-PF7.
+    Physics-Correct: Pub/Sub adds 50ns async overhead.
     """
     
     def __init__(self, env: simpy.Environment):
@@ -96,6 +103,7 @@ class EventBroker:
             env: SimPy environment for time synchronization
         """
         self.env = env
+        self.processing_delay_ns = 50.0 # 50ns async delivery delay
         
         # Subscription registry: {metric_type: [callback functions]}
         self.subscriptions: Dict[MetricType, List[Callable]] = {}
@@ -127,18 +135,20 @@ class EventBroker:
     def publish(self, event: TelemetryEvent):
         """
         Publish a telemetry event to all subscribers.
-        
-        Args:
-            event: The event to publish
         """
         self.events_published += 1
         self.event_log.append(event)
         
-        # Deliver to all subscribers
-        if event.metric_type in self.subscriptions:
-            for callback in self.subscriptions[event.metric_type]:
-                callback(event)
-                self.events_delivered += 1
+        # Physics-Correct: Simulating async delivery delay
+        def _deliver():
+            yield self.env.timeout(self.processing_delay_ns)
+            # Deliver to all subscribers
+            if event.metric_type in self.subscriptions:
+                for callback in self.subscriptions[event.metric_type]:
+                    callback(event)
+                    self.events_delivered += 1
+        
+        self.env.process(_deliver())
     
     def get_recent_events(
         self,

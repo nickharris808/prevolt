@@ -17,6 +17,25 @@ from dataclasses import dataclass, field
 from typing import Dict, List, Optional, Tuple, Set
 from enum import Enum
 import heapq
+import sys
+import os
+
+# Add parent directory to path for imports
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
+from shared.physics_engine import Physics
+
+# PF8: Telemetry Bus Integration (Optional)
+try:
+    from _08_Grand_Unified_Cortex import (
+        TelemetryPublisher,
+        MetricType
+    )
+    PF8_AVAILABLE = True
+except ImportError:
+    PF8_AVAILABLE = False
+    TelemetryPublisher = None
+    MetricType = None
 
 
 # =============================================================================
@@ -139,7 +158,7 @@ class Job:
     job_id: int
     memory_required_gb: float
     preferred_node: int
-    duration_us: float
+    duration_ns: float
     status: JobStatus = JobStatus.PENDING
     start_time: Optional[float] = None
     end_time: Optional[float] = None
@@ -172,12 +191,16 @@ class Job:
 @dataclass
 class ClusterConfig:
     """
-    Configuration for the CXL cluster.
+    Configuration for the CXL cluster (Physics-Correct).
     """
     n_nodes: int = 8
     memory_per_node_gb: float = 128.0
-    local_access_latency_us: float = 0.1  # 100ns local
-    remote_access_latency_us: float = 1.0  # 1μs remote (10x penalty)
+    
+    # Latency parameters (Derive from Physics)
+    local_access_latency_ns: float = Physics.CXL_LOCAL_NS
+    remote_access_latency_ns: float = Physics.CXL_FABRIC_1HOP_NS
+    tunnel_overhead_ns: float = Physics.CXL_TUNNEL_NS
+    
     fragmentation_level: float = 0.3  # 30% fragmented
 
 
@@ -186,11 +209,12 @@ class CXLCluster:
     Model of a CXL memory cluster with pooling capabilities.
     """
     
-    def __init__(self, config: ClusterConfig):
+    def __init__(self, config: ClusterConfig, telemetry_publisher: Optional['TelemetryPublisher'] = None):
         """
         Initialize the cluster.
         """
         self.config = config
+        self.telemetry_publisher = telemetry_publisher
         self.nodes: Dict[int, ClusterNode] = {}
         for i in range(config.n_nodes):
             self.nodes[i] = ClusterNode(
@@ -254,6 +278,19 @@ class CXLCluster:
                 best_free = node.free_memory_gb
                 best_node = nid
         return best_node
+
+    def publish_telemetry(self):
+        """Publish path health and fragmentation metrics."""
+        if self.telemetry_publisher and PF8_AVAILABLE:
+            self.telemetry_publisher.publish(
+                MetricType.FRAGMENTATION_LEVEL,
+                self.cluster_utilization
+            )
+            # Simulate path health (1.0 = perfect, 0.0 = broken)
+            self.telemetry_publisher.publish(
+                MetricType.PATH_HEALTH,
+                1.0
+            )
 
 
 # =============================================================================
@@ -323,7 +360,13 @@ class GreedyBorrowAlgorithm(AllocationAlgorithm):
 class BalancedBorrowAlgorithm(AllocationAlgorithm):
     """
     Balanced Borrow: Most free memory (PF7-A).
+    
+    Physics-Correct: Uses CoordinationMatrix to avoid risky paths.
     """
+    def __init__(self, cluster, coordination_matrix=None):
+        super().__init__(cluster)
+        self.coordination_matrix = coordination_matrix
+
     def allocate(self, job: Job) -> bool:
         node = self.cluster.nodes[job.preferred_node]
         remaining = job.memory_required_gb
@@ -336,7 +379,13 @@ class BalancedBorrowAlgorithm(AllocationAlgorithm):
         
         if remaining <= 0: return True
         
-        used_nodes = {job.preferred_node}
+        # Determine safe nodes (modulate by deadlock risk)
+        exclude_nodes = set()
+        if self.coordination_matrix:
+            risky_nodes = self.coordination_matrix.get_modulation('pf7_borrow', [])
+            exclude_nodes.update(risky_nodes)
+
+        used_nodes = {job.preferred_node} | exclude_nodes
         while remaining > 0:
             best_node_id = self.cluster.get_node_with_most_free_memory(exclude=used_nodes)
             if best_node_id is None: break
@@ -372,7 +421,8 @@ class CooperativeBorrowAlgorithm(AllocationAlgorithm):
         
         # Calculate dynamic reserve based on job duration
         # PF7-D: Long jobs must leave more headroom for others.
-        reserve_factor = 0.3 if job.duration_us > 1000.0 else 0.05
+        # Threshold: 10us (Physics-Correct duration)
+        reserve_factor = 0.3 if job.duration_ns > 10_000.0 else 0.05
         
         used_nodes = {job.preferred_node}
         while remaining > 0:
@@ -473,7 +523,8 @@ if __name__ == '__main__':
     ]:
         cluster = CXLCluster(config)
         cluster.apply_fragmentation(rng)
-        job = Job(job_id=1, memory_required_gb=64, preferred_node=0, duration_us=1000)
+        # Job duration 20us (Physics-Correct)
+        job = Job(job_id=1, memory_required_gb=64, preferred_node=0, duration_ns=20_000.0)
         algo = algo_class(cluster)
         success = algo.allocate(job)
         print(f"\n  {algo_name}:")

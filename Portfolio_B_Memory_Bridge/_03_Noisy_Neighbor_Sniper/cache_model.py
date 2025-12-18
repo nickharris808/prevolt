@@ -22,6 +22,25 @@ from typing import Dict, List, Optional, Tuple, Set
 from collections import deque
 from enum import Enum
 import heapq
+import sys
+import os
+
+# Add parent directory to path for imports
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
+from shared.physics_engine import Physics
+
+# PF8: Telemetry Bus Integration (Optional)
+try:
+    from _08_Grand_Unified_Cortex import (
+        TelemetryPublisher,
+        MetricType
+    )
+    PF8_AVAILABLE = True
+except ImportError:
+    PF8_AVAILABLE = False
+    TelemetryPublisher = None
+    MetricType = None
 
 
 # =============================================================================
@@ -107,13 +126,13 @@ class TenantStats:
     cache_misses: int = 0
     
     @property
-    def avg_latency(self) -> float:
+    def avg_latency_ns(self) -> float:
         if self.requests_completed == 0:
             return 0.0
         return self.total_latency / self.requests_completed
     
     @property
-    def p99_latency(self) -> float:
+    def p99_latency_ns(self) -> float:
         if len(self.latencies) == 0:
             return 0.0
         return np.percentile(self.latencies, 99)
@@ -147,14 +166,16 @@ class FlowTracker:
     
     def __init__(
         self,
-        window_size_us: float = 100.0,
-        history_length: int = 100
+        window_size_ns: float = 10_000.0,  # 10us window
+        history_length: int = 100,
+        telemetry_publisher: Optional['TelemetryPublisher'] = None
     ):
         """
         Initialize the flow tracker.
         """
-        self.window_size_us = window_size_us
+        self.window_size_ns = window_size_ns
         self.history_length = history_length
+        self.telemetry_publisher = telemetry_publisher
         
         # Per-tenant counts
         self.current_hits: Dict[int, int] = {}
@@ -176,7 +197,7 @@ class FlowTracker:
         """
         self.current_time = current_time
         
-        if current_time - self.window_start_time >= self.window_size_us:
+        if current_time - self.window_start_time >= self.window_size_ns:
             self._roll_window()
         
         # PF5-C: Aggregated Sniper - track QP but group by Tenant ID
@@ -208,6 +229,14 @@ class FlowTracker:
         self.current_misses = {}
         self.current_qp_misses = {}
         self.window_start_time = self.current_time
+        
+        # PF8: Publish aggregate cache miss rate
+        if self.telemetry_publisher and PF8_AVAILABLE:
+            mean_rate, _ = self.get_population_stats()
+            self.telemetry_publisher.publish(
+                MetricType.CACHE_MISS_RATE,
+                mean_rate
+            )
     
     def get_tenant_miss_rate(self, tenant_id: int) -> float:
         """Get the smoothed miss rate for a tenant."""
@@ -294,19 +323,21 @@ class SharedCache:
         self,
         env: simpy.Environment,
         n_slots: int = 4096,
-        hit_latency_us: float = 1.0,
-        miss_latency_us: float = 100.0
+        hit_latency_ns: float = Physics.L3_HIT_NS,
+        miss_latency_ns: float = Physics.CXL_FABRIC_1HOP_NS,
+        telemetry_publisher: Optional['TelemetryPublisher'] = None
     ):
         """
         Initialize the cache.
         """
         self.env = env
         self.n_slots = n_slots
-        self.hit_latency_us = hit_latency_us
-        self.miss_latency_us = miss_latency_us
+        self.hit_latency_ns = hit_latency_ns
+        self.miss_latency_ns = miss_latency_ns
+        self.telemetry_publisher = telemetry_publisher
         
-        # Memory Controller as a Resource
-        self.controller = simpy.Resource(env, capacity=1)
+        # Memory Controller as a Resource (Physics-Correct: PriorityResource)
+        self.controller = simpy.PriorityResource(env, capacity=1)
         
         # Initialize slots
         self.slots: List[CacheSlot] = [
@@ -319,8 +350,11 @@ class SharedCache:
         # LRU tracking (min-heap of (access_time, slot_id))
         self.lru_heap: List[Tuple[float, int]] = []
         
-        # Flow tracker
-        self.flow_tracker = FlowTracker()
+        # Flow tracker (Physics-correct window: 1us)
+        self.flow_tracker = FlowTracker(
+            window_size_ns=1 * Physics.US,
+            telemetry_publisher=telemetry_publisher
+        )
         
         # Per-tenant statistics
         self.tenant_stats: Dict[int, TenantStats] = {}
@@ -336,7 +370,8 @@ class SharedCache:
         tenant_id: int,
         data_key: int,
         current_time: float,
-        qp_id: int = 0
+        qp_id: int = 0,
+        priority: int = 0
     ):
         """
         Access data in the cache.
@@ -356,7 +391,7 @@ class SharedCache:
             heapq.heappush(self.lru_heap, (current_time, slot_id))
             stats.cache_hits += 1
             was_hit = True
-            service_time = self.hit_latency_us
+            service_time = self.hit_latency_ns
         else:
             stats.cache_misses += 1
             slot_id = self._find_or_evict_slot(current_time)
@@ -371,16 +406,18 @@ class SharedCache:
             slot.access_count = 1
             self.key_to_slot[cache_key] = slot_id
             heapq.heappush(self.lru_heap, (current_time, slot_id))
-            service_time = self.miss_latency_us
+            service_time = self.miss_latency_ns
             
         # Track access performance - PF5-C: include qp_id
         self.flow_tracker.record_access(tenant_id, was_hit, current_time, qp_id)
         
-        # Request the memory controller resource
-        with self.controller.request() as req:
+        # Request the memory controller resource (Physics-Correct: Multi-Priority)
+        # Victims (priority 1) jump ahead of bullies (priority 0)
+        with self.controller.request(priority=priority) as req:
             yield req
+            # Wait time is calculated from the time we entered the queue to now
             yield self.env.timeout(service_time)
-        
+            
         return was_hit, service_time
     
     def _find_or_evict_slot(self, current_time: float) -> int:
@@ -483,7 +520,7 @@ if __name__ == '__main__':
         print(f"  Tenant {tid}:")
         print(f"    Requests: {stats.requests_submitted}")
         print(f"    Hit Rate: {stats.hit_rate:.2%}")
-        print(f"    Avg Latency: {stats.avg_latency:.2f} μs")
+        print(f"    Avg Latency: {stats.avg_latency_ns:.2f} ns")
     
     print(f"\nSlot Allocation: {cache.get_slot_allocation()}")
     print(f"Is Tenant 1 noisy? {cache.flow_tracker.is_noisy_neighbor(1)}")

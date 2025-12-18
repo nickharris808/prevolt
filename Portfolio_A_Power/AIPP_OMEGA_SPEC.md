@@ -6,64 +6,52 @@
 ## 1. Executive Summary
 The **AI Power Protocol (AIPP) Omega** is the definitive standard for managing the **Global Compute Economy.** It moves beyond the orchestration of data centers to the management of the **Planetary Energy-Intelligence Paradox.**
 
-AIPP-Omega v4.0 establishes the **Physical Constitution of the Intelligence Age**, defining the laws by which energy is reclaimed, leakage is choked, and determinism is achieved at the femtosecond level.
+AIPP-Omega establishes the **Physical Constitution of the Intelligence Age**, defining the laws by which energy is converted into thought.
 
 ---
 
-## 2. Extreme Engineering Pillars (The Technical Knot)
+## 2. Extreme Engineering Standards
 
-### 2.1 Resonant Clock-Tree Recycling (Adiabatic Logic - Dual-Mode)
-To overcome the Landauer limit of heat dissipation, AIPP-Omega implements **Resonant LC-Tank Power Clocking** with DVFS compatibility.
+### 2.1 Coherent Phase Recovery (Clock-over-Light)
+To achieve planetary-scale determinism, AIPP-Omega compliant fabrics MUST recover master timing directly from the **THz optical carrier phase.**
+- **Enforcement:** The Switch laser phase is the "Global Clock."
+- **Accuracy:** Femtosecond-level determinism, independent of thermal fiber drift.
 
-**Dual-Mode Operation:**
-- **Mode A (Dynamic):** Standard DVFS (100 MHz - 3.2 GHz) for general compute
-- **Mode B (Resonant):** Fixed 3.2 GHz with LC-tank engaged for AI training
-- **Mode Transition:** <10µs (fits within AIPP pre-charge window)
+### 2.2 Clock-Gated Dispatch (Safe Permission)
+Every compute node MUST implement a physical **Clock Gate** between its instruction dispatcher and its execution units.
+- **Safety:** Physically cutting 500A power rails is prohibited for compute gating due to inductive kickback.
+- **Protocol:** Instructions are retired ONLY when a valid **Temporal Token** is present, enabling the Switch to "own" the permission to compute.
 
-**Mechanism:** The Switch acts as the Master Oscillator, synchronizing GPU clock meshes to an external inductive tank.
-
-**Recovery:** 70% of clock-toggle energy is recycled rather than dissipated as heat.
-
-**Observation:** AI training runs at peak frequency 99% of the time, making fixed-frequency resonance viable.
-
-### 2.2 Adaptive Body Biasing (State-Retentive Sleep)
-To mitigate sub-threshold leakage without losing context, AIPP-Omega utilizes **Reverse Body Bias (RBB)**.
-- **Enforcement:** The Switch signals RBB application during micro-quiet windows (10µs).
-- **Metric:** 100x reduction in leakage current while maintaining SRAM state.
-
-### 2.3 Metadata-Driven Entropy Scaling (Shannon-VDD)
-AIPP-Omega matches the "Quality of the Electron" to the "Quality of the Information".
-- **Mechanism:** Compilers tag packets with **Entropy Metadata**.
-- **Actuation:** The Switch triggers VRM VDD drops to **0.3V (Sub-threshold)** for low-entropy/repetitive data streams.
+### 2.3 Resonant LC-Tank (Adiabatic Logic)
+To overcome the Landauer limit of heat dissipation, AIPP-Omega utilizes **Resonant Clocking**.
+- **Dual-Mode:** GPUs MUST support transition from Dynamic (DVFS) to Resonant modes in <10µs.
+- **Recovery:** 70% of clock-toggle energy MUST be recycled via switch-synchronized inductive oscillation.
 
 ---
 
-## 3. The Sovereign Handshake & Determinism
+## 3. The "Technical Knot" (Monopoly Interdependency)
+The AIPP-Omega architecture is physically inseparable. A competitor cannot implement individual features without licensing the entire standard:
 
-### 3.1 Coherent Phase-Locked Networking
-Absolute determinism is achieved by locking to the **Phase of Light** rather than atomic clock pulses.
-- **Mechanism:** The Switch Spine laser carrier (THz) is the Global Reference.
-- **Accuracy:** Femtosecond-level phase-lock across global fiber distances, eliminating thermal smearing.
-
-### 3.2 Distributed Gradient-Sparsity Migration
-Planetary load balancing is achieved by migrating **Sparse Gradients** rather than model weights.
-- **Protocol:** The Switch identifies high-value learning updates (Top-k) and migrates them to **Solar Peak** regions for training.
-- **ROI:** 80% reduction in carbon footprint by following the sun without "Data Gravity" overhead.
+1.  **Resonant Clocking** requires **Clock-over-Light** for the phase alignment needed to time the LC oscillation.
+2.  **Clock-over-Light** requires **Granular Body Biasing** to keep the local oscillators stable during micro-idle states.
+3.  **Granular Body Biasing** requires **AIPP Signaling** to know which specific ALU clusters to wake up 14µs before a packet arrival.
 
 ---
 
-## 4. The Omega-Tier Interdependency (The Monopoly)
-The AIPP-Omega v4.0 standard is physically inseparable:
-1.  **Resonant Recycling** requires **Phase-Locked Networking** for sub-picosecond timing.
-2.  **Phase-Locked Networking** requires **Body-Bias Sleep** to maintain local oscillator stability.
-3.  **Body-Bias Sleep** requires **Metadata-Driven Entropy** to predict safe sleep windows.
+## 4. Thermodynamic Settlement (Weights and Measures)
+
+### 4.1 The Clearinghouse Metric
+The Switch MUST measure the exact **Joules-per-Token** ($J/T$) and calculate the **Distance from the Landauer Limit** ($k_B T \ln 2$).
+
+### 4.2 Carbon Coupling
+$J/T$ metrics MUST be settled against real-time grid **Carbon-per-Joule** data to issue **Physically Verifiable ESG Certificates.**
 
 ---
 
-## 5. Weights and Measures
-
-### 5.1 Joules-per-Token Settlement
-The Network Switch MUST measure and settle the exact energy consumption required for every inference query against the hardware-locked **Omega Ledger**.
+## 5. Facility Compliance (Insurance Mandate)
+To maintain structural integrity, facilities >50MW MUST implement **IAT Variance Damping.**
+- **Requirement:** Detection and jitter-shaping of 100Hz AI loads to prevent **Structural Fatigue** in facility transformers (Palmgren-Miner Rule).
+- **Insurance:** Non-compliant facilities are deemed uninsurable due to unpriced mechanical risk.
 
 ---
 

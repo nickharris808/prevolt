@@ -30,6 +30,8 @@ import os
 # Add parent directory to path for imports
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
+from shared.physics_engine import Physics
+
 # PF8: Telemetry Bus Integration (Optional)
 try:
     from _08_Grand_Unified_Cortex import (
@@ -69,13 +71,13 @@ class IncastConfig:
         hysteresis_low: Lower threshold for hysteresis (resume sending)
         hysteresis_high: Upper threshold for hysteresis (pause sending)
     """
-    # Buffer and rate parameters (realistic for CXL/UEC systems)
-    buffer_capacity_bytes: int = 10_000_000  # 10 MB buffer
-    network_rate_gbps: float = 200.0         # 200 Gbps network (200% Load)
-    memory_rate_gbps: float = 100.0          # 100 Gbps memory drain
+    # Buffer and rate parameters (Refitted for PCIe Gen5 x16 reality)
+    buffer_capacity_bytes: int = Physics.NIC_BUFFER_BYTES  # 16 MB buffer
+    network_rate_gbps: float = 600.0         # 3x 200G NICs (Incast)
+    memory_rate_gbps: float = Physics.PCIE_GEN5_X16_GBPS  # 512 Gbps drain
     
     # Simulation parameters
-    simulation_duration_us: float = 1000.0   # 1ms simulation
+    simulation_duration_ns: float = 100_000.0   # 100us simulation (high res)
     packet_size_bytes: int = 1500            # Standard MTU
     
     # Traffic pattern parameters
@@ -89,24 +91,24 @@ class IncastConfig:
     hysteresis_high: float = 0.90            # Pause at 90%
     
     @property
-    def network_rate_bytes_per_us(self) -> float:
-        """Convert network rate to bytes per microsecond."""
-        return (self.network_rate_gbps * 1e9 / 8) / 1e6
+    def network_rate_bytes_per_ns(self) -> float:
+        """Convert network rate to bytes per nanosecond."""
+        return Physics.gbps_to_bytes_per_ns(self.network_rate_gbps)
     
     @property
-    def memory_rate_bytes_per_us(self) -> float:
-        """Convert memory drain rate to bytes per microsecond."""
-        return (self.memory_rate_gbps * 1e9 / 8) / 1e6
+    def memory_rate_bytes_per_ns(self) -> float:
+        """Convert memory drain rate to bytes per nanosecond."""
+        return Physics.gbps_to_bytes_per_ns(self.memory_rate_gbps)
     
     @property
-    def packet_inter_arrival_us(self) -> float:
-        """Average time between packet arrivals in microseconds."""
-        return self.packet_size_bytes / self.network_rate_bytes_per_us
+    def packet_inter_arrival_ns(self) -> float:
+        """Average time between packet arrivals in nanoseconds."""
+        return self.packet_size_bytes / self.network_rate_bytes_per_ns
     
     @property
-    def packet_drain_time_us(self) -> float:
-        """Time to drain one packet in microseconds."""
-        return self.packet_size_bytes / self.memory_rate_bytes_per_us
+    def packet_drain_time_ns(self) -> float:
+        """Time to drain one packet in nanoseconds."""
+        return self.packet_size_bytes / self.memory_rate_bytes_per_ns
 
 
 class TrafficPattern(Enum):
@@ -155,13 +157,27 @@ class SimulationState:
             self.last_occupancy = current_occupancy
             self.last_velocity_time = current_time
 
+    total_drain_time_ns: float = 0.0  # Time memory controller was busy
+    fill_velocity: float = 0.0        # dV/dt (bytes per ns)
+    last_occupancy: int = 0
+    last_velocity_time: float = 0.0
+    
+    def update_velocity(self, current_time: float, current_occupancy: int):
+        """Calculate dV/dt of the buffer."""
+        dt = current_time - self.last_velocity_time
+        if dt > 0.1: # 100ps resolution
+            dv = current_occupancy - self.last_occupancy
+            self.fill_velocity = dv / dt
+            self.last_occupancy = current_occupancy
+            self.last_velocity_time = current_time
+
     @property
     def utilization(self) -> float:
         """Calculate memory link utilization."""
-        if self.total_drain_time_us == 0:
+        if self.total_drain_time_ns == 0:
             return 0.0
         # Simulation duration is the total time the link COULD have been busy
-        return min(1.0, self.total_drain_time_us / self.last_velocity_time) if self.last_velocity_time > 0 else 0.0
+        return min(1.0, self.total_drain_time_ns / self.last_velocity_time) if self.last_velocity_time > 0 else 0.0
 
     @property
     def drop_rate(self) -> float:
@@ -178,14 +194,14 @@ class SimulationState:
         return self.packets_drained / self.packets_arrived
     
     @property
-    def avg_latency_us(self) -> float:
+    def avg_latency_ns(self) -> float:
         """Calculate average packet latency."""
         if self.packets_drained == 0:
             return 0.0
         return self.total_latency_us / self.packets_drained
     
     @property
-    def p99_latency_us(self) -> float:
+    def p99_latency_ns(self) -> float:
         """Calculate 99th percentile latency."""
         if len(self.latencies) == 0:
             return 0.0
@@ -523,10 +539,10 @@ def uniform_traffic_generator(
     """
     packet_id = 0
     
-    while env.now < config.simulation_duration_us:
+    while env.now < config.simulation_duration_ns:
         # Check backpressure
         if backpressure.should_pause():
-            # Wait for resume signal (check every 0.1us)
+            # Wait for resume signal (check every 0.1ns)
             while not backpressure.should_resume():
                 yield env.timeout(0.1)
         
@@ -541,7 +557,7 @@ def uniform_traffic_generator(
         packet_id += 1
         
         # Wait for next packet (exponential inter-arrival)
-        inter_arrival = rng.exponential(config.packet_inter_arrival_us)
+        inter_arrival = rng.exponential(config.packet_inter_arrival_ns)
         yield env.timeout(inter_arrival)
 
 
@@ -559,7 +575,7 @@ def bursty_traffic_generator(
     """
     packet_id = 0
     
-    while env.now < config.simulation_duration_us:
+    while env.now < config.simulation_duration_ns:
         # Determine if this is a burst period (20% of time)
         is_burst = rng.random() < 0.2
         
@@ -581,7 +597,7 @@ def bursty_traffic_generator(
                 packet_id += 1
                 
                 # Minimal delay within burst
-                yield env.timeout(config.packet_inter_arrival_us / config.burst_factor)
+                yield env.timeout(config.packet_inter_arrival_ns / config.burst_factor)
         else:
             # Normal packet
             if not backpressure.should_pause():
@@ -595,7 +611,7 @@ def bursty_traffic_generator(
                 packet_id += 1
             
             # Normal inter-arrival
-            yield env.timeout(rng.exponential(config.packet_inter_arrival_us * 2))
+            yield env.timeout(rng.exponential(config.packet_inter_arrival_ns * 2))
 
 
 def incast_traffic_generator(
@@ -616,7 +632,7 @@ def incast_traffic_generator(
     # All senders start at slightly offset times
     sender_offsets = rng.uniform(0, 1.0, size=config.n_senders)
     
-    while env.now < config.simulation_duration_us:
+    while env.now < config.simulation_duration_ns:
         # Each sender sends one packet in this round
         for sender_id in range(config.n_senders):
             if backpressure.should_pause():
@@ -636,7 +652,7 @@ def incast_traffic_generator(
             packet_id += 1
         
         # Wait for next round
-        round_interval = (config.packet_inter_arrival_us * config.n_senders) / 2
+        round_interval = (config.packet_inter_arrival_ns * config.n_senders) / 2
         yield env.timeout(round_interval)
 
 
@@ -655,8 +671,8 @@ def memory_drain_process(
             packet = buffer.dequeue()
             if packet:
                 # Simulate drain time
-                drain_time = config.packet_drain_time_us
-                buffer.state.total_drain_time_us += drain_time
+                drain_time = config.packet_drain_time_ns
+                buffer.state.total_drain_time_ns += drain_time
                 yield env.timeout(drain_time)
         else:
             # No packets to drain, wait briefly
@@ -728,13 +744,13 @@ def run_incast_simulation(
     env.process(memory_drain_process(env, buffer, config))
     
     # Run simulation
-    env.run(until=config.simulation_duration_us)
+    env.run(until=config.simulation_duration_ns)
     
     # Collect metrics
     state = buffer.state
     
     # Calculate utilization
-    utilization = state.total_drain_time_us / config.simulation_duration_us
+    utilization = state.total_drain_time_ns / config.simulation_duration_ns
     
     # Calculate queue depth statistics
     if len(state.queue_depth_samples) > 0:
@@ -756,8 +772,8 @@ def run_incast_simulation(
     return {
         'drop_rate': state.drop_rate,
         'throughput_fraction': state.throughput_fraction,
-        'avg_latency_us': state.avg_latency_us,
-        'p99_latency_us': state.p99_latency_us,
+        'avg_latency_ns': state.avg_latency_ns,
+        'p99_latency_ns': state.p99_latency_ns,
         'avg_occupancy': avg_occupancy,
         'max_occupancy': max_occupancy,
         'avg_queue_depth_bytes': avg_queue_depth,
@@ -778,11 +794,11 @@ if __name__ == '__main__':
     # Quick test run
     config = IncastConfig(
         traffic_pattern='incast',
-        simulation_duration_us=100.0,
+        simulation_duration_ns=1000.0,
         n_senders=50
     )
     
-    print("Testing Incast Simulation...")
+    print("Testing Incast Simulation (Physics-Correct)...")
     print("-" * 50)
     
     for algo in ['no_control', 'static', 'hysteresis']:
@@ -790,7 +806,7 @@ if __name__ == '__main__':
         print(f"\n{algo.upper()}:")
         print(f"  Drop Rate: {results['drop_rate']:.4f}")
         print(f"  Throughput: {results['throughput_fraction']:.4f}")
-        print(f"  Avg Latency: {results['avg_latency_us']:.2f} μs")
+        print(f"  Avg Latency: {results['avg_latency_ns']:.2f} ns")
         print(f"  Avg Occupancy: {results['avg_occupancy']:.2%}")
         print(f"  Link Utilization: {results['utilization']:.2%}")
     

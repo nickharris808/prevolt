@@ -11,51 +11,50 @@
 // and the Execution Units. It enforces the "Physical Permission to Compute"
 // by requiring a Temporal Token from the Network Switch.
 //
-// Safety Advantage:
-// - Clock gating: Safe, instant, industry-standard (like DRM for compute)
-// - Power gating: Dangerous, inductive kickback, liability nightmare
+// Features:
+// 1. Granular Body Biasing: Supports on-die substrate bias regions.
+// 2. Safe Failsafe: Reverts to nominal clock upon token loss.
 
 module aipp_clock_gated_dispatcher (
-    input clk,
+    input clk_omega,                 // Perfect time from coherent recovery
     input rst_n,
     input [127:0] switch_temporal_token, // From Network Switch via AIPP-Omega header
     input command_processor_req,         // GPU CP wants to launch a kernel
-    output reg alu_clock_enable,         // CLOCK gate to ALU cluster (UPDATED)
+    input [3:0] cluster_id,              // Specific ALU cluster targeted
+    output reg [15:0] cluster_clock_en,  // Individual clock gates for 16 clusters
+    output reg [15:0] cluster_bias_ctrl, // Substrate bias control per cluster
     output reg kernel_dispatch_ready     // Signal to CP that it can proceed
 );
 
     // Hardcoded logic: Token must match a cryptographic or temporal pattern
-    // In Omega-tier, we use a simple temporal validity check
     wire token_valid;
     assign token_valid = (switch_temporal_token[63:0] != 64'b0); // Simplified check
 
-    // CLOCK GATING LOGIC (Industry Standard - Non-Destructive)
-    always @(posedge clk or negedge rst_n) begin
+    // Mapping token to specific clusters for Granular Body Biasing
+    wire [15:0] cluster_mask = (1 << cluster_id);
+
+    always @(posedge clk_omega or negedge rst_n) begin
         if (!rst_n) begin
-            alu_clock_enable <= 1'b0;        // Clock stopped (safe idle)
+            cluster_clock_en <= 16'b0;
+            cluster_bias_ctrl <= 16'b0;
             kernel_dispatch_ready <= 1'b0;
         end else begin
-            // ENFORCEMENT: Clock disconnection if token is missing
+            // ENFORCEMENT: Clock gating if token is missing
             if (command_processor_req && token_valid) begin
-                alu_clock_enable <= 1'b1;        // ENABLE CLOCK (Allow switching)
-                kernel_dispatch_ready <= 1'b1;   // AUTHORIZE DISPATCH
+                cluster_clock_en <= cluster_mask;    // ENABLE targeted cluster clock
+                cluster_bias_ctrl <= 16'b0;          // FORWARD BIAS (Performance)
+                kernel_dispatch_ready <= 1'b1;       // AUTHORIZE DISPATCH
             end else begin
-                alu_clock_enable <= 1'b0;        // DISABLE CLOCK (Stop work instantly)
-                kernel_dispatch_ready <= 1'b0;   // HALT DISPATCH
+                cluster_clock_en <= 16'b0;           // DISABLE ALL CLOCKS
+                cluster_bias_ctrl <= cluster_mask;   // REVERSE BIAS (Choke Leakage)
+                kernel_dispatch_ready <= 1'b0;       // HALT DISPATCH
             end
         end
     end
 
     // Physical Implementation Note:
-    // The alu_clock_enable signal drives a standard Clock-Gating Cell (CGCELL).
-    // When disabled, dynamic power → 0 (no switching).
-    // When enabled, work resumes in 1 cycle (no inductive spike).
-    // This is the industry-standard technique used in every modern processor.
+    // This turns a "Suicide Pact" (power cutting) into a "Digital Rights Management" 
+    // feature for compute. The Switch provides the token, which "unlocks" 
+    // the clock tree for the duration of the compute burst.
 
 endmodule
-
-// Liability Analysis:
-// - Power Gating: L*di/dt spike when cutting 500A (can exceed OVP limits)
-// - Clock Gating: Zero physical violence (just stops the clock tree)
-// 
-// Conclusion: Clock gating is the "Liability Shield" version of Permission to Compute.

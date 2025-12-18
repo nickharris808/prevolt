@@ -27,7 +27,20 @@ import os
 # Add parent directory to path for imports
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
+from shared.physics_engine import Physics
 from topology import RingTopology, SwitchConfig
+
+# PF8: Telemetry Bus Integration (Optional)
+try:
+    from _08_Grand_Unified_Cortex import (
+        TelemetryPublisher,
+        MetricType
+    )
+    PF8_AVAILABLE = True
+except ImportError:
+    PF8_AVAILABLE = False
+    TelemetryPublisher = None
+    MetricType = None
 
 
 # =============================================================================
@@ -37,54 +50,40 @@ from topology import RingTopology, SwitchConfig
 @dataclass
 class DeadlockConfig:
     """
-    Configuration for the deadlock simulation.
-    
-    Attributes:
-        n_switches: Number of switches in the ring
-        buffer_capacity_packets: Packets per switch buffer
-        link_rate_gbps: Link bandwidth
-        packet_size_bytes: Size of each packet
-        simulation_duration_us: Total simulation time
-        injection_rate: Fraction of max rate to inject traffic
-        ttl_timeout_us: TTL timeout for packet dropping
-        adaptive_ttl_base_us: Base TTL for adaptive algorithm
-        adaptive_ttl_multiplier: Multiplier based on congestion
-        deadlock_injection_time_us: When to trigger deadlock
-        deadlock_duration_us: How long to sustain deadlock conditions
+    Configuration for the deadlock simulation (Physics-Correct).
     """
     n_switches: int = 3
     buffer_capacity_packets: int = 100
     link_rate_gbps: float = 100.0
     packet_size_bytes: int = 1500
-    simulation_duration_us: float = 5000.0  # 5ms
+    simulation_duration_ns: float = 500_000.0  # 500us
     
     # Traffic parameters
     injection_rate: float = 0.9  # 90% of link rate
     
-    # TTL parameters
-    ttl_timeout_us: float = 1000.0  # Exactly 1ms residence time trigger
-    adaptive_ttl_base_us: float = 1500.0  # More patient to avoid FP
-    adaptive_ttl_multiplier: float = 2.0  # Very patient during congestion
+    # TTL parameters (Physics-Correct for fabric residence)
+    ttl_timeout_ns: float = 50_000.0  # 50us residence time trigger
+    adaptive_ttl_base_ns: float = 25_000.0  
+    adaptive_ttl_multiplier: float = 2.0  
     
     # Validation scenarios
     congestion_only_mode: bool = False  # If True, heavy traffic but no deadlock
     virtual_lanes_enabled: bool = False # PF6-D support
     coordination_mode: bool = False    # PF6-C support
     
-    # Deadlock injection timing
-    deadlock_injection_time_us: float = 1000.0  # Start at 1ms
-    deadlock_duration_us: float = 2000.0  # Sustain for 2ms
+    # Deadlock injection timing (ns)
+    deadlock_injection_time_ns: float = 100_000.0  # Start at 100us
+    deadlock_duration_ns: float = 200_000.0  # Sustain for 200us
     
     @property
-    def packet_transmission_time_us(self) -> float:
-        """Time to transmit one packet in microseconds."""
-        bytes_per_us = (self.link_rate_gbps * 1e9 / 8) / 1e6
-        return self.packet_size_bytes / bytes_per_us
+    def packet_transmission_time_ns(self) -> float:
+        """Time to transmit one packet in nanoseconds."""
+        return Physics.bytes_to_ns(self.packet_size_bytes, self.link_rate_gbps)
     
     @property
-    def max_packets_per_us(self) -> float:
-        """Maximum packets per microsecond."""
-        return 1.0 / self.packet_transmission_time_us
+    def max_packets_per_ns(self) -> float:
+        """Maximum packets per nanosecond."""
+        return 1.0 / self.packet_transmission_time_ns
 
 
 # =============================================================================
@@ -95,16 +94,6 @@ class DeadlockConfig:
 class Packet:
     """
     Network packet with TTL tracking.
-    
-    Attributes:
-        packet_id: Unique identifier
-        source: Source switch
-        destination: Destination switch  
-        size_bytes: Packet size
-        creation_time: When packet was created
-        enqueue_time: When packet entered current buffer
-        ttl_remaining_us: Time-to-live remaining
-        hops: Number of hops traversed
     """
     packet_id: int
     source: str
@@ -112,7 +101,7 @@ class Packet:
     size_bytes: int
     creation_time: float
     enqueue_time: float = 0.0
-    ttl_remaining_us: float = float('inf')
+    ttl_remaining_ns: float = float('inf')
     hops: int = 0
 
 
@@ -123,11 +112,6 @@ class Packet:
 class Switch:
     """
     Model of a network switch with output buffer.
-    
-    Key features:
-    - Output buffer with limited capacity
-    - Credit-based flow control (lossless)
-    - TTL monitoring for deadlock breaking
     """
     
     def __init__(
@@ -135,21 +119,14 @@ class Switch:
         env: simpy.Environment,
         name: str,
         config: DeadlockConfig,
-        ttl_algorithm: str = 'none'
+        ttl_algorithm: str = 'none',
+        telemetry_publisher: Optional['TelemetryPublisher'] = None
     ):
-        """
-        Initialize a switch.
-        
-        Args:
-            env: SimPy environment
-            name: Switch identifier
-            config: Simulation configuration
-            ttl_algorithm: 'none', 'fixed', or 'adaptive'
-        """
         self.env = env
         self.name = name
         self.config = config
         self.ttl_algorithm = ttl_algorithm
+        self.telemetry_publisher = telemetry_publisher
         
         # Output buffer
         self.buffer: List[Packet] = []
@@ -177,79 +154,58 @@ class Switch:
     
     @property
     def buffer_occupancy(self) -> float:
-        """Current buffer occupancy as fraction."""
         return len(self.buffer) / self.buffer_capacity
     
     @property
     def is_blocked(self) -> bool:
-        """True if switch cannot forward (no credits)."""
         return self.credits_available <= 0
     
     def can_accept(self) -> bool:
-        """Check if buffer has room."""
         return len(self.buffer) < self.buffer_capacity
     
     def receive_packet(self, packet: Packet) -> bool:
-        """
-        Receive a packet into the buffer.
-        
-        Args:
-            packet: The packet to receive
-            
-        Returns:
-            True if accepted, False if dropped
-        """
         self.packets_received += 1
-        
         if not self.can_accept():
             self.packets_dropped_overflow += 1
             return False
         
-        # Set enqueue time for TTL tracking
         packet.enqueue_time = self.env.now
         
-        # Initialize TTL based on algorithm
         if self.ttl_algorithm == 'fixed':
-            packet.ttl_remaining_us = self.config.ttl_timeout_us
+            packet.ttl_remaining_ns = self.config.ttl_timeout_ns
         elif self.ttl_algorithm == 'adaptive':
-            # Scale TTL based on local congestion
             congestion_factor = 1.0 + self.buffer_occupancy * self.config.adaptive_ttl_multiplier
-            packet.ttl_remaining_us = self.config.adaptive_ttl_base_us * congestion_factor
-        # else: ttl_remaining_us stays infinite (no TTL)
-        
+            packet.ttl_remaining_ns = self.config.adaptive_ttl_base_ns * congestion_factor
+            
         self.buffer.append(packet)
         return True
     
-    def check_ttl_expired(self) -> List[Packet]:
-        """
-        Check for and remove TTL-expired packets (Intention Drop).
-        """
+    def check_ttl_expired(self, coordination_matrix: Optional['CoordinationMatrix'] = None) -> List[Packet]:
         if self.ttl_algorithm == 'none':
             return []
         
-        # PF6-C: Coordinated Valve - only drop if NEIGHBORS are also blocked (Consensus)
+        # Get coordinated TTL threshold
+        ttl_limit = self.config.ttl_timeout_ns
+        if coordination_matrix:
+            ttl_limit = coordination_matrix.get_modulation('pf6_drop', ttl_limit)
+
         if self.config.coordination_mode:
-            # Check upstream and downstream telemetry
             consensus = True
             if self.downstream_switch and not self.downstream_switch.deadlock_detected:
                 consensus = False
             if self.upstream_switch and not self.upstream_switch.deadlock_detected:
                 consensus = False
-            
             if not consensus:
                 return []
 
         expired = []
         remaining = []
-        
         for packet in self.buffer:
             dwell_time = self.env.now - packet.enqueue_time
-            
-            if dwell_time >= packet.ttl_remaining_us:
-                # PF6-D: VL Shuffling - try moving to recovery lane first
+            if dwell_time >= ttl_limit:
                 if self.config.virtual_lanes_enabled and packet.hops < 5:
-                    packet.enqueue_time = self.env.now # Reset timer
-                    packet.ttl_remaining_us *= 1.5     # Give more time in new lane
+                    packet.enqueue_time = self.env.now
+                    packet.ttl_remaining_ns *= 1.5
                     remaining.append(packet)
                 else:
                     expired.append(packet)
@@ -261,370 +217,161 @@ class Switch:
         return expired
     
     def forward_packet(self) -> Optional[Packet]:
-        """
-        Attempt to forward the next packet to downstream switch.
-        
-        Returns:
-            The forwarded packet, or None if blocked
-        """
         if len(self.buffer) == 0:
             return None
-        
         if self.downstream_switch is None:
             return None
         
-        # Check credit-based flow control
         if not self.downstream_switch.can_accept():
-            # Blocked - track for deadlock detection
-            self.time_since_last_forward += self.config.packet_transmission_time_us
-            if self.time_since_last_forward > 100:  # 100us threshold
+            self.time_since_last_forward += self.config.packet_transmission_time_ns
+            if self.time_since_last_forward > 100:
                 self.deadlock_detected = True
             return None
         
-        # Forward packet
         packet = self.buffer.pop(0)
         packet.hops += 1
-        
         self.downstream_switch.receive_packet(packet)
         self.packets_forwarded += 1
         self._packets_this_interval += 1
-        
-        # Reset deadlock timer
         self.time_since_last_forward = 0.0
         self.deadlock_detected = False
-        
         return packet
     
-    def record_throughput(self, interval_us: float = 100.0):
-        """Record throughput sample for visualization."""
-        if self.env.now - self._last_sample_time >= interval_us:
-            rate = self._packets_this_interval / (interval_us / 1e6)  # packets/sec
+    def record_throughput(self, interval_ns: float = 100.0):
+        if self.env.now - self._last_sample_time >= interval_ns:
+            rate = self._packets_this_interval / (interval_ns / 1e9)
             gbps = (rate * self.config.packet_size_bytes * 8) / 1e9
             self.throughput_samples.append((self.env.now, gbps))
             self._packets_this_interval = 0
             self._last_sample_time = self.env.now
+            
+            # PF8: Publish deadlock risk
+            if self.telemetry_publisher and PF8_AVAILABLE:
+                risk = 1.0 if self.deadlock_detected else 0.0
+                self.telemetry_publisher.publish(
+                    MetricType.DEADLOCK_RISK,
+                    risk
+                )
 
 
 # =============================================================================
-# NETWORK SIMULATION
+# NETWORK MODEL
 # =============================================================================
 
 class DeadlockNetwork:
-    """
-    Complete network simulation with deadlock injection.
-    """
-    
-    def __init__(
-        self,
-        env: simpy.Environment,
-        config: DeadlockConfig,
-        ttl_algorithm: str = 'none'
-    ):
-        """
-        Initialize the network.
-        
-        Args:
-            env: SimPy environment
-            config: Simulation configuration
-            ttl_algorithm: 'none', 'fixed', or 'adaptive'
-        """
+    def __init__(self, env, config, ttl_algorithm):
         self.env = env
         self.config = config
-        self.ttl_algorithm = ttl_algorithm
-        
-        # Build topology
-        self.topology = RingTopology(
-            n_switches=config.n_switches,
-            buffer_capacity=config.buffer_capacity_packets,
-            link_rate_gbps=config.link_rate_gbps
-        )
-        
-        # Create switches
-        self.switches: Dict[str, Switch] = {}
+        self.topology = RingTopology(config.n_switches, config.buffer_capacity_packets, config.link_rate_gbps)
+        self.switches = {}
         for name in self.topology.get_switch_names():
             self.switches[name] = Switch(env, name, config, ttl_algorithm)
         
-        # Connect switches in ring
         for name in self.topology.get_switch_names():
-            next_name = self.topology.get_next_hop(name)
-            prev_name = self.topology.get_prev_hop(name)
-            self.switches[name].downstream_switch = self.switches[next_name]
-            self.switches[name].upstream_switch = self.switches[prev_name]
+            self.switches[name].downstream_switch = self.switches[self.topology.get_next_hop(name)]
+            self.switches[name].upstream_switch = self.switches[self.topology.get_prev_hop(name)]
 
-        # Simulation state
         self.deadlock_active = False
-        self.deadlock_start_time: Optional[float] = None
-        self.recovery_time: Optional[float] = None
-        
-        # Aggregate statistics
-        self.total_throughput_samples: List[Tuple[float, float]] = []
+        self.deadlock_start_time = None
+        self.recovery_time = None
+        self.total_throughput_samples = []
     
     def is_deadlocked(self) -> bool:
-        """Check if network is in deadlock state."""
-        # All switches must be blocked and have full buffers
         for switch in self.switches.values():
-            if switch.buffer_occupancy < 0.95:
-                return False
-            if not switch.is_blocked:
+            if switch.buffer_occupancy < 0.95 or not switch.is_blocked:
                 return False
         return True
     
     def record_aggregate_throughput(self):
-        """Record total network throughput."""
-        total_gbps = 0.0
-        for switch in self.switches.values():
-            if len(switch.throughput_samples) > 0:
-                total_gbps += switch.throughput_samples[-1][1]
+        total_gbps = sum(s.throughput_samples[-1][1] for s in self.switches.values() if s.throughput_samples)
         self.total_throughput_samples.append((self.env.now, total_gbps))
 
 
 # =============================================================================
-# SIMULATION PROCESSES
+# PROCESSES & RUNNER
 # =============================================================================
 
-def traffic_generator(
-    env: simpy.Environment,
-    network: DeadlockNetwork,
-    config: DeadlockConfig,
-    rng: np.random.Generator
-):
-    """
-    Generate traffic that causes deadlock.
-    
-    During normal operation: moderate load
-    During deadlock window: saturating load creating circular wait
-    """
+def traffic_generator(env, network, config, rng):
     packet_id = 0
     switch_names = list(network.switches.keys())
-    
-    while env.now < config.simulation_duration_us:
-        # Determine if we're in deadlock injection window
-        in_deadlock_window = (
-            config.deadlock_injection_time_us <= env.now <
-            config.deadlock_injection_time_us + config.deadlock_duration_us
-        )
-        
+    while env.now < config.simulation_duration_ns:
+        in_deadlock_window = config.deadlock_injection_time_ns <= env.now < (config.deadlock_injection_time_ns + config.deadlock_duration_ns)
         if in_deadlock_window and not config.congestion_only_mode:
-            # Saturating traffic to create deadlock
-            # Each switch sends to the next, creating circular dependency
-            for i, source_name in enumerate(switch_names):
-                # Destination is the NEXT switch (creates ring dependency)
-                dest_name = switch_names[(i + 1) % len(switch_names)]
-                
-                packet = Packet(
-                    packet_id=packet_id,
-                    source=source_name,
-                    destination=dest_name,
-                    size_bytes=config.packet_size_bytes,
-                    creation_time=env.now
-                )
-                
-                # Inject directly into source switch
-                network.switches[source_name].receive_packet(packet)
+            for i, name in enumerate(switch_names):
+                dest = switch_names[(i+1)%len(switch_names)]
+                p = Packet(packet_id, name, dest, config.packet_size_bytes, env.now)
+                network.switches[name].receive_packet(p)
                 packet_id += 1
-            
-            # Minimal delay during saturation
-            yield env.timeout(config.packet_transmission_time_us * 0.5)
+            yield env.timeout(config.packet_transmission_time_ns * 0.5)
         else:
-            # Normal traffic: random source/destination at moderate rate
-            source_name = rng.choice(switch_names)
-            dest_name = rng.choice([n for n in switch_names if n != source_name])
-            
-            packet = Packet(
-                packet_id=packet_id,
-                source=source_name,
-                destination=dest_name,
-                size_bytes=config.packet_size_bytes,
-                creation_time=env.now
-            )
-            
-            network.switches[source_name].receive_packet(packet)
+            src = rng.choice(switch_names)
+            dest = rng.choice([n for n in switch_names if n != src])
+            p = Packet(packet_id, src, dest, config.packet_size_bytes, env.now)
+            network.switches[src].receive_packet(p)
             packet_id += 1
-            
-            # Normal inter-arrival time
-            inter_arrival = rng.exponential(
-                config.packet_transmission_time_us / config.injection_rate
-            )
-            yield env.timeout(inter_arrival)
+            yield env.timeout(rng.exponential(config.packet_transmission_time_ns / config.injection_rate))
 
-
-def switch_forwarder(
-    env: simpy.Environment,
-    switch: Switch,
-    config: DeadlockConfig
-):
-    """
-    Process that forwards packets from a switch.
-    """
+def switch_forwarder(env, switch, config, coordination_matrix=None):
     while True:
-        # Check for TTL-expired packets
-        switch.check_ttl_expired()
-        
-        # Attempt to forward
+        switch.check_ttl_expired(coordination_matrix)
         switch.forward_packet()
-        
-        # Record throughput periodically
         switch.record_throughput()
-        
-        # Small delay to prevent busy-wait
-        yield env.timeout(config.packet_transmission_time_us * 0.1)
+        yield env.timeout(config.packet_transmission_time_ns * 0.1)
 
-
-def deadlock_monitor(
-    env: simpy.Environment,
-    network: DeadlockNetwork,
-    config: DeadlockConfig
-):
-    """
-    Monitor for deadlock detection and recovery timing.
-    """
-    check_interval = 10.0  # Check every 10us
-    
-    while env.now < config.simulation_duration_us:
-        # Record aggregate throughput
+def deadlock_monitor(env, network, config):
+    while env.now < config.simulation_duration_ns:
         network.record_aggregate_throughput()
-        
-        # Check for deadlock
         if network.is_deadlocked():
             if not network.deadlock_active:
-                network.deadlock_active = True
-                network.deadlock_start_time = env.now
-        else:
-            if network.deadlock_active:
-                # Just recovered from deadlock
-                network.deadlock_active = False
-                network.recovery_time = env.now
-        
-        yield env.timeout(check_interval)
-
-
-# =============================================================================
-# SIMULATION RUNNER
-# =============================================================================
+                network.deadlock_active, network.deadlock_start_time = True, env.now
+        elif network.deadlock_active:
+            network.deadlock_active, network.recovery_time = False, env.now
+        yield env.timeout(10.0)
 
 def run_deadlock_simulation(
     config: DeadlockConfig,
     algorithm_type: str,
-    seed: int
+    seed: int,
+    telemetry_publisher: Optional['TelemetryPublisher'] = None,
+    coordination_matrix: Optional['CoordinationMatrix'] = None
 ) -> Dict[str, float]:
-    """
-    Run a single deadlock simulation.
-    
-    Args:
-        config: Simulation configuration
-        algorithm_type: 'no_timeout', 'fixed_ttl', or 'adaptive_ttl'
-        seed: Random seed
-        
-    Returns:
-        Dictionary of metrics
-    """
     rng = np.random.default_rng(seed)
     env = simpy.Environment()
-    
-    # Map algorithm type to TTL setting
-    ttl_map = {
-        'no_timeout': 'none',
-        'fixed_ttl': 'fixed',
-        'adaptive_ttl': 'adaptive',
-        'coordinated': 'fixed',
-        'shuffling': 'adaptive'
-    }
+    ttl_map = {'no_timeout': 'none', 'fixed_ttl': 'fixed', 'adaptive_ttl': 'adaptive', 'coordinated': 'fixed', 'shuffling': 'adaptive'}
     ttl_algorithm = ttl_map.get(algorithm_type, 'none')
-    
-    # Configure special modes
-    if algorithm_type == 'coordinated':
-        config.coordination_mode = True
-    if algorithm_type == 'shuffling':
-        config.virtual_lanes_enabled = True
-        
-    # Create network
+    if algorithm_type == 'coordinated': config.coordination_mode = True
+    if algorithm_type == 'shuffling': config.virtual_lanes_enabled = True
     network = DeadlockNetwork(env, config, ttl_algorithm)
     
-    # Start processes
+    # Pass publisher to switches
+    for s in network.switches.values():
+        s.telemetry_publisher = telemetry_publisher
+        
     env.process(traffic_generator(env, network, config, rng))
     env.process(deadlock_monitor(env, network, config))
+    for s in network.switches.values(): env.process(switch_forwarder(env, s, config, coordination_matrix))
+    env.run(until=config.simulation_duration_ns)
     
-    for switch in network.switches.values():
-        env.process(switch_forwarder(env, switch, config))
-    
-    # Run simulation
-    env.run(until=config.simulation_duration_us)
-    
-    # Collect metrics
-    total_received = sum(s.packets_received for s in network.switches.values())
     total_forwarded = sum(s.packets_forwarded for s in network.switches.values())
     total_dropped_ttl = sum(s.packets_dropped_ttl for s in network.switches.values())
-    total_dropped_overflow = sum(s.packets_dropped_overflow for s in network.switches.values())
+    throughputs = [t[1] for t in network.total_throughput_samples]
     
-    # Calculate throughput statistics
-    if len(network.total_throughput_samples) > 0:
-        throughputs = [t[1] for t in network.total_throughput_samples]
-        avg_throughput = np.mean(throughputs)
-        min_throughput = np.min(throughputs)
-        max_throughput = np.max(throughputs)
-        
-        # Time spent at zero throughput (deadlocked)
-        zero_count = sum(1 for t in throughputs if t < 1.0)
-        deadlock_fraction = zero_count / len(throughputs)
-    else:
-        avg_throughput = 0.0
-        min_throughput = 0.0
-        max_throughput = 0.0
-        deadlock_fraction = 1.0
-    
-    # Recovery time (time from deadlock start to recovery)
     if network.deadlock_start_time is not None and network.recovery_time is not None:
-        recovery_time_us = network.recovery_time - network.deadlock_start_time
+        recovery_time_ns = network.recovery_time - network.deadlock_start_time
     elif network.deadlock_start_time is not None:
-        # Never recovered
-        recovery_time_us = config.simulation_duration_us - network.deadlock_start_time
+        recovery_time_ns = config.simulation_duration_ns - network.deadlock_start_time
     else:
-        # Never deadlocked
-        recovery_time_us = 0.0
-    
-    # Collateral damage (good packets dropped)
-    # Estimate: TTL drops that occurred AFTER recovery
-    collateral_drops = 0
-    if network.recovery_time is not None:
-        # Simplified: assume 10% of TTL drops were collateral
-        collateral_drops = int(total_dropped_ttl * 0.1)
-    
+        recovery_time_ns = 0.0
+        
     return {
-        'avg_throughput_gbps': avg_throughput,
-        'min_throughput_gbps': min_throughput,
-        'max_throughput_gbps': max_throughput,
-        'deadlock_fraction': deadlock_fraction,
-        'recovery_time_us': recovery_time_us,
-        'packets_forwarded': float(total_forwarded),
+        'avg_throughput_gbps': np.mean(throughputs) if throughputs else 0.0,
+        'recovery_time_ns': recovery_time_ns,
         'packets_dropped_ttl': float(total_dropped_ttl),
-        'packets_dropped_overflow': float(total_dropped_overflow),
-        'collateral_drops': float(collateral_drops),
-        'deadlock_occurred': 1.0 if network.deadlock_start_time is not None else 0.0,
-        'recovered': 1.0 if network.recovery_time is not None else 0.0
+        'deadlock_occurred': 1.0 if network.deadlock_start_time is not None else 0.0
     }
 
-
-# =============================================================================
-# STANDALONE TEST
-# =============================================================================
-
 if __name__ == '__main__':
-    print("Testing Deadlock Simulation...")
-    print("-" * 50)
-    
-    config = DeadlockConfig(
-        simulation_duration_us=3000.0,
-        deadlock_injection_time_us=500.0,
-        deadlock_duration_us=1000.0
-    )
-    
+    config = DeadlockConfig()
     for algo in ['no_timeout', 'fixed_ttl', 'adaptive_ttl']:
-        results = run_deadlock_simulation(config, algo, seed=42)
-        print(f"\n{algo.upper()}:")
-        print(f"  Avg Throughput: {results['avg_throughput_gbps']:.2f} Gbps")
-        print(f"  Deadlock Fraction: {results['deadlock_fraction']:.2%}")
-        print(f"  Recovery Time: {results['recovery_time_us']:.1f} μs")
-        print(f"  TTL Drops: {results['packets_dropped_ttl']:.0f}")
-    
-    print("\n" + "=" * 50)
-    print("Deadlock simulation test complete!")
+        res = run_deadlock_simulation(config, algo, 42)
+        print(f"{algo.upper()}: recovery={res['recovery_time_ns']:.1f}ns, drops={res['packets_dropped_ttl']}")

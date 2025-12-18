@@ -75,3 +75,4 @@ def run_fact_check():
 
 if __name__ == "__main__":
     run_fact_check()
+

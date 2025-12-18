@@ -112,16 +112,16 @@ class CoordinationMatrix:
         self._register_default_rules()
     
     def _register_default_rules(self):
-        """Register the 4 core coordination rules from the plan."""
+        """Register the 4 core coordination rules (Physics-Correct)."""
         
         # Rule 1: PF4 Cache-Aware Backpressure
-        # "Trigger backpressure at 50% if cache miss rate > 0.7"
+        # "Trigger backpressure at 50% if cache miss rate > 12%"
         self.register_rule(
             actuator='pf4_backpressure',
             rule=CoordinationRule(
                 rule_id='pf4_cache_aware_hwm',
                 priority=RulePriority.HIGH,
-                condition=lambda state: self._check_cache_pressure(state, threshold=0.7),
+                condition=lambda state: self._check_cache_pressure(state, threshold=0.12),
                 modulation=lambda state: 0.50,  # Reduce HWM from 80% to 50%
                 description="Trigger backpressure early when cache drain is slow"
             )
@@ -135,32 +135,32 @@ class CoordinationMatrix:
                 rule_id='pf5_buffer_aware_sniper',
                 priority=RulePriority.HIGH,
                 condition=lambda state: self._check_buffer_pressure(state, threshold=0.60),
-                modulation=lambda state: 1.5,  # Reduce Z-score threshold from 2.0 to 1.5
+                modulation=lambda state: 0.1,  # Reduce Z-score threshold from 1.0 to 0.1
                 description="Throttle aggressively when buffer is filling"
             )
         )
         
         # Rule 3: PF6 Congestion-Aware Valve
-        # "Reduce TTL to 500us if buffer > 90%"
+        # "Reduce TTL to 20us if buffer > 90%"
         self.register_rule(
             actuator='pf6_drop',
             rule=CoordinationRule(
                 rule_id='pf6_congestion_aware_ttl',
                 priority=RulePriority.CRITICAL,
                 condition=lambda state: self._check_buffer_pressure(state, threshold=0.90),
-                modulation=lambda state: 500.0,  # Reduce TTL from 1000us to 500us
+                modulation=lambda state: 20_000.0,  # Reduce TTL from 50us to 20us
                 description="Aggressive valve when deadlock meets congestion"
             )
         )
         
         # Rule 4: PF7 Topology-Aware Borrowing
-        # "Blacklist nodes with deadlock_risk > 0.3"
+        # "Blacklist nodes with deadlock_risk > 0.12"
         self.register_rule(
             actuator='pf7_borrow',
             rule=CoordinationRule(
                 rule_id='pf7_topology_aware_allocation',
                 priority=RulePriority.HIGH,
-                condition=lambda state: self._check_fabric_risk(state, threshold=0.3),
+                condition=lambda state: self._check_fabric_risk(state, threshold=0.12),
                 modulation=lambda state: self._get_safe_nodes(state),
                 description="Avoid borrowing from deadlock-prone paths"
             )
@@ -287,17 +287,29 @@ class CoordinationMatrix:
     
     def _get_safe_nodes(self, state: DistributedStateStore) -> List[int]:
         """
-        Get list of nodes safe for borrowing.
-        
-        Args:
-            state: State store
-            
-        Returns:
-            List of safe node IDs
+        Get list of nodes safe for borrowing (PF7-G).
         """
-        # This would be populated from actual path health metrics
-        # For now, return empty list to signal "use default logic"
-        return []
+        safe_nodes = []
+        # Query PF6 deadlock risk for all fabric sources
+        risky_sources = state.get_all_sources(MetricType.DEADLOCK_RISK)
+        
+        risky_node_ids = set()
+        for source in risky_sources:
+            risk = state.get_current(source, MetricType.DEADLOCK_RISK)
+            if risk is not None and risk > 0.1: # Any risk detected
+                # Extract node ID from source name (e.g., "PF6_Switch_2")
+                try:
+                    nid = int(source.split('_')[-1])
+                    risky_node_ids.add(nid)
+                except:
+                    pass
+        
+        # All nodes not in risky paths are safe
+        for i in range(8): # Assuming 8 nodes
+            if i not in risky_node_ids:
+                safe_nodes.append(i)
+                
+        return safe_nodes
     
     def get_statistics(self) -> Dict[str, Any]:
         """

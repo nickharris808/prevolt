@@ -21,16 +21,18 @@ License: Proprietary - Patent Pending
 import simpy
 import numpy as np
 from dataclasses import dataclass, field
-from typing import Dict, List, Optional, Tuple
+from typing import Dict, List, Optional, Tuple, Any
 import sys
 import os
 
 # Add parent directory to path for imports
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
+from shared.physics_engine import Physics
 from cluster_model import (
     CXLCluster, ClusterConfig, ClusterNode, Job, JobStatus,
-    LocalOnlyAlgorithm, GreedyBorrowAlgorithm, BalancedBorrowAlgorithm
+    LocalOnlyAlgorithm, GreedyBorrowAlgorithm, BalancedBorrowAlgorithm,
+    CooperativeBorrowAlgorithm, PredictivePreBorrowAlgorithm, FairShareBorrowAlgorithm
 )
 
 
@@ -41,7 +43,7 @@ from cluster_model import (
 @dataclass
 class StrandedMemoryConfig:
     """
-    Configuration for the stranded memory simulation.
+    Configuration for the stranded memory simulation (Physics-Correct).
     
     Attributes:
         n_nodes: Number of nodes in cluster
@@ -49,24 +51,24 @@ class StrandedMemoryConfig:
         n_jobs: Number of jobs to simulate
         min_job_memory_gb: Minimum job memory requirement
         max_job_memory_gb: Maximum job memory requirement
-        job_duration_us: Job execution time
-        simulation_duration_us: Total simulation time
+        job_duration_ns: Job execution time
+        simulation_duration_ns: Total simulation time
         fragmentation_level: Initial fragmentation (0-1)
-        local_latency_us: Local memory access latency
-        remote_latency_us: Remote (CXL) access latency
-        job_arrival_rate: Jobs per microsecond
+        local_latency_ns: Local memory access latency
+        remote_latency_ns: Remote (CXL) access latency
+        job_arrival_rate: Jobs per nanosecond
     """
     n_nodes: int = 8
     memory_per_node_gb: float = 128.0
     n_jobs: int = 100
     min_job_memory_gb: float = 32.0
     max_job_memory_gb: float = 96.0
-    job_duration_us: float = 1000.0
-    simulation_duration_us: float = 50000.0  # 50ms
+    job_duration_ns: float = 1_000_000.0 # 1ms
+    simulation_duration_ns: float = 50_000_000.0 # 50ms
     fragmentation_level: float = 0.3
-    local_latency_us: float = 0.1
-    remote_latency_us: float = 1.0
-    job_arrival_rate: float = 0.002  # 2 jobs per ms
+    local_latency_ns: float = Physics.CXL_LOCAL_NS
+    remote_latency_ns: float = Physics.CXL_FABRIC_1HOP_NS
+    job_arrival_rate: float = 0.000002  # 2 jobs per ms
 
 
 # =============================================================================
@@ -77,17 +79,6 @@ class StrandedMemoryConfig:
 class JobRecord:
     """
     Record of a completed/crashed job for analysis.
-    
-    Attributes:
-        job_id: Job identifier
-        memory_required_gb: Memory requested
-        preferred_node: Preferred node
-        status: Final status
-        start_time: Start time (or None if never started)
-        end_time: End time (or crash time)
-        local_memory_gb: Local memory used
-        remote_memory_gb: Remote memory used
-        execution_time_us: Actual execution time
     """
     job_id: int
     memory_required_gb: float
@@ -112,15 +103,6 @@ class JobRecord:
 class SimulationState:
     """
     Tracks simulation state and statistics.
-    
-    Attributes:
-        current_time: Current simulation time
-        jobs_submitted: Total jobs submitted
-        jobs_completed: Jobs that finished successfully
-        jobs_crashed: Jobs that crashed (OOM)
-        job_records: Detailed records for each job
-        cluster_utilization_samples: Time series of utilization
-        stranded_memory_samples: Time series of stranded memory
     """
     current_time: float = 0.0
     jobs_submitted: int = 0
@@ -132,22 +114,12 @@ class SimulationState:
 
 
 # =============================================================================
-# JOB GENERATOR
+# TRAFFIC GENERATOR
 # =============================================================================
 
-def generate_jobs(
-    config: StrandedMemoryConfig,
-    rng: np.random.Generator
-) -> List[Job]:
+def generate_jobs(config: StrandedMemoryConfig, rng: np.random.Generator) -> List[Job]:
     """
-    Generate a batch of jobs with random memory requirements.
-    
-    Args:
-        config: Simulation configuration
-        rng: Random number generator
-        
-    Returns:
-        List of Job objects
+    Generate a set of jobs based on configuration.
     """
     jobs = []
     
@@ -162,13 +134,13 @@ def generate_jobs(
         preferred_node = rng.integers(0, config.n_nodes)
         
         # Random duration (normal distribution around base)
-        duration = max(100, rng.normal(config.job_duration_us, config.job_duration_us * 0.2))
+        duration = max(100, rng.normal(config.job_duration_ns, config.job_duration_ns * 0.2))
         
         job = Job(
             job_id=i,
             memory_required_gb=memory_required,
             preferred_node=preferred_node,
-            duration_us=duration
+            duration_ns=duration
         )
         jobs.append(job)
     
@@ -182,30 +154,25 @@ def generate_jobs(
 def run_stranded_memory_simulation(
     config: StrandedMemoryConfig,
     algorithm_type: str,
-    seed: int
+    seed: int,
+    telemetry_publisher: Optional[Any] = None,
+    coordination_matrix: Optional[Any] = None
 ) -> Dict[str, float]:
     """
     Run a single stranded memory simulation.
-    
-    Args:
-        config: Simulation configuration
-        algorithm_type: 'local_only', 'greedy_borrow', or 'balanced_borrow'
-        seed: Random seed
-        
-    Returns:
-        Dictionary of metrics
     """
     rng = np.random.default_rng(seed)
+    env = simpy.Environment()
     
     # Create cluster
     cluster_config = ClusterConfig(
         n_nodes=config.n_nodes,
         memory_per_node_gb=config.memory_per_node_gb,
-        local_access_latency_us=config.local_latency_us,
-        remote_access_latency_us=config.remote_latency_us,
+        local_access_latency_ns=config.local_latency_ns,
+        remote_access_latency_ns=config.remote_latency_ns,
         fragmentation_level=config.fragmentation_level
     )
-    cluster = CXLCluster(cluster_config)
+    cluster = CXLCluster(cluster_config, telemetry_publisher)
     
     # Apply initial fragmentation
     cluster.apply_fragmentation(rng)
@@ -216,7 +183,7 @@ def run_stranded_memory_simulation(
     elif algorithm_type == 'greedy_borrow':
         allocator = GreedyBorrowAlgorithm(cluster)
     elif algorithm_type == 'balanced_borrow':
-        allocator = BalancedBorrowAlgorithm(cluster)
+        allocator = BalancedBorrowAlgorithm(cluster, coordination_matrix)
     elif algorithm_type == 'cooperative':
         allocator = CooperativeBorrowAlgorithm(cluster)
     elif algorithm_type == 'predictive':
@@ -243,12 +210,25 @@ def run_stranded_memory_simulation(
     for job in jobs:
         inter_arrival = rng.exponential(1.0 / config.job_arrival_rate)
         arrival_time += inter_arrival
-        heapq.heappush(job_queue, (arrival_time, job))
+        heapq_item = (arrival_time, job)
+        import heapq
+        heapq.heappush(job_queue, heapq_item)
     
     # Main simulation loop
     current_time = 0.0
     
-    while current_time < config.simulation_duration_us:
+    while current_time < config.simulation_duration_ns:
+        # Determine next event time
+        next_arrival = job_queue[0][0] if job_queue else float('inf')
+        next_completion = min([comp_time for job, comp_time in active_jobs.values()]) if active_jobs else float('inf')
+        next_event_time = min(next_arrival, next_completion)
+        
+        if next_event_time == float('inf') or next_event_time > config.simulation_duration_ns:
+            current_time = config.simulation_duration_ns
+        else:
+            # Advance time to next event
+            current_time = max(current_time, next_event_time)
+            
         # Process job arrivals
         while job_queue and job_queue[0][0] <= current_time:
             arrival_time, job = heapq.heappop(job_queue)
@@ -260,13 +240,13 @@ def run_stranded_memory_simulation(
             if success:
                 job.status = JobStatus.RUNNING
                 job.start_time = current_time
-                completion_time = current_time + job.duration_us
+                completion_time = current_time + job.duration_ns
                 
-                # Adjust for remote memory penalty
+                # Adjust for remote memory penalty (Physics-Correct: Latency Ratios)
                 if job.remote_memory_gb > 0:
                     remote_fraction = job.remote_memory_gb / job.allocated_memory_gb
-                    latency_penalty = remote_fraction * (config.remote_latency_us / config.local_latency_us)
-                    completion_time += job.duration_us * latency_penalty * 0.1  # 10% penalty per remote fraction
+                    latency_penalty = remote_fraction * (config.remote_latency_ns / config.local_latency_ns)
+                    completion_time += job.duration_ns * latency_penalty * 0.1
                 
                 active_jobs[job.job_id] = (job, completion_time)
             else:
@@ -311,7 +291,7 @@ def run_stranded_memory_simulation(
                     end_time=job.end_time,
                     local_memory_gb=job.local_memory_gb,
                     remote_memory_gb=job.remote_memory_gb,
-                    execution_time_us=job.end_time - job.start_time if job.start_time else 0
+                    execution_time_us=(job.end_time - job.start_time)/1000.0 if job.start_time else 0
                 )
                 state.job_records.append(record)
                 completed_jobs.append(job_id)
@@ -320,21 +300,21 @@ def run_stranded_memory_simulation(
             del active_jobs[job_id]
         
         # Record cluster state periodically
-        if int(current_time) % 100 == 0:
+        if int(current_time) % 10000 == 0:
             state.cluster_utilization_samples.append(
                 (current_time, cluster.cluster_utilization)
             )
             
-            # Calculate stranded memory (free memory on nodes where jobs are waiting)
+            # Calculate stranded memory
             stranded = sum(
                 node.free_memory_gb 
                 for node in cluster.nodes.values() 
                 if node.free_memory_gb > 0 and node.free_memory_gb < config.min_job_memory_gb
             )
             state.stranded_memory_samples.append((current_time, stranded))
-        
-        # Advance time
-        current_time += 1.0
+            
+            # PF8: Publish cluster telemetry
+            cluster.publish_telemetry()
     
     state.current_time = current_time
     
@@ -362,10 +342,8 @@ def compute_metrics(
     if len(state.cluster_utilization_samples) > 0:
         utilizations = [u[1] for u in state.cluster_utilization_samples]
         avg_utilization = float(np.mean(utilizations))
-        max_utilization = float(np.max(utilizations))
     else:
         avg_utilization = 0.0
-        max_utilization = 0.0
     
     # Remote memory usage
     completed_records = [r for r in state.job_records if r.completed]
@@ -376,73 +354,22 @@ def compute_metrics(
             for r in completed_records
         ]
         avg_remote_fraction = float(np.mean(remote_fractions))
-        jobs_using_remote = sum(1 for r in completed_records if r.remote_memory_gb > 0)
-        remote_job_fraction = jobs_using_remote / len(completed_records)
     else:
         avg_remote_fraction = 0.0
-        remote_job_fraction = 0.0
-    
-    # Execution time statistics
-    if len(completed_records) > 0:
-        exec_times = [r.execution_time_us for r in completed_records if r.execution_time_us > 0]
-        if len(exec_times) > 0:
-            avg_exec_time = float(np.mean(exec_times))
-            p99_exec_time = float(np.percentile(exec_times, 99))
-        else:
-            avg_exec_time = 0.0
-            p99_exec_time = 0.0
-    else:
-        avg_exec_time = 0.0
-        p99_exec_time = 0.0
-    
-    # Stranded memory
-    if len(state.stranded_memory_samples) > 0:
-        stranded = [s[1] for s in state.stranded_memory_samples]
-        avg_stranded = float(np.mean(stranded))
-    else:
-        avg_stranded = 0.0
     
     return {
         'completion_rate': completion_rate,
         'crash_rate': crash_rate,
-        'jobs_completed': float(state.jobs_completed),
-        'jobs_crashed': float(state.jobs_crashed),
         'avg_utilization': avg_utilization,
-        'max_utilization': max_utilization,
         'avg_remote_fraction': avg_remote_fraction,
-        'remote_job_fraction': remote_job_fraction,
-        'avg_exec_time_us': avg_exec_time,
-        'p99_exec_time_us': p99_exec_time,
-        'avg_stranded_memory_gb': avg_stranded
+        'jobs_submitted': float(total_jobs),
+        'jobs_completed': float(state.jobs_completed),
+        'jobs_crashed': float(state.jobs_crashed)
     }
 
 
-# =============================================================================
-# STANDALONE TEST
-# =============================================================================
-
 if __name__ == '__main__':
-    print("Testing Stranded Memory Simulation...")
-    print("-" * 50)
-    
-    config = StrandedMemoryConfig(
-        n_nodes=8,
-        n_jobs=50,
-        simulation_duration_us=20000.0,
-        fragmentation_level=0.4
-    )
-    
-    for algo in ['local_only', 'greedy_borrow', 'balanced_borrow']:
+    config = StrandedMemoryConfig(n_jobs=50)
+    for algo in ['local_only', 'balanced_borrow']:
         results = run_stranded_memory_simulation(config, algo, seed=42)
-        print(f"\n{algo.upper().replace('_', ' ')}:")
-        print(f"  Completion Rate: {results['completion_rate']:.2%}")
-        print(f"  Crash Rate: {results['crash_rate']:.2%}")
-        print(f"  Avg Utilization: {results['avg_utilization']:.2%}")
-        print(f"  Remote Job Fraction: {results['remote_job_fraction']:.2%}")
-    
-    print("\n" + "=" * 50)
-    print("Stranded memory simulation test complete!")
-
-
-# Import heapq at the module level for job queue
-import heapq
+        print(f"\n{algo.upper()}: completion={results['completion_rate']:.1%}, utilization={results['avg_utilization']:.1%}")
