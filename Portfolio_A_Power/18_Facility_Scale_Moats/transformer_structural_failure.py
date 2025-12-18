@@ -87,9 +87,15 @@ def simulate_transformer_resonance():
     dt = t[1] - t[0]
     c_damping = 2 * damping_ratio * np.sqrt(k_spring * mass_kg)
     
+    # 3-Phase Balancing Correction (NEW)
+    # In a 3-phase facility, forces on different legs tend to balance.
+    # We introduce a 'Balancing Factor' representing residual unbalance (e.g. 5%)
+    balancing_factor = 0.05 
+    f_drive_unbalanced = f_drive * balancing_factor
+
     for i in range(1, len(t)):
         # Equation of motion: m × a = F_drive - k × x - c × v
-        accel = (f_drive[i] - k_spring * displacement[i-1] - c_damping * velocity[i-1]) / mass_kg
+        accel = (f_drive_unbalanced[i] - k_spring * displacement[i-1] - c_damping * velocity[i-1]) / mass_kg
         velocity[i] = velocity[i-1] + accel * dt
         displacement[i] = displacement[i-1] + velocity[i] * dt
     
@@ -124,17 +130,17 @@ def simulate_transformer_resonance():
     fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(14, 10))
     
     # Force over time
-    ax1.plot(t, f_drive/1e6, 'b-', linewidth=2, label='Lorentz Force (100Hz Resonant)')
-    ax1.set_ylabel("Force (Million Newtons)")
+    ax1.plot(t, f_drive_unbalanced/1e6, 'b-', linewidth=2, label='Unbalanced Lorentz Force (Resonant)')
+    ax1.set_ylabel("Force (MN)")
     ax1.set_title("STARGATE: 100Hz AI Inference → Transformer Lorentz Force")
     ax1.legend()
     ax1.grid(True, alpha=0.3)
     
     # Displacement (Vibration Amplitude)
     ax2.plot(t, displacement*1000, 'r-', linewidth=2, label='Vibration Amplitude (Unsynchronized)')
-    ax2.axhline(yield_displacement_mm, color='black', linestyle='--', linewidth=2, label='Structural Yield (5mm)')
-    ax2.axhline(max_displacement_mm/10, color='green', linestyle=':', linewidth=2, label='AIPP Mitigated (~0.5mm)')
-    ax2.fill_between(t, yield_displacement_mm, max_displacement_mm, alpha=0.3, color='red', label='Failure Zone')
+    ax2.axhline(yield_displacement_mm, color='black', linestyle='--', linewidth=2, label='Operational Limit (10mm)')
+    ax2.axhline(max_displacement_mm/10, color='green', linestyle=':', linewidth=2, label='AIPP Mitigated (~0.01mm)')
+    ax2.fill_between(t, yield_displacement_mm, max_displacement_mm, alpha=0.3, color='red', label='Fatigue Zone')
     ax2.set_ylabel("Displacement (mm)")
     ax2.set_xlabel("Time (s)")
     ax2.set_title("Mechanical Resonance: Vibration Amplitude vs Structural Limits")
