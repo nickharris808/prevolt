@@ -156,13 +156,18 @@ def run_stranded_memory_simulation(
     algorithm_type: str,
     seed: int,
     telemetry_publisher: Optional[Any] = None,
-    coordination_matrix: Optional[Any] = None
+    coordination_matrix: Optional[Any] = None,
+    env: Optional[simpy.Environment] = None
 ) -> Dict[str, float]:
     """
     Run a single stranded memory simulation.
     """
     rng = np.random.default_rng(seed)
-    env = simpy.Environment()
+    
+    local_sim = False
+    if env is None:
+        env = simpy.Environment()
+        local_sim = True
     
     # Create cluster
     cluster_config = ClusterConfig(
@@ -199,127 +204,79 @@ def run_stranded_memory_simulation(
     # Simulation state
     state = SimulationState()
     
-    # Active jobs (job_id -> expected_completion_time)
-    active_jobs: Dict[int, Tuple[Job, float]] = {}
-    
-    # Job queue (arrival_time, job)
-    job_queue = []
-    
-    # Schedule job arrivals
-    arrival_time = 0.0
-    for job in jobs:
-        inter_arrival = rng.exponential(1.0 / config.job_arrival_rate)
-        arrival_time += inter_arrival
-        heapq_item = (arrival_time, job)
-        import heapq
-        heapq.heappush(job_queue, heapq_item)
-    
-    # Main simulation loop
-    current_time = 0.0
-    
-    while current_time < config.simulation_duration_ns:
-        # Determine next event time
-        next_arrival = job_queue[0][0] if job_queue else float('inf')
-        next_completion = min([comp_time for job, comp_time in active_jobs.values()]) if active_jobs else float('inf')
-        next_event_time = min(next_arrival, next_completion)
+    # Simulation process (since PF7 doesn't have a natural background process)
+    def pf7_process():
+        # Active jobs (job_id -> expected_completion_time)
+        active_jobs: Dict[int, Tuple[Job, float]] = {}
         
-        if next_event_time == float('inf') or next_event_time > config.simulation_duration_ns:
-            current_time = config.simulation_duration_ns
-        else:
-            # Advance time to next event
-            current_time = max(current_time, next_event_time)
-            
-        # Process job arrivals
-        while job_queue and job_queue[0][0] <= current_time:
-            arrival_time, job = heapq.heappop(job_queue)
-            state.jobs_submitted += 1
-            
-            # Attempt allocation
-            success = allocator.allocate(job)
-            
-            if success:
-                job.status = JobStatus.RUNNING
-                job.start_time = current_time
-                completion_time = current_time + job.duration_ns
-                
-                # Adjust for remote memory penalty (Physics-Correct: Latency Ratios)
-                if job.remote_memory_gb > 0:
-                    remote_fraction = job.remote_memory_gb / job.allocated_memory_gb
-                    latency_penalty = remote_fraction * (config.remote_latency_ns / config.local_latency_ns)
-                    completion_time += job.duration_ns * latency_penalty * 0.1
-                
-                active_jobs[job.job_id] = (job, completion_time)
-            else:
-                # OOM crash
-                job.status = JobStatus.CRASHED
-                job.end_time = current_time
-                state.jobs_crashed += 1
-                
-                record = JobRecord(
-                    job_id=job.job_id,
-                    memory_required_gb=job.memory_required_gb,
-                    preferred_node=job.preferred_node,
-                    status=job.status,
-                    start_time=None,
-                    end_time=current_time,
-                    local_memory_gb=0.0,
-                    remote_memory_gb=0.0
-                )
-                state.job_records.append(record)
+        # Job queue (arrival_time, job)
+        job_queue = []
         
-        # Process job completions
-        completed_jobs = []
-        for job_id, (job, completion_time) in active_jobs.items():
-            if completion_time <= current_time:
-                job.status = JobStatus.COMPLETED
-                job.end_time = current_time
-                state.jobs_completed += 1
-                
-                # Free memory
-                for block in job.memory_blocks:
-                    source_node = block.source_node if block.is_remote else block.node_id
-                    if source_node is not None and source_node in cluster.nodes:
-                        cluster.nodes[source_node].lending_memory_gb -= block.size_gb
-                    cluster.nodes[block.node_id].free_memory_block(block)
-                
-                record = JobRecord(
-                    job_id=job.job_id,
-                    memory_required_gb=job.memory_required_gb,
-                    preferred_node=job.preferred_node,
-                    status=job.status,
-                    start_time=job.start_time,
-                    end_time=job.end_time,
-                    local_memory_gb=job.local_memory_gb,
-                    remote_memory_gb=job.remote_memory_gb,
-                    execution_time_us=(job.end_time - job.start_time)/1000.0 if job.start_time else 0
-                )
-                state.job_records.append(record)
-                completed_jobs.append(job_id)
-        
-        for job_id in completed_jobs:
-            del active_jobs[job_id]
-        
-        # Record cluster state periodically
-        if int(current_time) % 10000 == 0:
-            state.cluster_utilization_samples.append(
-                (current_time, cluster.cluster_utilization)
-            )
+        # Schedule job arrivals
+        arrival_time = 0.0
+        for job in jobs:
+            inter_arrival = rng.exponential(1.0 / config.job_arrival_rate)
+            arrival_time += inter_arrival
+            import heapq
+            heapq.heappush(job_queue, (arrival_time, job))
             
-            # Calculate stranded memory
-            stranded = sum(
-                node.free_memory_gb 
-                for node in cluster.nodes.values() 
-                if node.free_memory_gb > 0 and node.free_memory_gb < config.min_job_memory_gb
-            )
-            state.stranded_memory_samples.append((current_time, stranded))
+        while env.now < config.simulation_duration_ns:
+            # Process job arrivals
+            import heapq
+            while job_queue and job_queue[0][0] <= env.now:
+                arrival_time, job = heapq.heappop(job_queue)
+                state.jobs_submitted += 1
+                
+                success = allocator.allocate(job)
+                
+                if success:
+                    job.status = JobStatus.RUNNING
+                    job.start_time = env.now
+                    completion_time = env.now + job.duration_ns
+                    
+                    if job.remote_memory_gb > 0:
+                        remote_fraction = job.remote_memory_gb / job.allocated_memory_gb
+                        latency_penalty = remote_fraction * (config.remote_latency_ns / config.local_latency_ns)
+                        completion_time += job.duration_ns * latency_penalty * 0.1
+                    
+                    active_jobs[job.job_id] = (job, completion_time)
+                else:
+                    job.status = JobStatus.CRASHED
+                    job.end_time = env.now
+                    state.jobs_crashed += 1
+                    state.job_records.append(JobRecord(job.job_id, job.memory_required_gb, job.preferred_node, job.status, None, env.now, 0.0, 0.0))
             
-            # PF8: Publish cluster telemetry
-            cluster.publish_telemetry()
+            # Process completions
+            completed_jobs = []
+            for job_id, (job, completion_time) in active_jobs.items():
+                if completion_time <= env.now:
+                    job.status = JobStatus.COMPLETED
+                    job.end_time = env.now
+                    state.jobs_completed += 1
+                    for block in job.memory_blocks:
+                        source_node = block.source_node if block.is_remote else block.node_id
+                        if source_node is not None and source_node in cluster.nodes:
+                            cluster.nodes[source_node].lending_memory_gb -= block.size_gb
+                        cluster.nodes[block.node_id].free_memory_block(block)
+                    state.job_records.append(JobRecord(job.job_id, job.memory_required_gb, job.preferred_node, job.status, job.start_time, job.end_time, job.local_memory_gb, job.remote_memory_gb, (job.end_time-job.start_time)/1000.0))
+                    completed_jobs.append(job_id)
+            
+            for job_id in completed_jobs: del active_jobs[job_id]
+            
+            # Telemetry
+            if int(env.now) % 10000 == 0:
+                state.cluster_utilization_samples.append((env.now, cluster.cluster_utilization))
+                cluster.publish_telemetry()
+                
+            yield env.timeout(100.0) # 100ns tick for allocation
+
+    env.process(pf7_process())
     
-    state.current_time = current_time
-    
-    # Compute metrics
-    return compute_metrics(config, cluster, state)
+    if local_sim:
+        env.run(until=config.simulation_duration_ns)
+        return compute_metrics(config, cluster, state)
+    else:
+        return (cluster, state)
 
 
 def compute_metrics(

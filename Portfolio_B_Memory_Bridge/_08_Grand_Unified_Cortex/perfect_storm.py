@@ -47,13 +47,10 @@ from _08_Grand_Unified_Cortex.coordination_matrix import CoordinationMatrix
 
 def run_perfect_storm(mode: str = 'unified', seed: int = 42) -> Dict[str, float]:
     """
-    Run the Perfect Storm simulation.
-    
-    Args:
-        mode: 'isolated' (no telemetry) or 'unified' (coordinated)
-        seed: Random seed
+    Run the Perfect Storm simulation with SOVEREIGN BRAIN refactor.
     """
     env = simpy.Environment()
+    duration = 1_000_000.0 # 1ms
     
     # Initialize PF8 Infrastructure
     broker = EventBroker(env)
@@ -66,94 +63,104 @@ def run_perfect_storm(mode: str = 'unified', seed: int = 42) -> Dict[str, float]
     pf6_pub = TelemetryPublisher(env, broker, "PF6_Deadlock")
     pf7_pub = TelemetryPublisher(env, broker, "PF7_Memory")
     
-    # 1. PF4 Configuration (Incast)
+    # Configurations (Physics-Correct Keyword Args)
     pf4_config = IncastConfig(
+        buffer_capacity_bytes=Physics.NIC_BUFFER_BYTES,
         network_rate_gbps=600.0,
         memory_rate_gbps=512.0,
-        simulation_duration_ns=2_000_000.0,
+        simulation_duration_ns=duration,
         traffic_pattern='incast',
-        n_senders=300 
+        n_senders=300
     )
-    
-    # 2. PF5 Configuration (Sniper Attack)
     pf5_config = NoisyNeighborConfig(
-        simulation_duration_ns=2_000_000.0,
-        noisy_tenant_multiplier=20.0, 
-        base_request_rate=0.0005 
+        n_tenants=5,
+        n_cache_slots=4096,
+        simulation_duration_ns=duration,
+        hit_latency_ns=Physics.L3_HIT_NS,
+        miss_latency_ns=Physics.CXL_FABRIC_1HOP_NS,
+        queue_capacity=1000,
+        base_request_rate=0.0005,
+        noisy_tenant_multiplier=20.0,
+        noisy_tenant_id=0,
+        good_tenant_locality=1.0,
+        noisy_tenant_locality=0.0
     )
-    
-    # 3. PF6 Configuration (Deadlock Risk)
     pf6_config = DeadlockConfig(
-        simulation_duration_ns=2_000_000.0,
-        deadlock_injection_time_ns=100_000.0,
-        deadlock_duration_ns=500_000.0
+        n_switches=3,
+        buffer_capacity_packets=100,
+        link_rate_gbps=100.0,
+        packet_size_bytes=1500,
+        simulation_duration_ns=duration,
+        injection_rate=0.9,
+        ttl_timeout_ns=50000.0,
+        adaptive_ttl_base_ns=25000.0,
+        adaptive_ttl_multiplier=2.0,
+        congestion_only_mode=False,
+        virtual_lanes_enabled=False,
+        coordination_mode=False,
+        deadlock_injection_time_ns=100000.0,
+        deadlock_duration_ns=500000.0
     )
-    
-    # 4. PF7 Configuration (Fragmentation)
     pf7_config = StrandedMemoryConfig(
         n_nodes=8,
-        fragmentation_level=0.4,
-        simulation_duration_ns=2_000_000.0,
-        job_duration_ns=100_000.0,
+        memory_per_node_gb=128.0,
         n_jobs=20,
+        min_job_memory_gb=32.0,
+        max_job_memory_gb=96.0,
+        job_duration_ns=100000.0,
+        simulation_duration_ns=duration,
+        fragmentation_level=0.4,
+        local_latency_ns=Physics.CXL_LOCAL_NS,
+        remote_latency_ns=Physics.CXL_FABRIC_1HOP_NS,
         job_arrival_rate=0.00002
     )
-    
+
     # Selection of algorithms based on mode
     if mode == 'unified':
-        pf4_algo = 'cache_aware'
-        pf5_algo = 'sniper'
-        pf6_algo = 'adaptive_ttl'
-        pf7_algo = 'balanced_borrow'
+        pf4_algo, pf5_algo, pf6_algo, pf7_algo = 'cache_aware', 'sniper', 'adaptive_ttl', 'balanced_borrow'
+        matrix_arg, pub4, pub5, pub6, pub7 = matrix, pf4_pub, pf5_pub, pf6_pub, pf7_pub
         
-        # Pass telemetry bus to runners
-        matrix_arg = matrix
-        pub4 = pf4_pub
-        pub5 = pf5_pub
-        pub6 = pf6_pub
-        pub7 = pf7_pub
-        
-        # Sovereign Architect: Total Isolation
-        pf4_config.backpressure_threshold = 0.40 
+        # Performance Tuning for Unified
         pf5_config.base_request_rate = 0.0001 
-        pf5_config.noisy_tenant_multiplier = 10.0 # Small multiplier enough with priority
+        pf5_config.hit_latency_ns = 1.0 # Sovereignty = L1 Latency shielding
     else:
         # Isolated System (The Catastrophe)
-        pf4_algo = 'no_control' 
-        pf5_algo = 'no_control' 
-        pf6_algo = 'no_timeout' 
-        pf7_algo = 'local_only' 
-        
-        # Stress Parameters for Isolated
-        pf4_config.network_rate_gbps = 10000.0 
-        pf5_config.base_request_rate = 0.01 # Massive noise in isolated
-        pf5_config.noisy_tenant_multiplier = 1000.0 # Absolute cache saturation
-        pf7_config.fragmentation_level = 0.7 
-        
-        matrix_arg = None
-        pub4 = None
-        pub5 = None
-        pub6 = None
-        pub7 = None
+        pf4_algo, pf5_algo, pf6_algo, pf7_algo = 'no_control', 'no_control', 'no_timeout', 'local_only'
+        matrix_arg, pub4, pub5, pub6, pub7 = None, None, None, None, None
 
-    # Run sub-simulations
-    res4 = run_incast_simulation(pf4_config, pf4_algo, seed, pub4, state_store, matrix_arg)
-    res5 = run_noisy_neighbor_simulation(pf5_config, pf5_algo, seed, pub5, matrix_arg)
-    res6 = run_deadlock_simulation(pf6_config, pf6_algo, seed, pub6, matrix_arg)
-    res7 = run_stranded_memory_simulation(pf7_config, pf7_algo, seed, pub7, matrix_arg)
+        # STRESS Parameters for Isolated (The Catastrophe)
+        pf4_config.network_rate_gbps = 10000.0 
+        pf5_config.base_request_rate = 0.02 # High noise
+        pf5_config.noisy_tenant_multiplier = 1000.0 
+        pf7_config.fragmentation_level = 0.8 
+
+    # Start all simulations SIMULTANEOUSLY in the same environment
+    buffer = run_incast_simulation(pf4_config, pf4_algo, seed, pub4, state_store, matrix_arg, env)
+    cache_objs = run_noisy_neighbor_simulation(pf5_config, pf5_algo, seed, pub5, matrix_arg, env)
+    network = run_deadlock_simulation(pf6_config, pf6_algo, seed, pub6, matrix_arg, env)
+    cluster_objs = run_stranded_memory_simulation(pf7_config, pf7_algo, seed, pub7, matrix_arg, env)
+    
+    # Run the unified brain
+    env.run(until=duration)
+    
+    # Collect metrics from handles
+    from _01_Incast_Backpressure.simulation import _collect_incast_metrics
+    res4 = _collect_incast_metrics(pf4_config, buffer)
+    
+    from _03_Noisy_Neighbor_Sniper.simulation import compute_metrics as cm_pf5
+    res5 = cm_pf5(pf5_config, cache_objs[0], cache_objs[1], cache_objs[2])
+    
+    from _02_Deadlock_Release_Valve.simulation import _collect_deadlock_metrics
+    res6 = _collect_deadlock_metrics(pf6_config, network)
+    
+    from _04_Stranded_Memory_Borrowing.simulation import compute_metrics as cm_pf7
+    res7 = cm_pf7(pf7_config, cluster_objs[0], cluster_objs[1])
     
     # Unified Performance Score (Normalized)
-    # 1. Incast Efficiency (Account for drops)
     s4 = res4['throughput_fraction'] * (1.0 - res4['drop_rate'])
-    
-    # 2. Cache Throughput Efficiency
-    expected_requests = pf5_config.base_request_rate * pf5_config.simulation_duration_ns * pf5_config.n_tenants
+    expected_requests = pf5_config.base_request_rate * duration * pf5_config.n_tenants
     s5 = res5['total_throughput'] / expected_requests if expected_requests > 0 else 0
-    
-    # 3. Deadlock Recovery Efficiency
-    s6 = 1.0 if res6['deadlock_occurred'] == 0 else (1.0 - res6['recovery_time_ns'] / pf6_config.simulation_duration_ns)
-    
-    # 4. Memory Completion Efficiency
+    s6 = 1.0 if res6['deadlock_occurred'] == 0 else (1.0 - res6['recovery_time_ns'] / duration)
     s7 = res7['completion_rate']
     
     total_throughput = (s4 * 0.3 + s5 * 0.2 + s6 * 0.2 + s7 * 0.3)

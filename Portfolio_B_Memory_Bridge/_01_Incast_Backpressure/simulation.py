@@ -689,27 +689,20 @@ def run_incast_simulation(
     seed: int,
     telemetry_publisher: Optional['TelemetryPublisher'] = None,
     state_store: Optional['DistributedStateStore'] = None,
-    coordination_matrix: Optional['CoordinationMatrix'] = None
+    coordination_matrix: Optional['CoordinationMatrix'] = None,
+    env: Optional[simpy.Environment] = None
 ) -> Dict[str, float]:
     """
     Run a single incast simulation with the specified algorithm.
-    
-    Args:
-        config: Simulation configuration
-        algorithm_type: 'no_control', 'static', 'hysteresis', 'predictive', 'cache_aware'
-        seed: Random seed for reproducibility
-        telemetry_publisher: Optional PF8 telemetry publisher
-        state_store: Optional PF8 state store
-        coordination_matrix: Optional PF8 coordination matrix
-        
-    Returns:
-        Dictionary of metric name -> value
     """
     # Initialize random number generator
     rng = np.random.default_rng(seed)
     
-    # Create SimPy environment
-    env = simpy.Environment()
+    # Use provided environment or create new one
+    local_sim = False
+    if env is None:
+        env = simpy.Environment()
+        local_sim = True
     
     # Create buffer with optional telemetry
     buffer = MemoryBuffer(env, config, telemetry_publisher)
@@ -724,7 +717,6 @@ def run_incast_simulation(
     elif algorithm_type == 'predictive':
         backpressure = PredictiveHysteresisAlgorithm(buffer, config)
     elif algorithm_type == 'cache_aware':
-        # PF4-G: Cache-Aware HWM with PF8 coordination
         backpressure = CacheAwareHWMAlgorithm(buffer, config, state_store, coordination_matrix)
     else:
         raise ValueError(f"Unknown algorithm type: {algorithm_type}")
@@ -743,13 +735,16 @@ def run_incast_simulation(
     env.process(generator(env, buffer, backpressure, config, rng))
     env.process(memory_drain_process(env, buffer, config))
     
-    # Run simulation
-    env.run(until=config.simulation_duration_ns)
-    
-    # Collect metrics
+    if local_sim:
+        # Run simulation
+        env.run(until=config.simulation_duration_ns)
+        return _collect_incast_metrics(config, buffer)
+    else:
+        # Return a handle to the buffer so metrics can be collected later
+        return buffer
+
+def _collect_incast_metrics(config: IncastConfig, buffer: MemoryBuffer) -> Dict[str, float]:
     state = buffer.state
-    
-    # Calculate utilization
     utilization = state.total_drain_time_ns / config.simulation_duration_ns
     
     # Calculate queue depth statistics
@@ -757,17 +752,10 @@ def run_incast_simulation(
         queue_depths = [d[1] for d in state.queue_depth_samples]
         avg_queue_depth = np.mean(queue_depths)
         max_queue_depth = np.max(queue_depths)
-        queue_depth_std = np.std(queue_depths)
-        
-        # Occupancy as fraction of capacity
         avg_occupancy = avg_queue_depth / config.buffer_capacity_bytes
         max_occupancy = max_queue_depth / config.buffer_capacity_bytes
     else:
-        avg_queue_depth = 0.0
-        max_queue_depth = 0.0
-        queue_depth_std = 0.0
-        avg_occupancy = 0.0
-        max_occupancy = 0.0
+        avg_queue_depth = max_queue_depth = avg_occupancy = max_occupancy = 0.0
     
     return {
         'drop_rate': state.drop_rate,
@@ -777,7 +765,6 @@ def run_incast_simulation(
         'avg_occupancy': avg_occupancy,
         'max_occupancy': max_occupancy,
         'avg_queue_depth_bytes': avg_queue_depth,
-        'queue_depth_std': queue_depth_std,
         'packets_arrived': float(state.packets_arrived),
         'packets_dropped': float(state.packets_dropped),
         'packets_drained': float(state.packets_drained),

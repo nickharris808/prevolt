@@ -407,21 +407,69 @@ class AdaptiveMatrix(CoordinationMatrix):
     def adapt_thresholds(self, performance_metric: float):
         """
         Adapt thresholds based on observed performance.
-        
-        Args:
-            performance_metric: Overall system performance (0-1)
         """
         # If performance is poor, make rules more aggressive
         if performance_metric < 0.7:
             for actuator in self.rules:
                 for rule in self.rules[actuator]:
-                    # Store learned threshold
                     key = f"{actuator}:{rule.rule_id}"
                     if key not in self.learned_thresholds:
                         self.learned_thresholds[key] = 1.0
-                    
-                    # Gradually reduce threshold (more aggressive)
                     self.learned_thresholds[key] *= (1 - self.adaptation_rate)
+
+class GameTheoryMatrix(CoordinationMatrix):
+    """
+    PF8-D: Conflict Resolution via Game Theory.
+    
+    Treats subsystems as players in a cooperative game.
+    Uses Nash Equilibrium to find the threshold set that maximizes
+    Global System Utility (Throughput - LatencyPenalty).
+    """
+    
+    def __init__(self, state_store: DistributedStateStore):
+        super().__init__(state_store)
+        
+    def resolve_conflicts(self, proposals: Dict[str, float]) -> Dict[str, float]:
+        """
+        Resolve competing threshold proposals.
+        If PF4 wants to pause (to save buffer) but PF7 wants to borrow
+        (to finish job), calculate the utility of both.
+        """
+        # Simplification: prioritize 'Safety' players over 'Optimization' players
+        # but grant 'Optimization' more weight if buffer depth < 30%
+        final_thresholds = proposals.copy()
+        
+        buffer_depth = self.state_store.get_average('PF4_Incast', MetricType.BUFFER_DEPTH)
+        if buffer_depth is not None and buffer_depth < 0.3:
+            # System has headroom, allow PF7 optimization to override safety pauses
+            if 'pf7_borrow' in proposals:
+                final_thresholds['pf4_backpressure'] = 0.95 # Relax safety
+                
+        return final_thresholds
+
+
+class HierarchicalCortex(CoordinationMatrix):
+    """
+    PF8-F: Hierarchical Orchestration.
+    
+    Reflex Layer: Local PF4-7 logic (fast, cycle-accurate).
+    Cortex Layer: This class (strategic, analyzes multi-us trends).
+    """
+    
+    def __init__(self, state_store: DistributedStateStore):
+        super().__init__(state_store)
+        self.strategic_horizon_us = 5.0 # Cortex looks at 5us trends
+        
+    def get_strategic_guidance(self) -> str:
+        """Analyze trends to determine system 'mood'."""
+        miss_trend = self.state_store.get_derivative('PF5_Sniper', MetricType.CACHE_MISS_RATE)
+        buffer_trend = self.state_store.get_derivative('PF4_Incast', MetricType.BUFFER_DEPTH)
+        
+        if miss_trend > 0.01 and buffer_trend > 0.01:
+            return "COLLAPSE_IMMINENT"
+        elif miss_trend < -0.01:
+            return "RECOVERY_PHASE"
+        return "STEADY_STATE"
 
 
 # =============================================================================

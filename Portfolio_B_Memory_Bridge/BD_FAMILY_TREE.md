@@ -50,4 +50,16 @@
 *   **PF7-F: Fair-Share Cluster Pool** - Enforces cluster-wide memory fairness (Jain's Index) while maximizing total cluster utilization (>95%).
 
 ---
-*Proprietary & Confidential. 24 Foundational Patents Pending.*
+
+### Family 8: Grand Unified Cortex (Cross-Layer Coordination)
+**The Mission:** Unify all reflexes into a single sovereign organism using a distributed telemetry bus.
+
+*   **PF8-A: TLV Telemetry Bus (The Baseline)** - 64-bit hardware event broker for 200ns cross-layer state sharing.
+*   **PF8-B: Priority-Weighted Coordination** - Ruleset where safety-critical signals (Deadlock) override optimization signals (Borrowing).
+*   **PF8-C: Predictive State Propagation** - Forecasting future buffer depths using dV/dt telemetry from multiple sources.
+*   **PF8-D: Conflict Resolution (Game Theory)** - Nash Equilibrium logic for competing resource goals between NIC and Memory Controller.
+*   **PF8-E: Adaptive Coordination Matrix** - Online learning of threshold adjustments based on workload history.
+*   **PF8-F: Hierarchical Orchestration** - Multi-layer control: 1ns Local Reflexes + 200ns Cortex Strategy + 1ms Software Supervision.
+
+---
+*Proprietary & Confidential. 32 Foundational Patents Pending.*

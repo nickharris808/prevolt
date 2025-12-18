@@ -333,10 +333,16 @@ def run_deadlock_simulation(
     algorithm_type: str,
     seed: int,
     telemetry_publisher: Optional['TelemetryPublisher'] = None,
-    coordination_matrix: Optional['CoordinationMatrix'] = None
+    coordination_matrix: Optional['CoordinationMatrix'] = None,
+    env: Optional[simpy.Environment] = None
 ) -> Dict[str, float]:
     rng = np.random.default_rng(seed)
-    env = simpy.Environment()
+    
+    local_sim = False
+    if env is None:
+        env = simpy.Environment()
+        local_sim = True
+        
     ttl_map = {'no_timeout': 'none', 'fixed_ttl': 'fixed', 'adaptive_ttl': 'adaptive', 'coordinated': 'fixed', 'shuffling': 'adaptive'}
     ttl_algorithm = ttl_map.get(algorithm_type, 'none')
     if algorithm_type == 'coordinated': config.coordination_mode = True
@@ -350,8 +356,14 @@ def run_deadlock_simulation(
     env.process(traffic_generator(env, network, config, rng))
     env.process(deadlock_monitor(env, network, config))
     for s in network.switches.values(): env.process(switch_forwarder(env, s, config, coordination_matrix))
-    env.run(until=config.simulation_duration_ns)
     
+    if local_sim:
+        env.run(until=config.simulation_duration_ns)
+        return _collect_deadlock_metrics(config, network)
+    else:
+        return network
+
+def _collect_deadlock_metrics(config: DeadlockConfig, network: DeadlockNetwork) -> Dict[str, float]:
     total_forwarded = sum(s.packets_forwarded for s in network.switches.values())
     total_dropped_ttl = sum(s.packets_dropped_ttl for s in network.switches.values())
     throughputs = [t[1] for t in network.total_throughput_samples]

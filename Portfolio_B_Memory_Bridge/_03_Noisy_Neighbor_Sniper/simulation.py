@@ -304,10 +304,15 @@ def run_noisy_neighbor_simulation(
     algorithm_type: str,
     seed: int,
     telemetry_publisher: Optional['TelemetryPublisher'] = None,
-    coordination_matrix: Optional['CoordinationMatrix'] = None
+    coordination_matrix: Optional['CoordinationMatrix'] = None,
+    env: Optional[simpy.Environment] = None
 ) -> Dict[str, float]:
     rng = np.random.default_rng(seed)
-    env = simpy.Environment()
+    
+    local_sim = False
+    if env is None:
+        env = simpy.Environment()
+        local_sim = True
     
     cache = SharedCache(
         env=env,
@@ -336,9 +341,11 @@ def run_noisy_neighbor_simulation(
     for profile in profiles:
         env.process(tenant_process(env, profile, throttler, cache, state, rng))
     
-    env.run(until=config.simulation_duration_ns)
-    
-    return compute_metrics(config, cache, state, profiles)
+    if local_sim:
+        env.run(until=config.simulation_duration_ns)
+        return compute_metrics(config, cache, state, profiles)
+    else:
+        return (cache, state, profiles)
 
 def compute_metrics(config, cache, state, profiles):
     all_throughputs = list(state.per_tenant_throughputs.values())
@@ -349,8 +356,8 @@ def compute_metrics(config, cache, state, profiles):
         if tid != config.noisy_tenant_id:
             good_latencies.extend(latencies)
             
-    good_p99_ns = np.percentile(good_latencies, 99) if good_latencies else 0.0
-    good_avg_ns = np.mean(good_latencies) if good_latencies else 0.0
+    good_p99_ns = (np.percentile(good_latencies, 99) if good_latencies else 0.0) + (len(cache.controller.queue) * config.miss_latency_ns)
+    good_avg_ns = (np.mean(good_latencies) if good_latencies else 0.0) + (len(cache.controller.queue) * config.miss_latency_ns)
     
     noisy_throughput = state.per_tenant_throughputs.get(config.noisy_tenant_id, 0)
     noisy_share = noisy_throughput / max(1, total_throughput)
