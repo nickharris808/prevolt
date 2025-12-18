@@ -267,6 +267,51 @@ class SimulationState:
 # SIMULATION RUNNER
 # =============================================================================
 
+class VelocitySniperAlgorithm(ThrottlingAlgorithm):
+    """
+    Miss-Rate Velocity Tracker (PF5-E).
+    
+    Reacts to the RAMP UP of miss rates to catch bullies earlier.
+    """
+    
+    def __init__(self, config: NoisyNeighborConfig, cache: SharedCache):
+        super().__init__(config, cache)
+        self.last_miss_rates = {}
+        self.throttle_state = {}
+        
+    def should_admit(self, tenant_id: int, current_time: float) -> bool:
+        if tenant_id in self.throttle_state:
+            if current_time < self.throttle_state[tenant_id]:
+                return False
+            else:
+                del self.throttle_state[tenant_id]
+        
+        current_rate = self.cache.flow_tracker.get_tenant_miss_rate(tenant_id)
+        last_rate = self.last_miss_rates.get(tenant_id, 0.0)
+        self.last_miss_rates[tenant_id] = current_rate
+        
+        velocity = current_rate - last_rate
+        if velocity > 0.2: # Sharp increase in miss rate
+            self.throttle_state[tenant_id] = current_time + 1000.0
+            return False
+            
+        return True
+
+class HybridSniperAlgorithm(ThrottlingAlgorithm):
+    """
+    Fairness/Sniper Hybrid (PF5-F).
+    """
+    
+    def __init__(self, config: NoisyNeighborConfig, cache: SharedCache):
+        super().__init__(config, cache)
+        self.sniper = SniperAlgorithm(config, cache)
+        self.fair_share = FairShareAlgorithm(config, cache)
+        
+    def should_admit(self, tenant_id: int, current_time: float) -> bool:
+        # Use sniper for outliers, but fair share for aggregate congestion
+        return self.sniper.should_admit(tenant_id, current_time) and \
+               self.fair_share.should_admit(tenant_id, current_time)
+
 def tenant_process(env, profile, throttler, cache, state, rng):
     """
     SimPy process for a single tenant.
@@ -333,6 +378,10 @@ def run_noisy_neighbor_simulation(
         throttler = VIPAlgorithm(config, cache)
     elif algorithm_type == 'sniper':
         throttler = SniperAlgorithm(config, cache)
+    elif algorithm_type == 'velocity':
+        throttler = VelocitySniperAlgorithm(config, cache)
+    elif algorithm_type == 'hybrid':
+        throttler = HybridSniperAlgorithm(config, cache)
     else:
         raise ValueError(f"Unknown algorithm: {algorithm_type}")
     

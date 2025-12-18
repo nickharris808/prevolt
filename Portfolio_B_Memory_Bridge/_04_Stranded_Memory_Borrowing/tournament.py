@@ -128,6 +128,20 @@ class JitterMitigatedTunneling(Algorithm):
         return run_stranded_memory_simulation(config, 'balanced_borrow', seed)
 
 
+class CooperativeBorrowAlgorithm(Algorithm):
+    """
+    Cooperative Borrow: Negotiated loans (PF7-D).
+    """
+    
+    @property
+    def name(self) -> str:
+        return "Cooperative Borrow (PF7-D)"
+    
+    def run(self, scenario: Scenario, seed: int) -> Dict[str, float]:
+        config = StrandedMemoryConfig(**scenario.params)
+        return run_stranded_memory_simulation(config, 'cooperative', seed)
+
+
 # =============================================================================
 # SCENARIO DEFINITIONS
 # =============================================================================

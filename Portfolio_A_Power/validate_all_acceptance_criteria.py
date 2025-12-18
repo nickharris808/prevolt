@@ -103,6 +103,12 @@ def validate_all():
     results.append(("Planetary Migration", run_test("22_Planetary_Orchestration/inference_load_migrator.py", "Global Sun-Follower")))
     results.append(("Atomic Fabric", run_test("23_Atomic_Timing/phase_drift_compensation_sim.py", "Perfect Time")))
     
+    # Tier 11: $100B+ Sovereign Orchestration
+    print("\n$100B+ SOVEREIGN ORCHESTRATION (TIER 11)")
+    print("-" * 30)
+    results.append(("Planetary Arbitrage", run_test("24_Sovereign_Orchestration/planetary_carbon_arbitrage.py", "Sun-Follower")))
+    results.append(("Sovereign Inertia", run_test("24_Sovereign_Orchestration/sovereign_grid_inertia.py", "Grid Stabilizer")))
+    
     # Summary
     print("\n" + "="*80)
     print("VALIDATION SUMMARY")
@@ -118,7 +124,7 @@ def validate_all():
     print(f"\nFinal Score: {passed_tests}/{total_tests} components passed")
     
     if passed_tests == total_tests:
-        print("\n🎯 PORTFOLIO A IS VALIDATED AT THE $100 BILLION+ OMEGA TIER")
+        print("\n🎯 PORTFOLIO A IS VALIDATED AT THE $100 BILLION+ GLOBAL SOVEREIGN TIER")
     else:
         print("\n⚠️ Some components failed validation. Review logs above.")
 

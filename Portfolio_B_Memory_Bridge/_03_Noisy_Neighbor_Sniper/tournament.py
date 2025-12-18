@@ -146,8 +146,6 @@ class AggregatedSniperAlgorithm(Algorithm):
 class ControlTrafficProtector(Algorithm):
     """
     Control/Collective Traffic Protection (PF5-D).
-    
-    Ensures <10us latency for high-priority UEC traffic classes.
     """
     
     @property
@@ -155,10 +153,36 @@ class ControlTrafficProtector(Algorithm):
         return "UEC Priority Shield (PF5-D)"
     
     def run(self, scenario: Scenario, seed: int) -> Dict[str, float]:
-        # We simulate high-priority protection by bypassing throttles
-        # for a designated subset of traffic (modeled here by lower base latency).
         config = NoisyNeighborConfig(**scenario.params, hit_latency_us=0.5)
         return run_noisy_neighbor_simulation(config, 'sniper', seed)
+
+
+class VelocitySniperAlgorithm(Algorithm):
+    """
+    Miss-Rate Velocity Tracker (PF5-E).
+    """
+    
+    @property
+    def name(self) -> str:
+        return "Velocity Tracker (PF5-E)"
+    
+    def run(self, scenario: Scenario, seed: int) -> Dict[str, float]:
+        config = NoisyNeighborConfig(**scenario.params)
+        return run_noisy_neighbor_simulation(config, 'velocity', seed)
+
+
+class HybridSniperAlgorithm(Algorithm):
+    """
+    Fairness/Sniper Hybrid (PF5-F).
+    """
+    
+    @property
+    def name(self) -> str:
+        return "Hybrid Sniper (PF5-F)"
+    
+    def run(self, scenario: Scenario, seed: int) -> Dict[str, float]:
+        config = NoisyNeighborConfig(**scenario.params)
+        return run_noisy_neighbor_simulation(config, 'hybrid', seed)
 
 
 # =============================================================================
@@ -467,7 +491,9 @@ def main():
         SniperAlgorithm(),
         GraduatedSniperAlgorithm(),
         AggregatedSniperAlgorithm(),
-        ControlTrafficProtector()
+        ControlTrafficProtector(),
+        VelocitySniperAlgorithm(),
+        HybridSniperAlgorithm()
     ]
     
     # Create scenarios

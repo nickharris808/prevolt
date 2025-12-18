@@ -217,6 +217,8 @@ def run_stranded_memory_simulation(
         allocator = GreedyBorrowAlgorithm(cluster)
     elif algorithm_type == 'balanced_borrow':
         allocator = BalancedBorrowAlgorithm(cluster)
+    elif algorithm_type == 'cooperative':
+        allocator = CooperativeBorrowAlgorithm(cluster)
     else:
         raise ValueError(f"Unknown algorithm: {algorithm_type}")
     
