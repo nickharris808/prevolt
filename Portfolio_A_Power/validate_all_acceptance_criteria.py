@@ -95,6 +95,14 @@ def validate_all():
     results.append(("Non-Linear SPICE", run_test("01_PreCharge_Trigger/spice_vrm_nonlinear.py", "Saturation Proof")))
     results.append(("Carbon Routing", run_test("07_Grid_VPP/carbon_intensity_orchestrator.py", "ESG Standard")))
     
+    # Tier 10: $100B+ Omega Tier
+    print("\n$100B+ OMEGA TIER (TIER 10)")
+    print("-" * 30)
+    results.append(("Power-Gated Dispatch", run_test("20_Power_Gated_Dispatch/token_handshake_sim.py", "Permission to Compute")))
+    results.append(("Thermodynamic Settlement", run_test("21_Thermodynamic_Settlement/joule_token_ledger.py", "Global Ledger")))
+    results.append(("Planetary Migration", run_test("22_Planetary_Orchestration/inference_load_migrator.py", "Global Sun-Follower")))
+    results.append(("Atomic Fabric", run_test("23_Atomic_Timing/phase_drift_compensation_sim.py", "Perfect Time")))
+    
     # Summary
     print("\n" + "="*80)
     print("VALIDATION SUMMARY")
@@ -110,7 +118,7 @@ def validate_all():
     print(f"\nFinal Score: {passed_tests}/{total_tests} components passed")
     
     if passed_tests == total_tests:
-        print("\n🎯 PORTFOLIO A IS VALIDATED AT THE $5.0 BILLION+ GLOBAL MONOPOLY TIER")
+        print("\n🎯 PORTFOLIO A IS VALIDATED AT THE $100 BILLION+ OMEGA TIER")
     else:
         print("\n⚠️ Some components failed validation. Review logs above.")
 

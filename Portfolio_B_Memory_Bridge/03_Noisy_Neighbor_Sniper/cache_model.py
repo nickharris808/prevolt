@@ -505,3 +505,4 @@ if __name__ == '__main__':
     print(f"Is Tenant 1 noisy? {cache.flow_tracker.is_noisy_neighbor(1)}")
     
     print("\nCache model test complete!")
+
