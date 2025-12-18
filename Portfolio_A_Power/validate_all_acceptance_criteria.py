@@ -100,7 +100,7 @@ def validate_all():
     print("-" * 30)
     results.append(("Power-Gated Dispatch", run_test("20_Power_Gated_Dispatch/token_handshake_sim.py", "Permission to Compute")))
     results.append(("Thermodynamic Settlement", run_test("21_Thermodynamic_Settlement/joule_token_ledger.py", "Global Ledger")))
-    results.append(("Planetary Migration", run_test("22_Planetary_Orchestration/inference_load_migrator.py", "Global Sun-Follower")))
+    results.append(("Planetary Migration", run_test("22_Global_VPP/inference_load_migrator.py", "Global Sun-Follower")))
     results.append(("Atomic Fabric", run_test("23_Atomic_Timing/phase_drift_compensation_sim.py", "Perfect Time")))
     
     # Tier 11: $100B+ Sovereign Orchestration
@@ -121,7 +121,7 @@ def validate_all():
     # Tier 13: Extreme Engineering Audit
     print("\nEXTREME ENGINEERING AUDIT (TIER 13)")
     print("-" * 30)
-    results.append(("Resonant Clock", run_test("25_Resonant_Clock_Recycling/resonant_lc_tank_sim.py", "Adiabatic Logic")))
+    results.append(("Resonant Clock", run_test("25_Adiabatic_Recycling/resonant_lc_tank_sim.py", "Adiabatic Logic")))
     results.append(("Body Biasing", run_test("26_Adaptive_Body_Biasing/body_bias_leakage_sim.py", "Leakage Choking")))
     results.append(("Entropy Scaling", run_test("27_Entropy_VDD_Scaling/vdd_subthreshold_sim.py", "Shannon VDD")))
     results.append(("Coherent Sync", run_test("28_Optical_Phase_Lock/optical_phase_determinism_sim.py", "THz Phase-Lock")))
