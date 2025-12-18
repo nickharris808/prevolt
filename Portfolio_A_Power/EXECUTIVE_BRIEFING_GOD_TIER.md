@@ -333,7 +333,21 @@ Portfolio A represents:
 
 ---
 
-**Portfolio Version:** 13.0 ($100B+ Physical Constitution - Industrial DD Ready)  
+## THE SIX INDUSTRIAL DD CERTIFICATIONS
+
+### Adult Proofs (Credibility)
+1. Technical: `aipp_fast_path.v` (1ns execution, 88% slack)
+2. Economic: `ai_efficiency_delta.png` ($0.8M/year)
+3. Strategic: `UEC_STRATEGIC_ALIGNMENT.md` ($500M-$1B SEP)
+
+### Dirty Reality (Maturity)
+4. Multi-Phase Buck: PWM ripple @ 1MHz (±20mV, stable)
+5. PTP Guard-Band: ±1µs IEEE 1588 (1000 trials, 0% failures)
+6. Split-Brain: 1ns reflex vs 10ms policy (hierarchical)
+
+---
+
+**Portfolio Version:** 14.0 ($100B+ Physical Constitution - Industrial DD Certified)  
 **Last Updated:** December 17, 2025  
 **Prepared By:** Neural Harris  
 

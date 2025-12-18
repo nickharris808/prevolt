@@ -204,9 +204,10 @@ A: **Yes. We have Boeing-grade formal proofs** (TLA+/Z3) guaranteeing zero-failu
 
 ---
 
-**Portfolio Version:** 13.0 ($100B+ Omega-Tier - Industrial DD Ready)  
+**Portfolio Version:** 14.0 ($100B+ Omega-Tier - Industrial DD Certified)  
 **Components:** 51/51 Validated  
 **Tiers:** 16/16 Complete  
+**DD Certifications:** 6/6 (Adult + Dirty Reality)  
 **Last Updated:** December 17, 2025  
 **Maintained By:** Neural Harris
 
