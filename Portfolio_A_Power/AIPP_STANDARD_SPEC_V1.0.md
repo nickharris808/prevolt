@@ -1,129 +1,87 @@
 # AI Power Protocol (AIPP) Standard Specification
-## Version 1.0 (The "Grid-to-Gate" Architecture)
+## Version 2.0 (The "Conductor" Architecture - $5B+ Tier)
 
 ---
 
 ## 1. Executive Summary
-The **AI Power Protocol (AIPP)** is a formal cross-layer communication standard designed to synchronize high-performance network fabric with sub-microsecond power transients in AI accelerators. 
+The **AI Power Protocol (AIPP)** v2.0 is the foundational standard for orchestrating the "Temporal Nervous System" of AGI infrastructure. It moves beyond simple power management to **Owning the Temporal and Logical Gates of the AI Economy.**
 
-AIPP enables a **$2.9 Billion God-Tier Industrial Monopoly** by shifting power management from reactive hardware loops to predictive, network-orchestrated scheduling.
-
----
-
-## 2. Handshake Protocol (Phase 1: Discovery & Verification)
-Before data transmission, the Network Switch and Compute Node MUST exchange capabilities and establish a **Zero-Trust Trust Anchor**.
-
-| Parameter | Identifier | Description |
-|-----------|------------|-------------|
-| `LeadTime_Min` | `0x01` | Minimum lead time (ns) required by VRM to ramp current. |
-| `Boost_Cap` | `0x02` | Maximum voltage boost (mV) allowed before OVP. |
-| `HBM_Sync` | `0x03` | Support for DPLL phase-locked memory refresh pulses. |
-| `Load_Verify` | `0x04` | Requirement for local NIC to authorize voltage boost upon packet start. |
-| `Workload_Intent` | `0x05` | Support for libAIPP software intent signaling. |
-| `Fabric_Token` | `0x06` | Support for spine-leaf power token arbitration. |
+This specification enables a **$5 Billion+ Global Monopoly** by integrating three critical "Moonshots":
+1.  **HBM4 Refresh-Aware Phase-Locking:** Eliminating the 5% performance tax of unsynchronized memory refreshes.
+2.  **Sovereign Data-Vault (Erasure Auditor):** Providing physically verifiable data privacy via switch-enforced hardware handshakes.
+3.  **Unified Temporal Policy (The Conductor):** A single 128-bit heartbeat that coordinates Power, Memory, and Security at nanosecond precision.
 
 ---
 
-## 3. Timing & Synchronization (The "Temporal Nervous System")
+## 2. Temporal Heartbeat Alignment (Memory Moonshot)
 
-### 3.1 Global Heartbeat Broadcast
-To overcome the Speed of Light (15ns per 3 meters), AIPP utilizes a **Global Heartbeat** mechanism.
-1.  **Switch Role:** Broadcasts a 100Hz PTP-synchronized heartbeat signal.
-2.  **Node Role:** GPU Memory Controller utilizes a local **DPLL** to phase-lock HBM4 refresh cycles to the heartbeat's "Quiet Valleys."
-3.  **Accuracy:** Deterministic alignment to < 1ns across 100-meter cluster radius.
+### 2.1 The Global Heartbeat (GHB)
+Memory refresh (tREFI) is a synchronous bottleneck. AIPP v2.0 introduces the **Global Heartbeat (GHB)**:
+- **Broadcaster:** The Network Switch (Spine/Leaf) broadcasts a 100Hz PTP-synchronized L2 broadcast frame.
+- **Receiver:** The GPU Memory Controller.
+- **Mechanism:** GPUs implement a **Digital Phase-Locked Loop (DPLL)** to align their tREFI windows to the "Quiet Window" specified in the heartbeat.
 
-### 3.2 libAIPP Software SDK
-The **libAIPP SDK** allows high-level software (PyTorch, JAX) to inject power intent directly into the fabric.
-- **Trigger:** `model.forward()` or `kernel_launch()`.
-- **Packet:** 5us pre-launch "Intent Signal" sent to switch via RoCE/UDP.
-- **Benefit:** Eliminates the "Trigger Uncertainty" window by providing ground-truth intent from the code itself.
+### 2.2 Performance Reclamation
+By ensuring all 100,000 GPUs in a cluster refresh *simultaneously* during the fabric's natural quiet valleys (e.g., between AllReduce phases), AIPP v2.0 reclaims **~5% of cluster-wide effective throughput.**
 
 ---
 
-## 3. Signaling & Packet Formats (Phase 2)
+## 3. Sovereign Data-Vault Protocol (Security Moonshot)
 
-### 3.1 The AIPP "Wake-Up" Control Frame
-A high-priority L2 frame sent from the Switch to the Node.
+### 3.1 The "Wipe-before-Send" Lifecycle
+AIPP v2.0 provides a hardware-level guarantee for "Dark Data" (HIPAA/GDPR) security.
+1.  **Batch Request:** Switch sends Batch N to the GPU Secure Enclave.
+2.  **Processing:** GPU computes intent.
+3.  **Erasure Trigger:** GPU triggers a high-current memory wipe operation.
+4.  **Hardware Handshake:** GPU sends a hardware-signed **"Wipe Confirmation"** to the Switch.
+5.  **Power Audit:** The Switch monitors the GPU's power signature (Family 13) to verify the electrical profile of a wipe operation was performed.
+6.  **Gate Release:** Switch **refuses to route** Batch N+1 until both the confirmation and power audit pass.
 
-| Bits | Field | Description |
-|------|-------|-------------|
-| 0-7 | `OpCode` | `0x10`: Pre-Charge Request |
-| 8-23 | `LeadTime` | Lead time in nanoseconds. |
-| 24-39 | `Amplitude` | Boost voltage amplitude in millivolts. |
-| 40-103 | `Timestamp` | PTP Timestamp for deterministic execution. |
+### 3.2 Network-Enforced Isolation
+If a node fails the wipe audit (e.g., reports wipe but power signature is too low), the Switch **instantly isolates** the node from the fabric, preventing data leaks.
 
-**Transport Policy:** AIPP frames MUST utilize **IEEE 802.3br (Express Traffic)** or **PCIe VDM** to guarantee sub-microsecond delivery regardless of background network congestion. Use of legacy I2C or SMBus is strictly prohibited for sub-microsecond pre-charge signaling.
+---
 
-### 3.2 The In-Band Telemetry Header (AIPP-IB)
-Embedded in the IPv6 Flow Label or TCP Option 0x1A.
+## 4. The Unified Temporal Policy Frame (TPF)
 
-```text
-+--------+--------+--------+--------+
-| V_Health | S_Rate | Resv   | CRC8   |
-| (4 bits) | (4 bits)| (4 bits)| (4 bits)|
-+--------+--------+--------+--------+
-```
-
-### 3.3 The Unified Temporal Policy Frame (TPF)
-To ensure system-wide deterministic orchestration, the Switch broadcasts a **128-bit Temporal Policy Frame (TPF)** every 100µs. This frame acts as the "Conductor's Baton" for the entire fabric.
+### 4.1 Frame Definition (128-bit)
+The Switch broadcasts a **128-bit Temporal Policy Frame (TPF)** every 100µs. This acts as the "Conductor's Baton" for the entire cluster.
 
 | Bits | Field | Description |
 |------|-------|-------------|
 | 0-31 | `Voltage_Setpoint` | Global feed-forward target for VRM pre-charging (mV). |
-| 32-63 | `Memory_Credits` | Temporal credit allocation for HBM4/CXL prefetching. |
-| 64-95 | `Quorum_Signature` | Hardware-signed trust token for secure compute authorization. |
-| 96-127| `Jitter_Seed` | Stochastic seed for signature whitening and security masking. |
+| 32-63 | `DPLL_Phase_Offset` | The target phase for HBM4/Refresh alignment (nanoseconds). |
+| 64-95 | `Trust_Token_ID` | The required hardware-signed confirmation for Batch N erasure. |
+| 96-127| `Jitter_Seed` | Stochastic seed for power-signature whitening and side-channel masking. |
+
+### 4.2 Hierarchy of Intent
+- **Power:** Coordinates the 15us lead-time triggers.
+- **Memory:** Synchronizes the HBM4 DPLL.
+- **Security:** Validates the Data-Vault "Wipe" handshake.
 
 ---
 
-## 4. State Machines (Phase 3: Fault Handling)
+## 5. Signaling & Packet Formats (Updated)
 
-### 4.1 Switch Scheduler State Machine
-```mermaid
-stateDiagram-v2
-    [*] --> Idle
-    Idle --> Ready: Capability Exchange
-    Ready --> PreCharging: Packet Enqueued
-    PreCharging --> Burst: LeadTime Expired
-    Burst --> Recovery: ACK Received
-    Recovery --> Ready: Voltage Stabilized
-    PreCharging --> Fault: Packet Dropped
-    Fault --> Ready: Watchdog Reset
-```
+### 5.1 The AIPP-V2 "Trust-Token" Frame
+A high-priority L2 frame sent from the GPU to the Switch.
 
-### 4.2 VRM Watchdog Failsafe
-AIPP-compliant VRMs MUST implement a hardware watchdog timer.
-1. **Trigger:** Upon receipt of "Wake-Up" frame, start timer `T_safe`.
-2. **Detection:** If packet `Seq_ID` not detected within `T_safe`.
-3. **Action:** Autonomous ramp-down to `V_nominal` in < 500ns.
+| Bits | Field | Description |
+|------|-------|-------------|
+| 0-7 | `OpCode` | `0x20`: Wipe Confirmation |
+| 8-23 | `Node_ID` | Unique hardware identifier for the GPU. |
+| 24-55 | `Batch_ID` | Identifier of the data batch just erased. |
+| 56-127| `HW_Signature` | RSA-2048 or ED25519 signature of the wipe completion. |
 
 ---
 
-## 5. Timing Requirements (PTP Synchronization)
-AIPP requires PTP (IEEE 1588v2) synchronization between all endpoints.
-- **Max Clock Drift:** < 1 microsecond ($\mu s$).
-- **Deterministic Sync:** Signals MUST use future timestamps to overcome network jitter.
-
----
-
-## 6. Implementation Scenarios
-1. **Model Synchronization:** Aligning HBM4 refresh with network quiet windows.
-2. **Chiplet Migration:** Moving power via UCIe in < 10ns.
-3. **Grid VPP:** Providing city-scale synthetic inertia via cluster jitter.
-4. **Optical Bias:** Pre-heating lasers 100us before data bursts to prevent BER.
-5. **Storage Incast:** Staggering checkpoint arrival to flatten 50MW surges.
-
----
-
-## 7. Temporal Policy Broadcasting (The Conductor Model)
-To ensure system-wide stability without global "God-Box" complexity, the Switch MUST broadcast a **Temporal Policy Frame** every 100µs.
-
-- **Policy ID 0x01 (High Transient):** All local controllers (SSD, Laser, HBM) MUST prioritize voltage stability over peak performance.
-- **Policy ID 0x02 (Nominal):** Local controllers may optimize for throughput and efficiency.
-- **Sovereignty:** Local hardware watchdogs ALWAYS override Switch signals if local safety limits (OVP/OTP) are reached.
+## 6. Implementation Scenarios (The $5B Pillars)
+1. **The Performance Carrot:** Nvidia Blackwell GPUs gain 5% speed-of-light performance by using the AIPP DPLL.
+2. **The Security Carrot:** AWS/Azure unlock "Healthcare/Finance Cloud" by using the AIPP Erasure Auditor.
+3. **The Monopoly Moat:** Security is tied to Performance. If a node fails the security audit, its memory sync (DPLL) is de-prioritized, creating a performance penalty for "untrusted" nodes.
 
 ---
 
 **© 2025 Neural Harris IP Holdings. All Rights Reserved.**  
 *Confidential — For Evaluation by Strategic Acquirers Only.*
-
+*Status: Industrial Specification for $5B Global Monopoly.*

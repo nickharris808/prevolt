@@ -1,39 +1,77 @@
-# Patent Family 1: The "Pre-Cognitive" Voltage Trigger (Standard-Essential)
+# Patent Family 1: The "Pre-Cognitive" Voltage Trigger
 
-**The Thesis:** The physical power grid is too slow for AI. We use the Network Switch (which operates in nanoseconds) to act as the "Brain" for the Power Supply. This family forms the core of the **GPOP v1.0 Standard**.
+## Thesis
 
-This family proves that the Network Switch is the only upstream component capable of predicting GPU power transients with high enough temporal resolution to prevent voltage collapse.
+**The network switch can predict power demand** because it controls when data is released to the GPU. That makes it the only upstream component fast enough to "warn" the VRM before a compute-triggering packet arrives.
 
-## Family Variations (Patent Claims)
+## Problem (Latency Mismatch)
 
-### 1.1 Static Lead Time (The Baseline)
-*   **Mechanism:** Fixed-delay buffer for all compute-triggering packets.
-*   **Proof:** SPICE simulation showing 14us delay keeps V_min >= 0.9V.
-*   **Artifact:** `artifacts/01_static_trace.png`
+- **VRM current ramp**: ~15 µs control-loop response
+- **Compute-triggered load step**: ~1 µs
 
-### 1.2 Online Kalman Predictor
-*   **Mechanism:** Online learning of inter-packet intervals to narrow the uncertainty window.
-*   **Proof:** Convergence on jittered arrival patterns with < 1us error.
-*   **Artifact:** `artifacts/02_kalman_convergence.png`
+Result: A heavy packet arrives, GPU starts compute, current demand spikes, and the supply droops before the VRM can react.
 
-### 1.3 Confidence-Gated Hybrid
-*   **Mechanism:** Real-time variance monitoring. Automatically falls back to Static mode if traffic entropy increases.
-*   **Proof:** State-transition map showing zero safety violations during traffic phase shifts.
-*   **Artifact:** `artifacts/03_gating_logic.png`
+## Invention (Look-Ahead Signaling)
 
-### 1.4 Amplitude/Lead-Time Co-Optimizer
-*   **Mechanism:** Mathematical co-optimization of pre-charge voltage boost and delay.
-*   **Proof:** Pareto front showing the minimum "energy overhead" to satisfy safety constraints.
-*   **Artifact:** `artifacts/04_pareto_front.png`
+1. Switch classifies an incoming packet as a **"Heavy Job"**.
+2. Switch sends a **Wake-Up control frame** to the VRM.
+3. Switch **buffers** the packet for a calculated delay (e.g. 14 µs).
+4. VRM setpoint rises preemptively, **pre-charging decoupling capacitors**.
+5. Packet is released; GPU load step occurs; voltage stays in the safe band.
 
-### 1.5 Multi-GPU Collective Sync
-*   **Mechanism:** Orchestrated stagger across switch ports for collective operations (AllReduce).
-*   **Proof:** 30% reduction in rack-level current spikes (di/dt).
-*   **Artifact:** `artifacts/05_rack_smoothing.png`
+## Acceptance Criteria (Pass/Fail)
 
-## How to Run
+### Baseline (must fail)
+- Load step: **500 A** (ramp time 1 µs)
+- Requirement: **V(out) must dip below 0.7 V**
+
+### Invention (must pass)
+- Same 500 A load step
+- Pre-trigger lead time: **14 µs**
+- Requirement: **V(out) must never dip below 0.9 V**
+
+### Efficiency (must pass)
+- Added delay: **< 20 µs**
+
+## What This Repo Actually Does
+
+This directory uses **PySpice + ngspice** to run an auditable R–L–C + VRM-control transient.
+
+- Baseline: V(out) min ≈ **0.6866 V** (fails as required)
+- With 14 µs pre-trigger: V(out) min ≈ **0.9000 V** (passes as required)
+- Added delay: **14 µs** (< 20 µs)
+
+## Data Room Artifact
+
+- `voltage_trace.png`: **Transient Response** showing the red crash trace vs the green stable trace.
+
+## Files
+
+- `spice_vrm.py`
+  - Builds and runs the SPICE model
+  - Includes `check_acceptance_criteria()` which returns explicit pass/fail booleans
+- `simulation.py`
+  - Generates `voltage_trace.png` (the buyer-facing artifact)
+- `tournament.py`
+  - Sweeps pre-trigger lead times and writes `tournament_results.csv`
+- `tournament_results.csv`
+  - Lead time vs minimum V(out)
+
+## Reproduce
+
 ```bash
-# Execute the full family tournament
-python master_tournament.py
+# From Portfolio_A_Power/
+pip install -r requirements.txt
+
+# Install ngspice
+brew install ngspice      # macOS
+apt install ngspice       # Linux
+
+cd 01_PreCharge_Trigger
+python simulation.py
+python tournament.py
 ```
 
+## Patent Claim (Draft)
+
+> "A network switching apparatus configured to detect a compute-heavy packet and to delay transmission of said packet for a delay interval, while transmitting a pre-trigger control frame to a downstream voltage regulator module prior to releasing the packet, such that a downstream supply voltage remains above a safety threshold during a resulting load transient, wherein the delay interval is less than a performance limit."

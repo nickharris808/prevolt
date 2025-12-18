@@ -1,51 +1,60 @@
-# Patent Family 2: The "In-Band" Telemetry Loop (Standard-Essential)
+# Patent Family 2: The "In-Band" Telemetry Loop
 
-**The Thesis:** The switch is "blind." By embedding voltage health directly into transport headers (e.g. IPv6 Flow Label or TCP Options), we enable the first nanosecond-scale feedback loop for data center power. This family defines the **In-Band Signaling** requirements for GPOP.
+## Problem
 
-## Family Variations (Patent Claims)
+The switch is **blind**: it will continue blasting packets at a GPU even when the GPU is undervolting or overheating. Without a feedback channel, the network keeps pushing the GPU deeper into failure.
 
-### 2.1 Quantized Feedback (The Baseline)
-*   **Mechanism:** 4-bit integer health code. Simple threshold-based throttling.
-*   **Proof:** Bandwidth drop within 2 RTTs of voltage crossing 0.8V.
-*   **Artifact:** `artifacts/01_quantized_trace.png`
+## Invention
 
-### 2.2 PID Rate Controller
-*   **Mechanism:** Closed-loop PID controller implemented in the switch management logic.
-*   **Proof:** Smooth, non-oscillatory recovery of bandwidth after a power event.
-*   **Artifact:** `artifacts/02_pid_control.png`
+**Embed GPU health in-band** inside standard packet headers, so the switch can react in hardware.
 
-### 2.3 Gradient (dv/dt) Preemption
-*   **Mechanism:** Detection of the *rate* of change in voltage. Pre-empts the crash by throttling before thresholds are crossed.
-*   **Proof:** 30% reduction in peak droop compared to reactive thresholds.
-*   **Artifact:** `artifacts/03_gradient_preemption.png`
+This repo implements the specific variant you described:
 
-### 2.4 Per-Tenant Flow Sniper
-*   **Mechanism:** Cross-correlation of telemetry error signals with individual flow egress rates. 
-*   **Proof:** Surgical throttling of a "power bully" tenant while protecting the SLAs of other tenants.
-*   **Artifact:** `artifacts/04_tenant_isolation.png`
+- **Voltage health** is encoded as a **4-bit integer** (0..15)
+- Embedded into the **IPv6 Flow Label** (20 bits)
+  - We use the lowest 4 bits as the health code
+- The switch parses the Flow Label in hardware and modulates egress rate (meter / token bucket)
 
-### 2.5 Graduated Penalties
-*   **Mechanism:** Three-tier escalation: ECN marking → Hardware Rate Limiting → Tail Drop.
-*   **Proof:** Soft-landing power curve with zero packet loss during mild stress.
-*   **Artifact:** `artifacts/05_graduated_escalation.png`
+## Acceptance Criteria
 
-### 2.6 Collective Guard (S+ Tier)
-*   **Mechanism:** Application-aware QoS that protects AllReduce sync traffic while shedding bulk storage flows.
-*   **Proof:** Training job progress maintained during power transients.
-*   **Artifact:** `artifacts/06_collective_guard.png`
+- **Correlation**: As voltage drops, bandwidth drops within **2 RTTs**.
+- **Recovery**: The node returns to safe voltage without a hard reset.
+- **Artifact**: Voltage (top) and bandwidth (bottom) look like mirror images.
 
-### 2.7 QP-Spray Aggregator
-*   **Mechanism:** Tenant-level traffic aggregation to identify power bullies who "spray" load across 1,000s of flows.
-*   **Proof:** Evasion-proof tenant isolation.
-*   **Artifact:** `artifacts/07_qp_spray_defense.png`
+## What This Repo Does
 
-### 2.8 Stability Analysis (Standard-Ready)
-*   **Mechanism:** Bode margin analysis to ensure closed-loop stability across the fabric latency envelope (up to 5ms RTT).
-*   **Proof:** Phase margin > 45 degrees guaranteed for high-frequency switch schedulers.
-*   **Artifact:** `artifacts/08_stability_bode.png`
+### `simulation.py` (RTT-delayed closed-loop model)
+- Explicitly models RTT and enforces that control actions are delayed by **2 RTTs**
+- Quantizes voltage into a 4-bit health code
+- Converts health to a rate limit
+- Produces `throughput_vs_voltage.png` with two stacked plots
 
-## How to Run
+When you run it, it prints:
+- RTT
+- Control delay (2 RTT)
+- Pass/fail for the **within-2-RTT** response check
+
+### P4 reference
+- `switch_logic_ipv6_flowlabel.p4`
+  - Parses IPv6 flow label
+  - Extracts 4-bit voltage health
+  - Sketches a dataplane rate-enforcement structure
+
+(We keep the older TCP-option reference in `switch_logic.p4` as an alternative encoding, but the Flow-Label version is the one that matches your spec.)
+
+## Data Room Artifact
+
+- `throughput_vs_voltage.png`
+  - Top: Voltage vs time (with and without telemetry)
+  - Bottom: Bandwidth vs time + the applied rate limit
+
+## Reproduce
+
 ```bash
-python master_tournament.py
+cd 02_Telemetry_Loop
+python simulation.py
 ```
 
+## Patent Claim (Draft)
+
+> "A network switching apparatus configured to parse an IPv6 header field containing a quantized voltage health value, and to modulate transmission bandwidth to a downstream compute node within a bounded reaction time (≤2 RTTs) in response to decreases in said voltage health value, thereby maintaining a supply voltage above a safety threshold without out-of-band wiring."

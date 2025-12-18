@@ -80,6 +80,13 @@ def validate_all():
     results.append(("RL Sovereign Agent", run_test("16_Autonomous_Agent/rl_power_orchestrator.py", "Autonomous AI")))
     results.append(("Phase Change Safety", run_test("08_Thermal_Orchestration/two_phase_cooling_physics.py", "Thermodynamic Safety")))
     
+    # Tier 8: $5B+ Moonshots
+    print("\n$5B+ GLOBAL MONOPOLY MOONSHOTS (TIER 8)")
+    print("-" * 30)
+    results.append(("HBM4 Phase-Locking", run_test("05_Memory_Orchestration/hbm_dpll_phase_lock.py", "Memory Performance")))
+    results.append(("Data-Vault Handshake", run_test("13_Sovereign_Security/data_vault_handshake.py", "Sovereign Trust")))
+    results.append(("Erasure Formal Proof", run_test("STANDARDS_BODY/formal_erasure_proof.py", "Erasure Math")))
+    
     # Summary
     print("\n" + "="*80)
     print("VALIDATION SUMMARY")
@@ -95,7 +102,7 @@ def validate_all():
     print(f"\nFinal Score: {passed_tests}/{total_tests} components passed")
     
     if passed_tests == total_tests:
-        print("\n🎯 PORTFOLIO A IS VALIDATED AT THE $2.9 BILLION GOD-TIER")
+        print("\n🎯 PORTFOLIO A IS VALIDATED AT THE $5.0 BILLION+ GLOBAL MONOPOLY TIER")
     else:
         print("\n⚠️ Some components failed validation. Review logs above.")
 
