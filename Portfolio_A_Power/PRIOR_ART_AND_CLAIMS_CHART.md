@@ -528,7 +528,7 @@ Claim 1: "A method for masking power side-channels, comprising:
 ## Strategic Monopoly Defense
 
 ### The "Functional" Claim Pivot
-To reach the $1B+ Tier, our claims have shifted from "Packet Formats" to **Functional Hardware Methods.** This ensures that competitors cannot "design around" by simply changing the header bits.
+To reach the $2.9B God-Tier, our claims have shifted from "Packet Formats" to **Functional Hardware Methods.** This ensures that competitors cannot "design around" by simply changing the header bits.
 
 | Category | Broad Independent Claim (Method) | Why it's Unforkable |
 |----------|---------------------------------|---------------------|

@@ -208,7 +208,7 @@ def generate_pulse_train(
         injected_delays=injected_delays,
         power_samples=power_samples,
         sample_times=sample_times,
-        jitter_mode=jitter_mode.value if hasattr(jitter_mode, 'value') else jitter_mode
+        jitter_mode=jitter_mode.value
     )
 
 
@@ -336,3 +336,4 @@ if __name__ == "__main__":
     print("   (20dB reduction = 100x less energy in danger band)")
     
     print("\n" + "=" * 70)
+

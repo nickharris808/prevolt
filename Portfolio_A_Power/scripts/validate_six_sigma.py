@@ -25,12 +25,12 @@ from multiprocessing import Pool
 import importlib.util
 
 # Add required paths
-root = Path(__file__).parent
+root = Path(__file__).parent.parent
 sys.path.insert(0, str(root))
-sys.path.insert(0, str(root / "01_PreCharge_Trigger_Family"))
+sys.path.insert(0, str(root / "01_PreCharge_Trigger"))
 
 # Load SPICE dynamically to avoid numeric folder import issue
-spec = importlib.util.spec_from_file_location("spice_vrm", root / "01_PreCharge_Trigger_Family/spice_vrm.py")
+spec = importlib.util.spec_from_file_location("spice_vrm", root / "01_PreCharge_Trigger/spice_vrm.py")
 spice_vrm = importlib.util.module_from_spec(spec)
 sys.modules["spice_vrm"] = spice_vrm
 spec.loader.exec_module(spice_vrm)
@@ -97,7 +97,7 @@ def generate_yield_plot(results):
             transform=ax.transAxes, verticalalignment='top', 
             bbox=dict(boxstyle='round', facecolor='white', alpha=0.8))
 
-    save_publication_figure(fig, str(Path(__file__).parent / "artifacts" / "six_sigma_yield_histogram"))
+    save_publication_figure(fig, str(root / "artifacts" / "six_sigma_yield_histogram"))
     plt.close(fig)
     print(f"Six Sigma Artifact saved to Portfolio_A_Power/artifacts/six_sigma_yield_histogram.png")
 

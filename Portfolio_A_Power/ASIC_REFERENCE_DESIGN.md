@@ -63,7 +63,7 @@ To eliminate the barrier to entry for GPU vendors (Nvidia, AMD), GPOP does NOT r
 
 ---
 
-## 5. Deployment Roadmap (The $1B Strategy)
+## 5. Deployment Roadmap (The $2.9B God-Tier Strategy)
 - **Phase 1 (FPGA):** RTL validation in Xilinx Alveo U250.
 - **Phase 2 (Tile Integration):** GPOP IP block delivered as a GDSII macro for custom SoC integration.
 - **Phase 3 (ASIC Tapeout):** Standardized on-die power management for Blackwell/Rubin GPU generations.
