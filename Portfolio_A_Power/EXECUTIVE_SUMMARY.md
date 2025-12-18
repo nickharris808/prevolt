@@ -113,7 +113,22 @@ Portfolio A includes catastrophic failure simulations proving that 1-million GPU
 **Detailed Analysis:**
 - Technical: `STARGATE_RISK_ASSESSMENT.md`
 - Economic: `ECONOMIC_VALUATION/stargate_risk_matrix.md`
-- Simulations: Folders 15, 18, 19 (Digital Twin, Facility, Planetary)
+- Actuarial: `docs/AIPP_INSURANCE_MANDATE.md`
+- Simulations: Folders 15, 18, 19, 31 (Digital Twin, Facility, Planetary, Actuarial)
+
+### THE ACTUARIAL ANGLE (FOR INSURERS)
+
+**Target:** Munich Re, Swiss Re, Lloyd's of London
+
+**The Systemic Actuarial Mismatch:**
+- Current models assume 20-year transformer life; AI reduces to 2.4 years (88% reduction)
+- Current models assume 1% GPU RMA; unclamped spikes escalate to 15-40%
+- **Industry-Wide Exposure:** $23B (100 Stargate-scale facilities)
+
+**The $10M Partnership Offer:**
+- Exclusive window for reinsurers to mandate AIPP-compliance
+- Improves loss ratios from 200-800% to 95% (sustainable)
+- Certification revenue: $50M-$100M (audit fees)
 
 ---
 

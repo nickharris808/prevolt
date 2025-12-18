@@ -600,6 +600,31 @@ By providing synthetic inertia 100× faster than chemical batteries, AIPP-Omega 
 
 ---
 
+## THE ACTUARIAL LOSS MODELS (FOR INSURERS)
+
+**Folder 31: Actuarial Analysis** - For Munich Re/Swiss Re/Lloyd's
+
+### Actuarial Risk 1: Transformer Fatigue Acceleration
+**File:** `31_Actuarial_Loss_Models/transformer_fatigue_accelerator.py`  
+**Finding:** AI rhythmic loads reduce transformer MTTF from 20 years to 2.4 years (88% reduction)  
+**Impact:** $232M single event × 42% annual probability = **$97M expected annual loss**  
+**Industry-Wide:** $23B exposure (100 facilities)
+
+### Actuarial Risk 2: Gate Oxide TDDB Escalation
+**File:** `31_Actuarial_Loss_Models/gate_oxide_reliability_audit.py`  
+**Finding:** Unclamped voltage spikes escalate GPU RMA rate from 1% to 15-40%  
+**Impact:** $6B-$16B warranty liability per 1M-GPU cluster  
+**Cumulative Damage:** D = 82.75 (threshold D=1.0 for failure)
+
+### Insurance Mandate Whitepaper
+**File:** `docs/AIPP_INSURANCE_MANDATE.md`  
+**Recommendation:** Mandate AIPP-compliance for all clusters >50MW  
+**Impact:** Loss ratio improvement from 200-800% to 95% (sustainable)
+
+**The $10M Partnership:** Exclusive 7-day window for reinsurers to mandate AIPP and avoid $10B systemic loss.
+
+---
+
 ## CONTACT & NEXT STEPS
 
 **For Sovereign Wealth Fund Acquisition:** [Confidential - Neural Harris IP Holdings]  

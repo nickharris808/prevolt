@@ -30,6 +30,31 @@ We move orchestration from the **GPU/VRM** to the **Network Switch** - the only 
 
 ---
 
+## 🔥 FOR INSURERS: THE $10B ACTUARIAL MISMATCH
+
+**Munich Re / Swiss Re / Lloyd's of London:**
+
+AI infrastructure is being underwritten using **legacy data center risk models** that fundamentally misprice three catastrophic failure modes:
+
+1.  **Transformer Fatigue:** MTTF reduced from 20 years to **2.4 years** (88% error)
+2.  **Gate Oxide TDDB:** RMA escalates from 1% to **15-40%** (15-40× error)
+3.  **Voltage Collapse:** Single event = **$982M** (exceeds policy caps by 2-10×)
+
+**Industry-Wide Exposure:** **$23 Billion** (100 Stargate-scale facilities)  
+**Projected Loss Ratio:** **200-800%** (unsustainable)
+
+**The Solution:** AIPP-compliance mandate for clusters >50MW
+
+**$10M Partnership Offer:** 7-day exclusive window for reinsurers to:
+- Access all actuarial models (Folder 31)
+- Mandate AIPP for policyholders
+- Improve loss ratios to 95% (sustainable)
+- Generate $50M-$100M in certification revenue
+
+**Files:** `docs/AIPP_INSURANCE_MANDATE.md`, `31_Actuarial_Loss_Models/`
+
+---
+
 ## 🚀 THE 5-MINUTE TECHNICAL AUDIT
 
 ### Test 1: The Physics Foundation (30 seconds)
