@@ -45,9 +45,8 @@ def validate_pf4():
         traffic_pattern='incast',
         n_senders=100
     )
+    # Testing the core variation PF4-B (Adaptive Hysteresis)
     results = run_incast_simulation(config, 'hysteresis', seed=42)
-    # The winner in the tournament is named 'Adaptive Hysteresis (PF4-B)'
-    # but the runner uses the logic 'hysteresis'
     
     drops = results['packets_dropped']
     utilization = results['utilization']
@@ -63,15 +62,15 @@ def validate_pf5():
     print("\nValidating Patent Family 5: Sniper Isolation...")
     config = NoisyNeighborConfig(
         simulation_duration_us=200000.0,
-        noisy_tenant_multiplier=30.0, # Make the bully even louder
-        base_request_rate=0.03 # Saturate the system
+        noisy_tenant_multiplier=30.0,
+        base_request_rate=0.03
     )
     
     # Run Fair Share as baseline
     fs_results = run_noisy_neighbor_simulation(config, 'fair_share', seed=42)
     fs_throughput = fs_results['total_throughput']
     
-    # Run Sniper
+    # Run Sniper (PF5-A)
     sniper_results = run_noisy_neighbor_simulation(config, 'sniper', seed=42)
     victim_p99 = sniper_results['good_p99_latency_us']
     sniper_throughput = sniper_results['total_throughput']
@@ -93,7 +92,7 @@ def validate_pf6():
         deadlock_duration_us=2000.0
     )
     
-    # 1. Deadlock Recovery
+    # 1. Deadlock Recovery (Testing PF6-B Adaptive TTL)
     results = run_deadlock_simulation(config, 'adaptive_ttl', seed=42)
     recovery_time = results['recovery_time_us']
     p1 = recovery_time < 2000.0 # < 2ms
@@ -102,7 +101,7 @@ def validate_pf6():
     config_fp = DeadlockConfig(
         simulation_duration_us=5000.0,
         congestion_only_mode=True,
-        injection_rate=0.01 # Virtually idle
+        injection_rate=0.01
     )
     results_fp = run_deadlock_simulation(config_fp, 'adaptive_ttl', seed=42)
     fp_drops = results_fp['packets_dropped_ttl']

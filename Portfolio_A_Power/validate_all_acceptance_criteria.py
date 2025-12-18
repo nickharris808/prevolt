@@ -109,6 +109,15 @@ def validate_all():
     results.append(("Planetary Arbitrage", run_test("24_Sovereign_Orchestration/planetary_carbon_arbitrage.py", "Sun-Follower")))
     results.append(("Sovereign Inertia", run_test("24_Sovereign_Orchestration/sovereign_grid_inertia.py", "Grid Stabilizer")))
     
+    # Tier 12: $100B+ Hard Engineering Proofs
+    print("\n$100B+ HARD ENGINEERING PROOFS (TIER 12)")
+    print("-" * 30)
+    results.append(("Silicon Timing", run_test("14_ASIC_Implementation/aipp_timing_closure.py", "Post-Layout RTL")))
+    results.append(("Asynchronous Proof", run_test("STANDARDS_BODY/metastability_robust_proof.py", "Metastability Safety")))
+    results.append(("PCIe Full-Stack", run_test("09_Software_SDK/pcie_full_stack_model.py", "Hardware Determinism")))
+    results.append(("Fabric Incast", run_test("10_Fabric_Orchestration/adversarial_incast_sim.py", "Express-Lane Scale")))
+    results.append(("Non-Linear Stability", run_test("01_PreCharge_Trigger/nonlinear_stability_audit.py", "Lyapunov Sweep")))
+    
     # Summary
     print("\n" + "="*80)
     print("VALIDATION SUMMARY")
