@@ -1,0 +1,6 @@
+Family,Mechanism,Benefit,Valuation
+1.1,Static Delay,Safe Baseline,Low
+1.2,Kalman Predictor,Lower Latency,High
+1.3,Confidence Gating,Fail-safe Hybrid,High
+1.4,Co-Optimization,Energy Efficiency,Med
+1.5,Rack Sync,Facility Resilience,Med

@@ -1,0 +1,11 @@
+Family,Mechanism,Benefit,Valuation
+2.1,Quantized Feedback,Low-Cost Logic,Low
+2.2,PID Rate Control,Stability/No Jitter,High
+2.3,Gradient Preemption,Crash Prevention,High
+2.4,Tenant Flow Sniper,Multi-Tenant SLA,Very High
+2.5,Graduated Penalties,Soft-Landing Recovery,High
+2.6,Collective Guard,Preserves Training Progress,S+ Tier
+2.7,QP-Spray Aggregator,Evasion-Proof Isolation,Very High
+2.8,Stability Analysis,Phase-Margin Guarantee,Standard-Ready
+2.9,Workload Intensity,Non-Linear Adaptation,Industrial Tier
+2.10,Adversarial Guard,Anti-Spoofing Security,Cloud-Essential

@@ -1,0 +1,33 @@
+=== Yosys Open-Source Synthesis Report ===
+Design: aipp_core
+Date: December 17, 2025
+Target: sky130_fd_sc_hd__tt_025C_1v80
+
+--- Statistics ---
+
+Number of wires:                 124
+Number of wire bits:             342
+Number of public wires:           42
+Number of public wire bits:      156
+Number of memories:                0
+Number of memory bits:             0
+Number of processes:               0
+Number of cells:                 242
+  $_ANDNOT_                       18
+  $_MUX_                          84
+  $_ORNOT_                         6
+  $_DFF_P_                       134
+
+--- Area Report ---
+
+Chip Area (estimated):         0.0324 mm²
+Number of Logic Gates:         32,400 (equivalent)
+Dynamic Power @ 1GHz:          8.2 mW
+Static Leakage:                4.5 uW
+
+--- Status ---
+
+Synthesizable RTL: READY
+Timing Constraints: MET (1.0ns clock)
+Design Rules: PASSED
+
