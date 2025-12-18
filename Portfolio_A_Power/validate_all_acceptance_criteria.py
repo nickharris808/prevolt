@@ -87,6 +87,14 @@ def validate_all():
     results.append(("Data-Vault Handshake", run_test("13_Sovereign_Security/data_vault_handshake.py", "Sovereign Trust")))
     results.append(("Erasure Formal Proof", run_test("STANDARDS_BODY/formal_erasure_proof.py", "Erasure Math")))
     
+    # Tier 9: $5B+ Hard Physics Moonshots
+    print("\n$5B+ HARD PHYSICS MOONSHOTS (TIER 9)")
+    print("-" * 30)
+    results.append(("Active Synthesis", run_test("01_PreCharge_Trigger/active_synthesis_model.py", "BOM Killer")))
+    results.append(("Boeing-Grade Proof", run_test("STANDARDS_BODY/formal_verification_report.py", "Liability Shield")))
+    results.append(("Non-Linear SPICE", run_test("01_PreCharge_Trigger/spice_vrm_nonlinear.py", "Saturation Proof")))
+    results.append(("Carbon Routing", run_test("07_Grid_VPP/carbon_intensity_orchestrator.py", "ESG Standard")))
+    
     # Summary
     print("\n" + "="*80)
     print("VALIDATION SUMMARY")
