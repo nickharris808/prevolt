@@ -251,3 +251,4 @@ First catastrophic failure event (Q2-Q4 2026) will trigger systematic re-pricing
 **© 2025 Neural Harris IP Holdings. All Rights Reserved.**
 
 🔥 **THE AI INFRASTRUCTURE SHORT: TECHNICAL DEBT MEETS PHYSICAL REALITY** 🔥
+

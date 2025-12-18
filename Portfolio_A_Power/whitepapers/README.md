@@ -98,3 +98,4 @@ This folder contains three comprehensive whitepapers, each tailored to a specifi
 **Portfolio Version:** 15.0
 
 **© 2025 Neural Harris IP Holdings. All Rights Reserved.**
+

@@ -30,6 +30,22 @@ import os
 # Add parent directory to path for imports
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
+# PF8: Telemetry Bus Integration (Optional)
+try:
+    from _08_Grand_Unified_Cortex import (
+        TelemetryPublisher,
+        MetricType,
+        DistributedStateStore,
+        CoordinationMatrix
+    )
+    PF8_AVAILABLE = True
+except ImportError:
+    PF8_AVAILABLE = False
+    TelemetryPublisher = None
+    MetricType = None
+    DistributedStateStore = None
+    CoordinationMatrix = None
+
 
 # =============================================================================
 # SIMULATION PARAMETERS
@@ -126,21 +142,29 @@ class SimulationState:
     total_latency_us: float = 0.0
     latencies: List[float] = field(default_factory=list)
     total_drain_time_us: float = 0.0  # Time memory controller was busy
+    fill_velocity: float = 0.0        # dV/dt (bytes per us)
+    last_occupancy: int = 0
+    last_velocity_time: float = 0.0
     
-    @property
-    def drop_rate(self) -> float:
-        """Calculate packet drop rate as a fraction."""
-        if self.packets_arrived == 0:
-            return 0.0
-        return self.packets_dropped / self.packets_arrived
+    def update_velocity(self, current_time: float, current_occupancy: int):
+        """Calculate dV/dt of the buffer."""
+        dt = current_time - self.last_velocity_time
+        if dt > 0.1: # 100ns resolution
+            dv = current_occupancy - self.last_occupancy
+            self.fill_velocity = dv / dt
+            self.last_occupancy = current_occupancy
+            self.last_velocity_time = current_time
 
     @property
     def utilization(self) -> float:
         """Calculate memory link utilization."""
-        if self.packets_drained == 0:
+        if self.total_drain_time_us == 0:
             return 0.0
-        # This will be calculated at the end based on total_drain_time_us vs simulation duration
-        return 0.0 # Placeholder
+        # Simulation duration is the total time the link COULD have been busy
+        return min(1.0, self.total_drain_time_us / self.last_velocity_time) if self.last_velocity_time > 0 else 0.0
+
+    @property
+    def drop_rate(self) -> float:
         """Calculate packet drop rate as a fraction."""
         if self.packets_arrived == 0:
             return 0.0
@@ -202,16 +226,23 @@ class MemoryBuffer:
     and can signal backpressure to upstream senders.
     """
     
-    def __init__(self, env: simpy.Environment, config: IncastConfig):
+    def __init__(
+        self,
+        env: simpy.Environment,
+        config: IncastConfig,
+        telemetry_publisher: Optional['TelemetryPublisher'] = None
+    ):
         """
         Initialize the memory buffer.
         
         Args:
             env: SimPy environment
             config: Simulation configuration
+            telemetry_publisher: Optional PF8 telemetry publisher
         """
         self.env = env
         self.config = config
+        self.telemetry_publisher = telemetry_publisher
         
         # Queue represented as a list of packets
         self.queue: List[Packet] = []
@@ -235,23 +266,40 @@ class MemoryBuffer:
     def enqueue(self, packet: Packet) -> bool:
         """
         Attempt to enqueue a packet.
-        
-        Args:
-            packet: The packet to enqueue
-            
-        Returns:
-            True if packet was accepted, False if dropped
         """
         self.state.packets_arrived += 1
+        self.state.update_velocity(self.env.now, self.current_size_bytes)
         
         if self.can_accept_packet(packet):
             self.queue.append(packet)
             self.current_size_bytes += packet.size_bytes
             self._record_queue_depth()
+            self._publish_telemetry()
             return True
         else:
             self.state.packets_dropped += 1
             return False
+    
+    def _publish_telemetry(self):
+        """Publish telemetry to PF8 bus (if available)."""
+        if self.telemetry_publisher and PF8_AVAILABLE:
+            # Publish buffer depth
+            self.telemetry_publisher.publish(
+                MetricType.BUFFER_DEPTH,
+                self.occupancy_fraction
+            )
+            
+            # Publish buffer velocity (dV/dt)
+            self.telemetry_publisher.publish(
+                MetricType.BUFFER_VELOCITY,
+                self.state.fill_velocity
+            )
+            
+            # Publish backpressure state
+            self.telemetry_publisher.publish(
+                MetricType.BACKPRESSURE_ACTIVE,
+                1.0 if self.backpressure_active else 0.0
+            )
     
     def dequeue(self) -> Optional[Packet]:
         """
@@ -367,6 +415,99 @@ class AdaptiveHysteresisAlgorithm(BackpressureAlgorithm):
 # =============================================================================
 # TRAFFIC GENERATORS
 # =============================================================================
+
+class PredictiveHysteresisAlgorithm(BackpressureAlgorithm):
+    """
+    Predictive Fill-Rate (dV/dt) Controller (PF4-C).
+    
+    Triggers backpressure based on the velocity of buffer filling.
+    If dV/dt predicts we hit HWM in < 10us, trigger signal immediately.
+    """
+    
+    def __init__(self, buffer: MemoryBuffer, config: IncastConfig):
+        super().__init__(buffer, config)
+        self.paused = False
+        
+    def should_pause(self) -> bool:
+        velocity = self.buffer.state.fill_velocity
+        occupancy = self.buffer.current_size_bytes
+        capacity = self.config.buffer_capacity_bytes
+        
+        # Predictive trigger: will we hit 90% in 50us?
+        if not self.paused and velocity > 0:
+            time_to_hwm = (capacity * 0.90 - occupancy) / velocity
+            if time_to_hwm < 50.0:
+                self.paused = True
+                self.buffer.state.backpressure_events += 1
+                return True
+        
+        # Reactive safety net
+        if not self.paused and self.buffer.occupancy_fraction >= 0.90:
+            self.paused = True
+            return True
+            
+        return self.paused
+    
+    def should_resume(self) -> bool:
+        if self.paused and self.buffer.occupancy_fraction <= 0.70:
+            self.paused = False
+            return True
+        return not self.paused
+
+class CacheAwareHWMAlgorithm(BackpressureAlgorithm):
+    """
+    Cache-Aware High Water Mark (PF4-G) - Cross-Layer Coordination.
+    
+    This is the PF8-enabled variation that subscribes to cache health telemetry.
+    If the cache is under pressure (high miss rate), the memory controller drain
+    rate is effectively slower, so we trigger backpressure at a LOWER threshold
+    (50% instead of 80%) to prevent overflow.
+    
+    This is THE key innovation of PF8: cross-layer coordination.
+    """
+    
+    def __init__(
+        self,
+        buffer: MemoryBuffer,
+        config: IncastConfig,
+        state_store: Optional['DistributedStateStore'] = None,
+        coordination_matrix: Optional['CoordinationMatrix'] = None
+    ):
+        super().__init__(buffer, config)
+        self.paused = False
+        self.state_store = state_store
+        self.coordination_matrix = coordination_matrix
+        
+        # Default HWM (used when PF8 is not available)
+        self.default_hwm = 0.80
+    
+    def _get_coordinated_hwm(self) -> float:
+        """Get HWM threshold modulated by cache health."""
+        if self.coordination_matrix is not None:
+            return self.coordination_matrix.get_modulation(
+                'pf4_backpressure',
+                self.default_hwm
+            )
+        return self.default_hwm
+    
+    def should_pause(self) -> bool:
+        # Get coordinated threshold
+        hwm = self._get_coordinated_hwm()
+        
+        if not self.paused and self.buffer.occupancy_fraction >= hwm:
+            self.paused = True
+            self.buffer.state.backpressure_events += 1
+            return True
+        
+        return self.paused
+    
+    def should_resume(self) -> bool:
+        # Resume at 70% (hysteresis)
+        if self.paused and self.buffer.occupancy_fraction <= 0.70:
+            self.paused = False
+            return True
+        return not self.paused
+
 
 def uniform_traffic_generator(
     env: simpy.Environment,
@@ -529,15 +670,21 @@ def memory_drain_process(
 def run_incast_simulation(
     config: IncastConfig,
     algorithm_type: str,
-    seed: int
+    seed: int,
+    telemetry_publisher: Optional['TelemetryPublisher'] = None,
+    state_store: Optional['DistributedStateStore'] = None,
+    coordination_matrix: Optional['CoordinationMatrix'] = None
 ) -> Dict[str, float]:
     """
     Run a single incast simulation with the specified algorithm.
     
     Args:
         config: Simulation configuration
-        algorithm_type: 'no_control', 'static', or 'hysteresis'
+        algorithm_type: 'no_control', 'static', 'hysteresis', 'predictive', 'cache_aware'
         seed: Random seed for reproducibility
+        telemetry_publisher: Optional PF8 telemetry publisher
+        state_store: Optional PF8 state store
+        coordination_matrix: Optional PF8 coordination matrix
         
     Returns:
         Dictionary of metric name -> value
@@ -548,8 +695,8 @@ def run_incast_simulation(
     # Create SimPy environment
     env = simpy.Environment()
     
-    # Create buffer
-    buffer = MemoryBuffer(env, config)
+    # Create buffer with optional telemetry
+    buffer = MemoryBuffer(env, config, telemetry_publisher)
     
     # Create backpressure algorithm
     if algorithm_type == 'no_control':
@@ -558,6 +705,11 @@ def run_incast_simulation(
         backpressure = StaticThresholdAlgorithm(buffer, config)
     elif algorithm_type == 'hysteresis':
         backpressure = AdaptiveHysteresisAlgorithm(buffer, config)
+    elif algorithm_type == 'predictive':
+        backpressure = PredictiveHysteresisAlgorithm(buffer, config)
+    elif algorithm_type == 'cache_aware':
+        # PF4-G: Cache-Aware HWM with PF8 coordination
+        backpressure = CacheAwareHWMAlgorithm(buffer, config, state_store, coordination_matrix)
     else:
         raise ValueError(f"Unknown algorithm type: {algorithm_type}")
     

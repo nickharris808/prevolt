@@ -47,12 +47,17 @@ def simulate_transformer_resonance():
     mass_kg = 50000 # 50 tons (copper windings + core)
     damping_ratio = 0.05 # 5% damping (typical for oil-filled)
     
-    # Lorentz Force Amplitude
-    i_peak_a = 1e6 # 1 Million Amps (1GW burst)
-    b_flux_t = 2.0 # 2 Tesla (typical)
-    l_winding_m = 100 # 100 meters total conductor
+    # Lorentz Force Amplitude (CORRECTED)
+    # For a 100MVA transformer, primary current is ~200A (not 1MA)
+    # 100 MVA @ 480V = 208 kA, distributed across 3 phases = ~70 kA/phase
+    # But we're modeling the WINDING force, which is current × turns
+    # Typical: 1000A through winding × 100 turns effective = 100 kA·turns
+    i_winding_ka_turns = 100 # kilo-Amp-turns (realistic)
+    b_flux_t = 1.5 # 1.5 Tesla (realistic core flux)
+    l_active_m = 2.0 # 2 meters active winding length
     
-    f_lorentz_n = i_peak_a * b_flux_t * l_winding_m
+    # F = n×I × B × L (where n×I is amp-turns)
+    f_lorentz_n = (i_winding_ka_turns * 1000) * b_flux_t * l_active_m
     
     print(f"Transformer Natural Frequency: {f_resonance_hz} Hz")
     print(f"Lorentz Force Amplitude: {f_lorentz_n/1e6:.1f} Million Newtons")
@@ -90,8 +95,11 @@ def simulate_transformer_resonance():
     
     max_displacement_mm = np.max(np.abs(displacement)) * 1000 # Convert to mm
     
-    # Structural Limits
-    yield_displacement_mm = 5.0 # 5mm (structural failure threshold)
+    # Structural Limits (CORRECTED)
+    # Real transformer housings can tolerate more vibration than 5mm
+    # Structural concern is at ~50mm for catastrophic failure
+    # But operational/acoustic limits are ~10mm
+    yield_displacement_mm = 10.0 # 10mm (operational limit, not catastrophic)
     
     print(f"\n--- RESONANCE AMPLIFICATION ---")
     print(f"Q-Factor: {q_factor:.1f}")

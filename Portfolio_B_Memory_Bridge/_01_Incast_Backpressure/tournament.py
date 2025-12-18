@@ -96,21 +96,16 @@ class AdaptiveHysteresisAlgorithm(Algorithm):
 
 class PredictiveHWMAlgorithm(Algorithm):
     """
-    Predictive High Water Mark.
+    Predictive Fill-Rate (dV/dt) Controller (PF4-C).
     """
     
     @property
     def name(self) -> str:
-        return "Predictive HWM (PF4-C)"
+        return "Predictive dV/dt (PF4-C)"
     
     def run(self, scenario: Scenario, seed: int) -> Dict[str, float]:
-        load = scenario.params.get('network_rate_gbps', 200.0) / scenario.params.get('memory_rate_gbps', 100.0)
-        hwm = 0.95 / load 
-        config = IncastConfig(
-            **scenario.params,
-            backpressure_threshold=hwm
-        )
-        return run_incast_simulation(config, 'static', seed)
+        config = IncastConfig(**scenario.params)
+        return run_incast_simulation(config, 'predictive', seed)
 
 
 class CreditPacingAlgorithm(Algorithm):

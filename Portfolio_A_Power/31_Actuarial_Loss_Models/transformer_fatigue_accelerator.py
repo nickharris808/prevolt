@@ -39,8 +39,8 @@ def calculate_transformer_mttf():
     print("ACTUARIAL AUDIT: TRANSFORMER FATIGUE LIFE ACCELERATION")
     print("="*80)
     
-    # Material Constants (Structural Steel S-N Curve)
-    A_fatigue = 1e12 # Material constant
+    # Material Constants (Structural Steel S-N Curve) - CORRECTED
+    A_fatigue = 1e15 # Material constant (cycles)
     b_exponent = 3.0 # Stress exponent
     
     # AI Load Profile

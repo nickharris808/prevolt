@@ -3,52 +3,51 @@
 
 ---
 
-### Family 4: Direct-to-Source Backpressure (Incast)
-**Mission**: Subordinate the Network (UEC) to the Memory Controller (CXL) to achieve 0.00% drops at 200% load.
+### Family 4: Direct-to-Source Backpressure (Incast Protection)
+**The Mission:** Subordinate the Network (UEC) to the Memory Controller (CXL) to achieve 0.00% drops at 200% load with >99% link utilization.
 
-1.  **PF4-A: Direct-to-Source (Baseline)**: Pure hardware signal path from MC to NIC.
-2.  **PF4-B: Adaptive Hysteresis**: Dual-threshold stability optimizer to prevent control oscillation.
-3.  **PF4-C: Predictive HWM**: Online learning fill-rate predictor (dV/dt) for proactive throttling.
-4.  **PF4-D: Credit Pacing**: Fractional credit-based deceleration using UEC-native flow control.
-5.  **PF4-E: Buffer Partitioning**: Multi-tenant isolation through reserved per-flow memory lanes.
-6.  **PF4-F: Hybrid Controller**: Confidence-gated switching between predictive and reactive modes.
-
----
-
-### Family 5: Cache-Miss "Sniper" Isolation
-**Mission**: Identify and silence "Noisy Neighbors" based on cache performance telemetry, protecting victim latency.
-
-1.  **PF5-A: Cache-Miss Sniper**: Core invention using Z-score outliers in miss rates.
-2.  **PF5-B: Graduated Sniper**: Multi-stage penalty (ECN Mark → Rate Limit → Selective Drop).
-3.  **PF5-C: Aggregated Sniper**: Tenant-level aggregation to defeat QP-spraying attacks.
-4.  **PF5-D: UEC Priority Shield**: TC0/Collective traffic whitelisting to protect All-Reduce syncs.
-5.  **PF5-E: Velocity Tracker**: First-derivative reaction to rapid miss-rate spikes.
-6.  **PF5-F: Fairness/Sniper Hybrid**: Balances individual victim latency against total cluster throughput.
+*   **PF4-A: Direct-to-Source (Baseline)** - Pure hardware signal path from Memory Controller (MC) to NIC for binary pause.
+*   **PF4-B: Adaptive Hysteresis** - Dual-threshold stability optimizer (80/70) to prevent "control oscillation" and link jitter.
+*   **PF4-C: Predictive dV/dt Controller** - **[Key Invention]** Calculates buffer fill velocity (first derivative); triggers backpressure proactive to overflow.
+*   **PF4-D: Credit Pacing (Fractional)** - Modulates the rate of UEC-native credit return to smoothly decelerate senders instead of hard stopping.
+*   **PF4-E: Buffer Partitioning** - Guaranteed minimum buffer slots per Flow-ID to prevent "incast bullying" from starving independent flows.
+*   **PF4-F: Jitter-Aware Hybrid** - Confidence-gated switching between dV/dt prediction and HWM safety nets based on traffic entropy.
 
 ---
 
-### Family 6: Deadlock Release Valve
-**Mission**: Guarantee <500μs recovery from credit-locked states in lossless fabrics without false positives.
+### Family 5: Cache-Miss "Sniper" (Multi-Tenant Isolation)
+**The Mission:** Protect "Victim" p99 latency (<50us) by silencing memory-bandwidth bullies using hardware-level cache performance telemetry.
 
-1.  **PF6-A: Fixed Timeout**: Deterministic residence time trigger (1ms baseline).
-2.  **PF6-B: Adaptive TTL**: Congestion-scaling timeout that becomes "patient" during normal peaks.
-3.  **PF6-C: Coordinated Valve**: Cross-switch consensus monitor to verify global deadlock state.
-4.  **PF6-D: VL Shuffling**: Moving blocked flows to "Recovery Virtual Lanes" before dropping.
-5.  **PF6-E: Credit Jittering**: Proactive credit-injection to break potential loops pre-emptively.
-6.  **PF6-F: Grand Unified Deadlock Twin**: Real-time fabric monitoring via UEC In-Band Telemetry (INT).
+*   **PF5-A: Cache-Miss Sniper (Core)** - Outlier detection using Z-score deviations in per-flow cache miss rates.
+*   **PF5-B: Graduated Sniper** - Multi-stage penalty escalation (UEC ECN Mark → Credit Reduction → Intention Drop).
+*   **PF5-C: Aggregated Tenant Sniper** - **[Key Invention]** Hardware grouping of Flow-IDs by Tenant-ID to defeat "QP-Spraying" (where a bully hides across 1000 flows).
+*   **PF5-D: Collective Traffic Shield** - Whitelists UEC TC0/TC1 (Collective sync/Control) traffic to ensure system stability during bulk-data attacks.
+*   **PF5-E: Miss-Rate Velocity Tracker** - First-derivative reaction to rapid miss-rate spikes, catching "Burst Bullies" before they hit the cache.
+*   **PF5-F: VIP Guard Hybrid** - Combines sniper isolation with strict priority queues for "Gold Tier" workload protection.
 
 ---
 
-### Family 7: Stranded Memory "Borrowing" Protocol
-**Mission**: Transparently pool fragmented memory across nodes to reach 100% job completion rate.
+### Family 6: Deadlock Release Valve (Intention Drop)
+**The Mission:** Guarantee <2ms recovery from credit-locked states in lossless fabrics with **Zero False Positives** during normal congestion.
 
-1.  **PF7-A: Balanced Borrow**: Headroom-aware allocation from the node with most free memory.
-2.  **PF7-B: Latency-Aware Tiering**: Topology-optimized borrowing based on CXL hop count.
-3.  **PF7-C: Jitter mitigation**: Software-defined stabilization of remote memory access latency.
-4.  **PF7-D: Cooperative Loans**: Duration-negotiated borrowing to prevent stranding future jobs.
-5.  **PF7-E: Predictive Pre-Borrowing**: Anticipatory pooling based on job-memory ramp signatures.
-6.  **PF7-F: Multi-Tenant Fair Share**: Fair distribution of the remote memory pool across competing tenants.
+*   **PF6-A: Fixed TTL Timeout** - Deterministic residence time trigger (1ms baseline) for safety drops.
+*   **PF6-B: Adaptive TTL** - Scales timeout duration based on local queue depth to allow "legal" congestion to pass.
+*   **PF6-C: Coordinated Valve (Consensus)** - **[Key Invention]** Switch queries upstream/downstream neighbors; only drops if circular dependency is confirmed fabric-wide.
+*   **PF6-D: VL Shuffling (Lane Swap)** - Moves "stuck" packets to dedicated recovery Virtual Lanes (VLs) instead of discarding data.
+*   **PF6-E: Credit Jittering** - Proactively injects intentional jitter into credit returns to break synchronization-based deadlock loops.
+*   **PF6-F: Fast Retransmit Valve** - Couples the Intention-Drop with a sub-microsecond Hardware-NACK to the sender for instant recovery.
+
+---
+
+### Family 7: Stranded Memory Borrowing (CXL Pooling)
+**The Mission:** Eliminate OOM crashes by enabling zero-copy, network-transparent memory borrowing across the CXL.mem fabric.
+
+*   **PF7-A: Balanced Borrowing** - Global allocation policy that pulls from nodes with highest free capacity.
+*   **PF7-B: Latency-Tiered Allocation** - Allocator awareness of "Hot" (Local), "Warm" (CXL Bridge), and "Cold" (Multi-hop) memory pools.
+*   **PF7-C: CXL.mem Tunneling** - Protocol for mapping remote physical memory directly into local virtual address space via UEC-CXL bridge.
+*   **PF7-D: Duration-Negotiated Loans** - **[Key Invention]** Borrowing thresholds scale inversely with job duration; prevents long-running "memory hogs" from stranding peers.
+*   **PF7-E: Predictive Pre-Borrowing** - Uses page-fault telemetry to pre-allocate remote pages *before* the local limit is reached.
+*   **PF7-F: Fair-Share Cluster Pool** - Enforces cluster-wide memory fairness (Jain's Index) while maximizing total cluster utilization (>95%).
 
 ---
 *Proprietary & Confidential. 24 Foundational Patents Pending.*
-

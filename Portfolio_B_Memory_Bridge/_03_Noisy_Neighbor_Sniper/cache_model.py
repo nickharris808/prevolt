@@ -152,44 +152,39 @@ class FlowTracker:
     ):
         """
         Initialize the flow tracker.
-        
-        Args:
-            window_size_us: Time window for rate calculation
-            history_length: Number of windows to keep in history
         """
         self.window_size_us = window_size_us
         self.history_length = history_length
         
-        # Per-tenant counts in current window
+        # Per-tenant counts
         self.current_hits: Dict[int, int] = {}
         self.current_misses: Dict[int, int] = {}
         
-        # Per-tenant miss rate history (deques)
+        # Per-QP (flow) counts for aggregation testing
+        self.current_qp_misses: Dict[int, int] = {}
+        
+        # Per-tenant miss rate history
         self.miss_rate_history: Dict[int, deque] = {}
         
         # Window timing
         self.window_start_time: float = 0.0
         self.current_time: float = 0.0
     
-    def record_access(self, tenant_id: int, was_hit: bool, current_time: float):
+    def record_access(self, tenant_id: int, was_hit: bool, current_time: float, qp_id: int = 0):
         """
         Record a cache access.
-        
-        Args:
-            tenant_id: The tenant making the request
-            was_hit: Whether it was a cache hit
-            current_time: Current simulation time
         """
         self.current_time = current_time
         
-        # Check if we need to roll over to a new window
         if current_time - self.window_start_time >= self.window_size_us:
             self._roll_window()
         
+        # PF5-C: Aggregated Sniper - track QP but group by Tenant ID
         if was_hit:
             self.current_hits[tenant_id] = self.current_hits.get(tenant_id, 0) + 1
         else:
             self.current_misses[tenant_id] = self.current_misses.get(tenant_id, 0) + 1
+            self.current_qp_misses[qp_id] = self.current_qp_misses.get(qp_id, 0) + 1
     
     def _roll_window(self):
         """Roll to a new time window, saving current miss rates to history."""
@@ -211,6 +206,7 @@ class FlowTracker:
         # Reset for new window
         self.current_hits = {}
         self.current_misses = {}
+        self.current_qp_misses = {}
         self.window_start_time = self.current_time
     
     def get_tenant_miss_rate(self, tenant_id: int) -> float:
@@ -339,7 +335,8 @@ class SharedCache:
         self,
         tenant_id: int,
         data_key: int,
-        current_time: float
+        current_time: float,
+        qp_id: int = 0
     ):
         """
         Access data in the cache.
@@ -376,8 +373,8 @@ class SharedCache:
             heapq.heappush(self.lru_heap, (current_time, slot_id))
             service_time = self.miss_latency_us
             
-        # Track access performance
-        self.flow_tracker.record_access(tenant_id, was_hit, current_time)
+        # Track access performance - PF5-C: include qp_id
+        self.flow_tracker.record_access(tenant_id, was_hit, current_time, qp_id)
         
         # Request the memory controller resource
         with self.controller.request() as req:

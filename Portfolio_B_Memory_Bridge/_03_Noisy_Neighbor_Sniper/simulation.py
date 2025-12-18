@@ -324,6 +324,9 @@ def tenant_process(env, profile, throttler, cache, state, rng):
         state.total_requests += 1
         current_time = env.now
         
+        # PF5-C: Multiple QPs (Flows) per tenant
+        qp_id = (profile.tenant_id * 100) + rng.integers(0, 10)
+        
         # Determine data key based on locality
         if rng.random() < profile.locality:
             key = (last_key + rng.integers(0, 5)) % profile.working_set_size
@@ -339,7 +342,7 @@ def tenant_process(env, profile, throttler, cache, state, rng):
             start_time = env.now
             
             # Access cache (this is now a generator)
-            result = yield from cache.access(profile.tenant_id, key, current_time)
+            result = yield from cache.access(profile.tenant_id, key, current_time, qp_id)
             was_hit, service_time = result
             
             # Total latency

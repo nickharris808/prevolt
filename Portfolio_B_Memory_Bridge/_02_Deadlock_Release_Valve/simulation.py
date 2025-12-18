@@ -158,6 +158,7 @@ class Switch:
         # Flow control
         self.credits_available = config.buffer_capacity_packets
         self.downstream_switch: Optional['Switch'] = None
+        self.upstream_switch: Optional['Switch'] = None
         
         # Statistics
         self.packets_received = 0
@@ -226,9 +227,16 @@ class Switch:
         if self.ttl_algorithm == 'none':
             return []
         
-        # PF6-C: Coordinated Valve - only drop if neighbor is also blocked
+        # PF6-C: Coordinated Valve - only drop if NEIGHBORS are also blocked (Consensus)
         if self.config.coordination_mode:
+            # Check upstream and downstream telemetry
+            consensus = True
             if self.downstream_switch and not self.downstream_switch.deadlock_detected:
+                consensus = False
+            if self.upstream_switch and not self.upstream_switch.deadlock_detected:
+                consensus = False
+            
+            if not consensus:
                 return []
 
         expired = []
@@ -339,8 +347,10 @@ class DeadlockNetwork:
         # Connect switches in ring
         for name in self.topology.get_switch_names():
             next_name = self.topology.get_next_hop(name)
+            prev_name = self.topology.get_prev_hop(name)
             self.switches[name].downstream_switch = self.switches[next_name]
-        
+            self.switches[name].upstream_switch = self.switches[prev_name]
+
         # Simulation state
         self.deadlock_active = False
         self.deadlock_start_time: Optional[float] = None

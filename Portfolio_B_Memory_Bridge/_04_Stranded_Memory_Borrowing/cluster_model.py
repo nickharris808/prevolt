@@ -370,15 +370,23 @@ class CooperativeBorrowAlgorithm(AllocationAlgorithm):
         
         if remaining <= 0: return True
         
+        # Calculate dynamic reserve based on job duration
+        # PF7-D: Long jobs must leave more headroom for others.
+        reserve_factor = 0.3 if job.duration_us > 1000.0 else 0.05
+        
         used_nodes = {job.preferred_node}
         while remaining > 0:
             best_node_id = self.cluster.get_node_with_most_free_memory(exclude=used_nodes)
             if best_node_id is None: break
             best_node = self.cluster.nodes[best_node_id]
-            reserve = best_node.total_memory_gb * 0.1
-            if best_node.free_memory_gb < reserve and job.duration_us > 500:
+            
+            reserve = best_node.total_memory_gb * reserve_factor
+            if best_node.free_memory_gb < reserve:
                 break
-            borrow_amount = min(best_node.free_memory_gb, remaining)
+                
+            borrow_amount = min(best_node.free_memory_gb - reserve, remaining)
+            if borrow_amount <= 0: break
+            
             block = best_node.lend_memory(job.preferred_node, borrow_amount)
             block.allocated_to_job = job.job_id
             job.remote_memory_gb += borrow_amount
