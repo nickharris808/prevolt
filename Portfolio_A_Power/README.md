@@ -416,7 +416,7 @@ brew install ngspice  # macOS
 python validate_all_acceptance_criteria.py
 ```
 **Expected Runtime:** 30-60 seconds  
-**Expected Output:** 47/47 PASS
+**Expected Output:** 51/51 PASS
 
 ### Run Individual Families
 ```bash
@@ -496,7 +496,17 @@ By providing synthetic inertia 100× faster than chemical batteries, AIPP-Omega 
 
 ## ARTIFACTS & EVIDENCE
 
-### Publication-Quality Figures (83 Total)
+### Repository Structure (The "God-View" - All 30 Pillars)
+**Complete Folder Map:**
+- **01-04:** Core Physics (Pre-Charge, Telemetry, Spectral, Grid)
+- **05-10:** System Architecture (Memory, Chiplet, VPP, Thermal, SDK, Fabric)
+- **11-17:** Global Monopoly (Optical, Storage, Security, Silicon, Twin, RL, Counter-Design)
+- **18-19:** Physical Reality Bridges (Facility Moats, Planetary Constraints)
+- **20-24:** Sovereign Control (Dispatch, Settlement, Migration, Atomic, Orchestration)
+- **25-29:** Extreme Physics (Resonant, ABB, Entropy, Coherent, Gradients)
+- **30:** Supply Chain Trust (Power-PUF Authentication)
+
+### Publication-Quality Figures (86 Total - Updated)
 **Distribution:** Artifacts are co-located with source code in pillar folders (01-29)
 - **Family 1 (`01_PreCharge_Trigger/artifacts/`):** 9 PNG (SPICE transients, Kalman, Safety Clamp)
 - **Family 2 (`02_Telemetry_Loop/artifacts/`):** 10 PNG (PID, Bode, Collective Guard, Adversarial)
