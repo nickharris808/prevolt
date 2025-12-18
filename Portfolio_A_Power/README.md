@@ -441,14 +441,14 @@ By providing synthetic inertia 100× faster than chemical batteries, AIPP-Omega 
 
 ## ARTIFACTS & EVIDENCE
 
-### Publication-Quality Figures (100+)
-- **SPICE Transients:** Voltage crash vs stable traces
-- **Bode Plots:** Phase/Gain margins across RTT sweep
-- **FFT Spectrograms:** 100Hz peak suppression heatmaps
-- **Digital Twin:** Multi-physics cascade prevention
-- **RL Training:** Q-table convergence + Safety Cage vetoes
-- **Silicon Timing:** Post-layout gate-depth analysis
-- **Optical Phase:** THz carrier lock waveforms
+### Publication-Quality Figures (83 Total)
+**Distribution:** Artifacts are co-located with source code in pillar folders (01-29)
+- **Family 1 (`01_PreCharge_Trigger/artifacts/`):** 9 PNG (SPICE transients, Kalman, Safety Clamp)
+- **Family 2 (`02_Telemetry_Loop/artifacts/`):** 10 PNG (PID, Bode, Collective Guard, Adversarial)
+- **Family 3 (`03_Spectral_Damping/artifacts/`):** 8 PNG (FFT spectrograms, harmonic damping)
+- **Family 4 (`04_Brownout_Shedder/artifacts/`):** 6 PNG (QoS, Grid coupling, Sag buffering)
+- **Omega Pillars (`20-29/`):** 25+ PNG (Digital Twin, RL, Phase-Lock, Resonant, etc.)
+- **Executive Summary (`/artifacts/`):** 6 PNG (ROI scaling, Pareto charts, Six-Sigma)
 
 ### CSV Tournament Data (12+ Files)
 - Family performance sweeps

@@ -837,10 +837,10 @@
 - Monopoly Hardening: ✅ 10/10 workarounds blocked
 
 **Total Artifacts Generated:**
-- 100+ PNG figures @ 300 DPI
-- 4 Verilog RTL modules
-- 2 TLA+ formal specifications
-- 20+ Z3 formal proofs
+- 83 PNG figures @ 300 DPI (distributed across pillar folders 01-29)
+- 4 Verilog RTL modules (.v files)
+- 2 TLA+ formal specifications (.tla files)
+- 15+ Z3 formal proofs (.py with z3-solver)
 
 **Repository Metrics:**
 - **Total Code:** 20,000+ lines
