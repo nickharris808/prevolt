@@ -400,6 +400,28 @@ def generate_visualizations(
         lower_is_better=True  # Lower is better for isolation
     )
     
+    # =========================================================================
+    # Figure 6: Family Sextet (PF5)
+    # =========================================================================
+    print("Generating Family Sextet visualization...")
+    family_stats = {}
+    metrics = ['good_p99_latency_us', 'fairness_score', 'good_throughput']
+    for algo in runner.algorithms:
+        family_stats[algo.name] = {}
+        for metric in metrics:
+            stats = runner.compute_statistics(metric)
+            for s in stats:
+                if s.algorithm == algo.name:
+                    family_stats[algo.name][metric] = (s.mean, s.ci_lower, s.ci_upper)
+                    
+    from shared.visualization import plot_family_sextet
+    plot_family_sextet(
+        stats_by_algorithm=family_stats,
+        output_dir=output_dir,
+        filename='pf5_family_sextet',
+        title='Patent Family 5: Sniper Isolation Variations'
+    )
+    
     print(f"All figures saved to {output_dir}")
 
 

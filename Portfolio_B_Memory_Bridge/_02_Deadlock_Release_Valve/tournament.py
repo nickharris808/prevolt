@@ -106,15 +106,12 @@ class CoordinatedValveAlgorithm(Algorithm):
     
     def run(self, scenario: Scenario, seed: int) -> Dict[str, float]:
         config = DeadlockConfig(**scenario.params, ttl_timeout_us=2000.0)
-        return run_deadlock_simulation(config, 'fixed_ttl', seed)
+        return run_deadlock_simulation(config, 'coordinated', seed)
 
 
 class CreditShufflingAlgorithm(Algorithm):
     """
     Loop-Preventative Credit Shuffling (PF6-D).
-    
-    Nudges credits between switches to break potential deadlock
-    before the intention drop is needed.
     """
     
     @property
@@ -122,9 +119,8 @@ class CreditShufflingAlgorithm(Algorithm):
         return "Credit Shuffling (PF6-D)"
     
     def run(self, scenario: Scenario, seed: int) -> Dict[str, float]:
-        # Simulates prevention by using a very sensitive TTL.
         config = DeadlockConfig(**scenario.params, ttl_timeout_us=3000.0)
-        return run_deadlock_simulation(config, 'adaptive_ttl', seed)
+        return run_deadlock_simulation(config, 'shuffling', seed)
 
 
 class FastRetransmitValve(Algorithm):
@@ -389,6 +385,28 @@ def generate_visualizations(
     
     save_figure(fig, output_dir, 'throughput_recovery')
     plt.close(fig)
+    
+    # =========================================================================
+    # Figure 6: Family Sextet (PF6)
+    # =========================================================================
+    print("Generating Family Sextet visualization...")
+    family_stats = {}
+    metrics = ['avg_throughput_gbps', 'recovery_time_us', 'deadlock_fraction']
+    for algo in runner.algorithms:
+        family_stats[algo.name] = {}
+        for metric in metrics:
+            stats = runner.compute_statistics(metric)
+            for s in stats:
+                if s.algorithm == algo.name:
+                    family_stats[algo.name][metric] = (s.mean, s.ci_lower, s.ci_upper)
+                    
+    from shared.visualization import plot_family_sextet
+    plot_family_sextet(
+        stats_by_algorithm=family_stats,
+        output_dir=output_dir,
+        filename='pf6_family_sextet',
+        title='Patent Family 6: Deadlock Valve Variations'
+    )
     
     print(f"All figures saved to {output_dir}")
 

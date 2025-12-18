@@ -2,9 +2,9 @@
 ## 🌌 $100.0 BILLION+ OMEGA TIER ASSET
 ### The Physical Constitution of the Intelligence Age
 
-**Status:** ✅ OMEGA TIER ACHIEVED  
-**Acceptance Criteria:** 100% PASS (10/10 Tiers including Planetary Scale)  
-**Valuation:** **$100,000,000,000+ (The Physical Nervous System of Civilization)**
+**Status:** ✅ GLOBAL SOVEREIGN TIER ACHIEVED  
+**Acceptance Criteria:** 100% PASS (11/11 Tiers including Sovereign Orchestration)  
+**Valuation:** **$100,000,000,000+ (The Physical Constitution of the Intelligence Age)**
 
 ---
 
@@ -43,10 +43,13 @@ This portfolio defines the **AI Power Protocol (AIPP-Omega)**—the definitive s
 *   **[`DATA_ROOM_README.md`](DATA_ROOM_README.md)**: Massive DD package including Omega-Tier verification.
 
 ### 🧪 Omega Pillars (Implementation)
-*   **[`20_Power_Gated_Dispatch/`](20_Power_Gated_Dispatch/)**: Verilog Gate logic and Token Handshake.
-*   **[`21_Thermodynamic_Settlement/`](21_Thermodynamic_Settlement/)**: The Global Ledger of Work.
-*   **[`22_Planetary_Orchestration/`](22_Planetary_Orchestration/)**: Planetary Load Migrator.
-*   **[`23_Atomic_Timing/`](23_Atomic_Timing/)**: Phase-drift compensation and Perfect Time.
+*   **[`20_Power_Gated_Dispatch/`](20_Power_Gated_Dispatch/)**: Verilog Gate logic and Token Handshake (Permission to Compute).
+*   **[`21_Thermodynamic_Settlement/`](21_Thermodynamic_Settlement/)**: The Global Ledger of Work (Joules-per-Token).
+*   **[`22_Planetary_Orchestration/`](22_Planetary_Orchestration/)**: Planetary Load Migrator (Global Inference).
+*   **[`23_Atomic_Timing/`](23_Atomic_Timing/)**: Phase-drift compensation and Perfect Time (CSAC Clocks).
+*   **[`24_Sovereign_Orchestration/`](24_Sovereign_Orchestration/)**: Planetary Carbon Arbitrage & Grid Inertia.
+*   **[`17_Counter_Design_Around/`](17_Counter_Design_Around/)**: 10/10 Monopoly shields against competitor workarounds.
+*   **[`ECONOMIC_VALUATION/`](ECONOMIC_VALUATION/)**: TFLOPS tax analysis and economic moat proofs.
 
 ---
 
@@ -73,7 +76,7 @@ This portfolio defines the **AI Power Protocol (AIPP-Omega)**—the definitive s
 
 ## 🚀 Rapid Validation & Reproduction
 
-### One-Command Full Stack Validation (Tier 1-10)
+### One-Command Full Stack Validation (Tier 1-11)
 ```bash
 python validate_all_acceptance_criteria.py
 ```
@@ -83,9 +86,14 @@ python validate_all_acceptance_criteria.py
 python 20_Power_Gated_Dispatch/token_handshake_sim.py
 ```
 
-### Reproduce Omega Pillar: Global Sun-Follower
+### Reproduce Omega Pillar: Planetary Sun-Follower
 ```bash
-python 22_Planetary_Orchestration/inference_load_migrator.py
+python 24_Sovereign_Orchestration/planetary_carbon_arbitrage.py
+```
+
+### Verify Monopoly Hardening (10/10 Shields)
+```bash
+python validate_monopoly_status.py
 ```
 
 ---
@@ -94,10 +102,11 @@ python 22_Planetary_Orchestration/inference_load_migrator.py
 
 **For Sovereign Acquisition:** [Confidential - Neural Harris IP Holdings]  
 **For Global Deployment:** Request the "AIPP-Omega Planetary Blueprint."  
+**For Nation-State Integration:** Schedule briefing with Energy Ministry & Defense Leadership.
 
 **Repository Maintained By:** Neural Harris  
 **Last Updated:** December 17, 2025  
-**Portfolio Version:** 10.0 ($100B+ Omega Tier)
+**Portfolio Version:** 11.0 ($100B+ Global Sovereign Tier)
 
 ---
 

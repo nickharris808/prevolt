@@ -34,3 +34,4 @@ Acquirers and customers will NOT choose a 13% slower GPU cluster to avoid a marg
 
 **© 2025 Neural Harris IP Holdings. All Rights Reserved.**  
 *Confidential — For Evaluation by Strategic Acquirers Only.*
+

@@ -68,6 +68,8 @@ class DeadlockConfig:
     
     # Validation scenarios
     congestion_only_mode: bool = False  # If True, heavy traffic but no deadlock
+    virtual_lanes_enabled: bool = False # PF6-D support
+    coordination_mode: bool = False    # PF6-C support
     
     # Deadlock injection timing
     deadlock_injection_time_us: float = 1000.0  # Start at 1ms
@@ -220,22 +222,30 @@ class Switch:
     def check_ttl_expired(self) -> List[Packet]:
         """
         Check for and remove TTL-expired packets (Intention Drop).
-        
-        This breaks the lossless rule intentionally to clear deadlocks.
         """
         if self.ttl_algorithm == 'none':
             return []
         
+        # PF6-C: Coordinated Valve - only drop if neighbor is also blocked
+        if self.config.coordination_mode:
+            if self.downstream_switch and not self.downstream_switch.deadlock_detected:
+                return []
+
         expired = []
         remaining = []
         
         for packet in self.buffer:
             dwell_time = self.env.now - packet.enqueue_time
             
-            # The "Intention Drop" trigger
             if dwell_time >= packet.ttl_remaining_us:
-                expired.append(packet)
-                self.packets_dropped_ttl += 1
+                # PF6-D: VL Shuffling - try moving to recovery lane first
+                if self.config.virtual_lanes_enabled and packet.hops < 5:
+                    packet.enqueue_time = self.env.now # Reset timer
+                    packet.ttl_remaining_us *= 1.5     # Give more time in new lane
+                    remaining.append(packet)
+                else:
+                    expired.append(packet)
+                    self.packets_dropped_ttl += 1
             else:
                 remaining.append(packet)
         
@@ -505,10 +515,18 @@ def run_deadlock_simulation(
     ttl_map = {
         'no_timeout': 'none',
         'fixed_ttl': 'fixed',
-        'adaptive_ttl': 'adaptive'
+        'adaptive_ttl': 'adaptive',
+        'coordinated': 'fixed',
+        'shuffling': 'adaptive'
     }
     ttl_algorithm = ttl_map.get(algorithm_type, 'none')
     
+    # Configure special modes
+    if algorithm_type == 'coordinated':
+        config.coordination_mode = True
+    if algorithm_type == 'shuffling':
+        config.virtual_lanes_enabled = True
+        
     # Create network
     network = DeadlockNetwork(env, config, ttl_algorithm)
     

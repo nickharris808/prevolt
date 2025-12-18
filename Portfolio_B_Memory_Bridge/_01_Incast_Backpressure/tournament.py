@@ -370,6 +370,28 @@ def generate_visualizations(
         lower_is_better=False
     )
     
+    # =========================================================================
+    # Figure 6: Family Sextet (PF4)
+    # =========================================================================
+    print("Generating Family Sextet visualization...")
+    family_stats = {}
+    metrics = ['drop_rate', 'throughput_fraction', 'utilization']
+    for algo in runner.algorithms:
+        family_stats[algo.name] = {}
+        for metric in metrics:
+            stats = runner.compute_statistics(metric)
+            for s in stats:
+                if s.algorithm == algo.name:
+                    family_stats[algo.name][metric] = (s.mean, s.ci_lower, s.ci_upper)
+                    
+    from shared.visualization import plot_family_sextet
+    plot_family_sextet(
+        stats_by_algorithm=family_stats,
+        output_dir=output_dir,
+        filename='pf4_family_sextet',
+        title='Patent Family 4: Incast Backpressure Variations'
+    )
+    
     print(f"All figures saved to {output_dir}")
 
 

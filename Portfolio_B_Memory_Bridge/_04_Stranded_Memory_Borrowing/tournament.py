@@ -142,6 +142,34 @@ class CooperativeBorrowAlgorithm(Algorithm):
         return run_stranded_memory_simulation(config, 'cooperative', seed)
 
 
+class PredictivePreBorrowAlgorithm(Algorithm):
+    """
+    Predictive Pre-Borrowing (PF7-E).
+    """
+    
+    @property
+    def name(self) -> str:
+        return "Predictive Pre-Borrow (PF7-E)"
+    
+    def run(self, scenario: Scenario, seed: int) -> Dict[str, float]:
+        config = StrandedMemoryConfig(**scenario.params)
+        return run_stranded_memory_simulation(config, 'predictive', seed)
+
+
+class FairShareBorrowAlgorithm(Algorithm):
+    """
+    Multi-Tenant Fair Share Borrowing (PF7-F).
+    """
+    
+    @property
+    def name(self) -> str:
+        return "Fair Share Borrow (PF7-F)"
+    
+    def run(self, scenario: Scenario, seed: int) -> Dict[str, float]:
+        config = StrandedMemoryConfig(**scenario.params)
+        return run_stranded_memory_simulation(config, 'fair_share', seed)
+
+
 # =============================================================================
 # SCENARIO DEFINITIONS
 # =============================================================================
@@ -409,6 +437,28 @@ def generate_visualizations(
         cmap='RdYlGn'
     )
     
+    # =========================================================================
+    # Figure 6: Family Sextet (PF7)
+    # =========================================================================
+    print("Generating Family Sextet visualization...")
+    family_stats = {}
+    metrics = ['completion_rate', 'crash_rate', 'avg_utilization']
+    for algo in runner.algorithms:
+        family_stats[algo.name] = {}
+        for metric in metrics:
+            stats = runner.compute_statistics(metric)
+            for s in stats:
+                if s.algorithm == algo.name:
+                    family_stats[algo.name][metric] = (s.mean, s.ci_lower, s.ci_upper)
+                    
+    from shared.visualization import plot_family_sextet
+    plot_family_sextet(
+        stats_by_algorithm=family_stats,
+        output_dir=output_dir,
+        filename='pf7_family_sextet',
+        title='Patent Family 7: Memory Borrowing Variations'
+    )
+    
     print(f"All figures saved to {output_dir}")
 
 
@@ -491,7 +541,10 @@ def main():
         GreedyBorrowAlgorithm(),
         BalancedBorrowAlgorithm(),
         LatencyTieredAlgorithm(),
-        JitterMitigatedTunneling()
+        JitterMitigatedTunneling(),
+        CooperativeBorrowAlgorithm(),
+        PredictivePreBorrowAlgorithm(),
+        FairShareBorrowAlgorithm()
     ]
     
     # Create scenarios

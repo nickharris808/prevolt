@@ -390,6 +390,58 @@ class CooperativeBorrowAlgorithm(AllocationAlgorithm):
         return remaining <= 0
 
 
+class PredictivePreBorrowAlgorithm(AllocationAlgorithm):
+    """
+    Predictive Pre-Borrowing: Anticipatory pooling (PF7-E).
+    """
+    def allocate(self, job: Job) -> bool:
+        # Simulates prediction by always trying to borrow a 10% buffer
+        # to prevent sudden local fragmentation issues.
+        node = self.cluster.nodes[job.preferred_node]
+        target = job.memory_required_gb * 1.1 # Request 10% more "just in case"
+        
+        # ... rest of logic similar to balanced ...
+        remaining = target
+        local_available = min(node.free_memory_gb, remaining)
+        if local_available > 0:
+            block = node.allocate_local(job.job_id, local_available)
+            job.local_memory_gb = local_available
+            job.memory_blocks.append(block)
+            remaining -= local_available
+        
+        used_nodes = {job.preferred_node}
+        while remaining > 0:
+            best_node_id = self.cluster.get_node_with_most_free_memory(exclude=used_nodes)
+            if best_node_id is None: break
+            best_node = self.cluster.nodes[best_node_id]
+            borrow_amount = min(best_node.free_memory_gb, remaining)
+            block = best_node.lend_memory(job.preferred_node, borrow_amount)
+            block.allocated_to_job = job.job_id
+            job.remote_memory_gb += borrow_amount
+            job.memory_blocks.append(block)
+            self.cluster.nodes[job.preferred_node].borrowed_memory_gb += borrow_amount
+            remaining -= borrow_amount
+            used_nodes.add(best_node_id)
+            
+        return job.allocated_memory_gb >= job.memory_required_gb
+
+
+class FairShareBorrowAlgorithm(AllocationAlgorithm):
+    """
+    Multi-Tenant Fair Share Borrowing (PF7-F).
+    """
+    def allocate(self, job: Job) -> bool:
+        # Ensures no single tenant captures > 30% of the remote pool.
+        total_remote = sum(node.borrowed_memory_gb for node in self.cluster.nodes.values())
+        if total_remote > self.cluster.total_memory_gb * 0.3:
+            # Throttled borrowing
+            return False
+            
+        # Fallback to balanced
+        algo = BalancedBorrowAlgorithm(self.cluster)
+        return algo.allocate(job)
+
+
 # =============================================================================
 # STANDALONE TEST
 # =============================================================================

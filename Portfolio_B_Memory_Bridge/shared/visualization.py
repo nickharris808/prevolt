@@ -459,6 +459,71 @@ def plot_family_sextet(
     axes = axes.flatten()
     
     algo_names = list(stats_by_algorithm.keys())
+    # Baseline is assumed to be the first one
+    baseline_name = algo_names[0]
+    
+    # Variations are 1 to N
+    plot_idx = 0
+    for i in range(1, len(algo_names)):
+        if plot_idx >= 6: break
+        
+        ax = axes[plot_idx]
+        name = algo_names[i]
+        
+        metrics = list(stats_by_algorithm[name].keys())
+        if not metrics: continue
+        primary_metric = metrics[0]
+        
+        b_stats = stats_by_algorithm[baseline_name].get(primary_metric)
+        v_stats = stats_by_algorithm[name].get(primary_metric)
+        
+        if not b_stats or not v_stats:
+            continue
+            
+        b_mean, b_low, b_high = b_stats
+        v_mean, v_low, v_high = v_stats
+        
+        # Shorten name for plot
+        short_name = name.split('(')[-1].replace(')', '')
+        if len(short_name) > 15: short_name = short_name[:12] + "..."
+        
+        labels = ['Baseline', short_name]
+        means = [b_mean, v_mean]
+        errors = [[max(0, b_mean-b_low), max(0, v_mean-v_low)], 
+                  [max(0, b_high-b_mean), max(0, v_high-v_mean)]]
+        
+        ax.bar(labels, means, yerr=errors, capsize=5, 
+               color=[ALGORITHM_COLORS[0], ALGORITHM_COLORS[3]], alpha=0.8)
+        ax.set_title(f"Var {plot_idx+1}: {name.split('(')[-1].replace(')', '')}")
+        ax.set_ylabel(primary_metric.replace('_', ' ').title())
+        
+        plot_idx += 1
+        
+    for j in range(plot_idx, 6):
+        axes[j].axis('off')
+        
+    fig.suptitle(title, fontsize=22, fontweight='bold')
+    plt.tight_layout(rect=[0, 0.03, 1, 0.95])
+    
+    save_figure(fig, output_dir, filename)
+    return fig
+
+
+def plot_family_sextet(
+    stats_by_algorithm: Dict[str, Dict[str, Tuple[float, float, float]]],
+    output_dir: str,
+    filename: str,
+    title: str
+) -> plt.Figure:
+    """
+    Creates a 2x3 grid of bar charts for a patent family (The Sextet).
+    Each subplot shows a different variation against the baseline.
+    """
+    setup_style()
+    fig, axes = plt.subplots(2, 3, figsize=(18, 12))
+    axes = axes.flatten()
+    
+    algo_names = list(stats_by_algorithm.keys())
     baseline_name = algo_names[0]
     
     plot_idx = 0
