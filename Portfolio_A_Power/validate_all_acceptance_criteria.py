@@ -147,6 +147,11 @@ def validate_all():
     results.append(("Entropy Credits", run_test("21_Thermodynamic_Settlement/entropy_credit_ledger.py", "AI Clearinghouse")))
     results.append(("Power Audit", run_test("13_Sovereign_Security/power_signature_audit.py", "Physical Attestation")))
     
+    # Tier 16: The Final Lock (Supply Chain Security)
+    print("\nTHE FINAL LOCK: SUPPLY CHAIN SECURITY (TIER 16)")
+    print("-" * 30)
+    results.append(("Silicon Provenance", run_test("30_Silicon_Provenance/puf_power_fingerprint.py", "Power-PUF")))
+    
     # Summary
     print("\n" + "="*80)
     print("VALIDATION SUMMARY")
