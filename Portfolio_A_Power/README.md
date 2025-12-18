@@ -10,7 +10,7 @@
 
 ## 🚀 The $5.0 Billion Strategic Pillars
 
-This portfolio defines the **AI Power Protocol (AIPP v2.0)**—the industry standard for the physical orchestration of AGI infrastructure. It consists of **15 Strategic Patent Families** and **50+ individual proven mechanisms**, moving beyond "management" to "physical synthesis."
+This portfolio defines the **AI Power Protocol (AIPP v2.0)**—the industry standard for the physical orchestration of AGI infrastructure. It has transitioned from "Defensive IP" to **Offensive Architecture**, anticipating and blocking 10/10 competitor design-around paths.
 
 ### 1. Zero-Capacitance Active Synthesis (The BOM Killer)
 *   **Innovation:** Deleting 90% of decoupling capacitors via phase-opposite current injection.
@@ -65,6 +65,8 @@ This portfolio defines the **AI Power Protocol (AIPP v2.0)**—the industry stan
 *   **[`DATA_ROOM_README.md`](DATA_ROOM_README.md)**: Massive due-diligence package with formal verification evidence.
 
 ### 🧪 Technical Pillars (Implementation)
+*   **[`17_Counter_Design_Around/`](17_Counter_Design_Around/)**: The "Checkmate" folder blocking 10/10 workarounds.
+*   **[`18_Facility_Scale_Moats/`](18_Facility_Scale_Moats/)**: Infrastructure-scale locks for IVR/Cooling workarounds.
 *   **[`01_PreCharge_Trigger/`](01_PreCharge_Trigger/)**: Active Synthesis and non-linear SPICE saturation.
 *   **[`STANDARDS_BODY/`](STANDARDS_BODY/)**: TLA+ Formal Spec and Z3 Verification Reports.
 *   **[`05_Memory_Orchestration/`](05_Memory_Orchestration/)**: HBM4 DPLL phase-locking and refresh sync.

@@ -60,7 +60,14 @@ python 07_Grid_VPP/carbon_intensity_orchestrator.py
 # Run all 9 Tiers of fidelity
 python validate_all_acceptance_criteria.py
 ```
-**Outcome:** 25/25 components pass. The portfolio is technically undeniable.
+**Outcome:** 26/26 components pass. The portfolio is technically undeniable.
+
+### 5. The "Monopoly" Test (1 Minute)
+```bash
+# Prove 10/10 competitor workarounds are anticipated and blocked
+python validate_monopoly_status.py
+```
+**Outcome:** Confirm 10/10 design-around paths (NIC stripping, pacing, etc.) are neutralized.
 
 ---
 

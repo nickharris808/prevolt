@@ -4,10 +4,10 @@
 
 ---
 
-## 1. THE VISION: RE-ENGINEERING THE PHYSICAL LAWS OF THE DATA CENTER
-Portfolio A has evolved beyond "managing power" into **owning the temporal and logical orchestration of the Global AI Economy.** In the $5 Billion+ tier, we are defining the **Physical Rules of Engagement** for the Artificial General Intelligence (AGI) century.
+## 1. THE VISION: OFFENSIVE ARCHITECTURE FOR THE AI CENTURY
+Portfolio A has evolved beyond "managing power" into **owning the temporal and logical orchestration of the Global AI Economy.** In the $5 Billion+ tier, we have moved from Defensive IP to **Offensive Architecture**, identifying and blocking every viable competitor design-around path.
 
-As AI clusters scale to 100,000+ GPUs and power densities exceed 1000W-2000W per chip, legacy infrastructure hits a physical wall. **AIPP v2.0 ("The Sovereign")** is the only protocol in existence that synchronizes Network, Power, Memory, and Security into a single, deterministic heartbeat, replacing hardware anchors with mathematical certainty.
+As AI clusters scale to 100,000+ GPUs, AIPP v2.0 ("The Sovereign") is the only protocol that synchronizes Network, Power, Memory, and Security into a single, deterministic machine.
 
 ---
 

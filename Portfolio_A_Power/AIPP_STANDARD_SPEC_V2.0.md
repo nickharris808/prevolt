@@ -92,6 +92,22 @@ By enforcing carbon footprint at the packet level, AIPP v2.0 provides the world'
 
 ---
 
+## 8. The $5.0 Billion Monopoly Pillars (Offensive Architecture)
+
+### 8.1 The NIC Sideband Interface
+AIPP-compliant NICs MUST provide a physical **GPOP_TRIGGER** pin to the board-level VRM. This pin MUST be asserted upon detection of an AIPP Pre-charge header.
+
+### 8.2 Speculative MoE Orchestration
+For Mixture-of-Experts (MoE) workloads, the Switch MUST support **Multicast Pre-charging**, enabling low-amplitude boost signals to be sent to a candidate set of Expert GPUs before final routing is determined.
+
+### 8.3 Implicit Signaling (Pacing)
+Network-level traffic pacing (inter-packet gap modulation) for the purpose of shaping current transients is explicitly governed by the AIPP v2.0 standard.
+
+### 8.4 Self-Calibrating Drift Compensation
+The Switch MUST monitor ACK packet arrival times and dynamically adjust the `LeadTime` parameter to compensate for PTP network jitter and clock drift.
+
+---
+
 **© 2025 Neural Harris IP Holdings. All Rights Reserved.**  
 *Confidential — For Evaluation by Strategic Acquirers Only.*
 *Status: Industrial Specification for $5B Global Monopoly.*
