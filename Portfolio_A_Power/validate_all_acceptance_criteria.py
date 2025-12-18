@@ -118,6 +118,15 @@ def validate_all():
     results.append(("Fabric Incast", run_test("10_Fabric_Orchestration/adversarial_incast_sim.py", "Express-Lane Scale")))
     results.append(("Non-Linear Stability", run_test("01_PreCharge_Trigger/nonlinear_stability_audit.py", "Lyapunov Sweep")))
     
+    # Tier 13: Extreme Engineering Audit
+    print("\nEXTREME ENGINEERING AUDIT (TIER 13)")
+    print("-" * 30)
+    results.append(("Resonant Clock", run_test("25_Resonant_Clock_Recycling/resonant_lc_tank_sim.py", "Adiabatic Logic")))
+    results.append(("Body Biasing", run_test("26_Adaptive_Body_Biasing/body_bias_leakage_sim.py", "Leakage Choking")))
+    results.append(("Entropy Scaling", run_test("27_Entropy_VDD_Scaling/vdd_subthreshold_sim.py", "Shannon VDD")))
+    results.append(("Coherent Sync", run_test("28_Optical_Phase_Lock/optical_phase_determinism_sim.py", "THz Phase-Lock")))
+    results.append(("Gradient Migration", run_test("29_Sparse_Gradient_Migration/planetary_gradient_migrator.py", "Sparsity Migration")))
+    
     # Summary
     print("\n" + "="*80)
     print("VALIDATION SUMMARY")
