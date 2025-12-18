@@ -77,3 +77,4 @@ endmodule
 // Timing Margin @ 1GHz (1000ps): 880ps slack (88%)
 //
 // Conclusion: AIPP executes in 1 clock cycle with massive timing margin.
+

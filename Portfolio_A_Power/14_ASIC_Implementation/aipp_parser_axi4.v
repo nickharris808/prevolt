@@ -93,3 +93,4 @@ endmodule
 // 4. Total latency: 3 clock cycles (IDLE → PARSE → OUTPUT).
 //
 // Timing: @ 1GHz, 3 cycles = 3ns total latency (still sub-microsecond).
+

@@ -164,3 +164,4 @@ def calculate_tddb_failure_rate():
 
 if __name__ == "__main__":
     calculate_tddb_failure_rate()
+

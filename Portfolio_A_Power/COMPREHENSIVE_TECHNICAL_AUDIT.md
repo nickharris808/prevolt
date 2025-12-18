@@ -1093,3 +1093,4 @@ AIPP-Omega is not a competitor to UEC—it is the **technical foundation** that 
 - `18_Facility_Scale_Moats/transformer_structural_failure.py`
 - `19_Planetary_Orchestration/causality_violation_timeline.py`
 
+

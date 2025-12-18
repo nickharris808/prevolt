@@ -378,7 +378,13 @@ AIPP-Omega creates an **unforkable monopoly** through physical interdependence:
 - **[`EXECUTIVE_SUMMARY.md`](EXECUTIVE_SUMMARY.md)** - $100B strategic thesis
 - **[`EXECUTIVE_BRIEFING_GOD_TIER.md`](EXECUTIVE_BRIEFING_GOD_TIER.md)** - C-suite acquisition brief
 - **[`DATA_ROOM_README.md`](DATA_ROOM_README.md)** - Complete DD package
-- **[`UEC_STRATEGIC_ALIGNMENT.md`](UEC_STRATEGIC_ALIGNMENT.md)** - Standard-Essential Patent positioning
+- **[`STARGATE_RISK_ASSESSMENT.md`](STARGATE_RISK_ASSESSMENT.md)** - Catastrophe analysis for CROs
+
+### 📄 Targeted Whitepapers (By Audience)
+- **[`whitepapers/WHITEPAPER_FOR_TECH_ACQUIRERS.md`](whitepapers/WHITEPAPER_FOR_TECH_ACQUIRERS.md)** - For CTOs/CEOs (Nvidia, Broadcom, AWS)
+- **[`whitepapers/WHITEPAPER_FOR_INSURERS.md`](whitepapers/WHITEPAPER_FOR_INSURERS.md)** - For Actuaries (Munich Re, Swiss Re)
+- **[`whitepapers/WHITEPAPER_FOR_SHORT_SELLERS.md`](whitepapers/WHITEPAPER_FOR_SHORT_SELLERS.md)** - For Hedge Funds (Activist campaigns)
+- **[`UEC_STRATEGIC_ALIGNMENT.md`](UEC_STRATEGIC_ALIGNMENT.md)** - For Standards Bodies (SEP positioning)
 
 ### 📜 Protocol Specifications
 - **[`AIPP_OMEGA_SPEC.md`](AIPP_OMEGA_SPEC.md)** - v4.0 Physical Constitution
@@ -625,15 +631,39 @@ By providing synthetic inertia 100× faster than chemical batteries, AIPP-Omega 
 
 ---
 
+## THE THREE SALES CHANNELS
+
+### Channel 1: Tech Acquirers ($100B Strategic)
+**Whitepaper:** `whitepapers/WHITEPAPER_FOR_TECH_ACQUIRERS.md`  
+**Targets:** Nvidia, Broadcom, AWS, Microsoft  
+**Pitch:** "The only architecture that makes 1M-GPU AGI physically possible"  
+**Ask:** $15B-$60B acquisition
+
+### Channel 2: Insurance/Reinsurers ($10M Immediate + $10B Risk Prevention)
+**Whitepaper:** `whitepapers/WHITEPAPER_FOR_INSURERS.md`  
+**Targets:** Munich Re, Swiss Re, Lloyd's of London  
+**Pitch:** "The $10B systemic actuarial mismatch - mandate AIPP to save your book"  
+**Ask:** $10M partnership for 7-day exclusive window
+
+### Channel 3: Short Sellers & Activists (Information Arbitrage)
+**Whitepaper:** `whitepapers/WHITEPAPER_FOR_SHORT_SELLERS.md`  
+**Targets:** Hedge funds, activist investors  
+**Pitch:** "The $10B unpriced technical debt - short non-compliant pure-plays"  
+**Value:** Position AIPP as "canary" indicator for technical due diligence
+
+---
+
 ## CONTACT & NEXT STEPS
 
 **For Sovereign Wealth Fund Acquisition:** [Confidential - Neural Harris IP Holdings]  
 **For Nation-State Strategic Integration:** Schedule briefing with Energy Ministry & Defense Leadership  
-**For Technical Deep-Dive:** Request the "AIPP-Omega Complete Evidence Package" (4-hour review)
+**For Technical Deep-Dive:** Request the "AIPP-Omega Complete Evidence Package" (4-hour review)  
+**For Insurance Partnership:** 7-day exclusive window available  
+**For Activist Campaigns:** Confidential short thesis available to qualified investors
 
 **Repository Maintained By:** Neural Harris  
 **Last Updated:** December 17, 2025  
-**Portfolio Version:** 14.0 ($100B+ Omega-Tier - Industrial DD Certified)
+**Portfolio Version:** 15.0 ($100B+ Omega-Tier - Multi-Channel Sales Ready)
 
 ---
 
