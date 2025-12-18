@@ -52,10 +52,29 @@ graph TD
 **Location:** GPU Power Management Unit (PMU) + Command Processor (CP)
 
 **Modules:**
-1.  **Power-Gated Dispatcher** (`gate_logic_spec.v`) - Physical ALU disconnect
-2.  **Telemetry Encoder** - 4-bit health injection into IPv6 Flow Label
+1.  **Clock-Gated Dispatcher** (`gate_logic_spec.v`) - Safe ALU clock control (UPDATED: Clock not Power)
+2.  **Telemetry Encoder** - 4-bit health injection via SmartNIC digital sideband
 3.  **DPLL Controller** - HBM4 refresh phase-lock to switch heartbeat
 4.  **Body-Bias Controller** - RBB/FBB switching for leakage management
+
+### 2.4 SmartNIC/DPU Digital Sideband (Ground Truth Sensor)
+**Critical Update:** Telemetry must bypass decoupling capacitors.
+
+**Implementation:**
+- **SmartNIC Location:** On PCIe bus with direct I2C/SMBus to GPU sensors
+- **Ground Truth:** Reads voltage/temp directly from GPU internal ADCs
+- **Injection:** Encodes health into AIPP telemetry header of outgoing packets
+- **Security:** Digitally signs telemetry (prevents OS spoofing)
+
+**Why This Matters:**
+- Decoupling capacitors filter out high-frequency noise
+- Cannot read "power signature" through capacitors (physically impossible)
+- SmartNIC provides digital sideband bypassing analog filtering
+
+**Hardware:**
+- Nvidia BlueField DPU, Intel IPU, AMD Pensando
+- I2C/SMBus to GPU PMU (existing interface)
+- PCIe for packet injection (existing datapath)
 
 ---
 

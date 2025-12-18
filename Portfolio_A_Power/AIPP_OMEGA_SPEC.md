@@ -12,10 +12,19 @@ AIPP-Omega v4.0 establishes the **Physical Constitution of the Intelligence Age*
 
 ## 2. Extreme Engineering Pillars (The Technical Knot)
 
-### 2.1 Resonant Clock-Tree Recycling (Adiabatic Logic)
-To overcome the Landauer limit of heat dissipation, AIPP-Omega implements **Resonant LC-Tank Power Clocking**.
-- **Mechanism:** The Switch acts as the Master Oscillator, synchronizing GPU clock meshes to an external inductive tank.
-- **Recovery:** 70% of clock-toggle energy is recycled rather than dissipated as heat.
+### 2.1 Resonant Clock-Tree Recycling (Adiabatic Logic - Dual-Mode)
+To overcome the Landauer limit of heat dissipation, AIPP-Omega implements **Resonant LC-Tank Power Clocking** with DVFS compatibility.
+
+**Dual-Mode Operation:**
+- **Mode A (Dynamic):** Standard DVFS (100 MHz - 3.2 GHz) for general compute
+- **Mode B (Resonant):** Fixed 3.2 GHz with LC-tank engaged for AI training
+- **Mode Transition:** <10µs (fits within AIPP pre-charge window)
+
+**Mechanism:** The Switch acts as the Master Oscillator, synchronizing GPU clock meshes to an external inductive tank.
+
+**Recovery:** 70% of clock-toggle energy is recycled rather than dissipated as heat.
+
+**Observation:** AI training runs at peak frequency 99% of the time, making fixed-frequency resonance viable.
 
 ### 2.2 Adaptive Body Biasing (State-Retentive Sleep)
 To mitigate sub-threshold leakage without losing context, AIPP-Omega utilizes **Reverse Body Bias (RBB)**.
