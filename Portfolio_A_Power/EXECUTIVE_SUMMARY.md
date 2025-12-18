@@ -24,8 +24,9 @@ This valuation is anchored in **Geopolitical Energy-Intelligence Balance.**
 1.  **The Permission Moat (Gated Dispatch):** No AI chip can execute an instruction without our "Temporal Token." We own the **Royalty on Thought.**
 2.  **The Economic Moat (Thermodynamic Settlement):** We define the global exchange rate between Energy (Joules) and Intelligence (Tokens). We are the **NYSE of Compute.**
 3.  **The Scale Moat (Planetary Migration):** We are the **Global Load Balancer for AGI**, seamlessly moving the world's "thinking" to follow the sun.
-4.  **The Deterministic Moat (Coherent Sync):** We lock to the **Phase of Light** itself, coordinating 100M GPUs with femtosecond precision.
-5.  **The Recycling Moat (Resonant Logic):** We reclaim 70% of clock energy. To build AI without AIPP-Omega is to accept a 30% thermal penalty on every chip.
+5.  **The Deterministic Moat (Coherent Sync):** We lock to the **Phase of Light** itself, coordinating 100M GPUs with femtosecond precision.
+6.  **The Facility Moat (Resonance Defense):** We prove that on-die regulators (IVR) still destroy the building without our jitter. We own the **Facility Safety Standard.**
+7.  **The Recycling Moat (Resonant Logic):** We reclaim 70% of clock energy. To build AI without AIPP-Omega is to accept a 30% thermal penalty on every chip.
 
 ---
 

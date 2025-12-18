@@ -2,7 +2,7 @@
 Portfolio A: Master Acceptance Criteria Validator
 =================================================
 
-This script runs a fast check of all 8 tiers of acceptance criteria.
+This script runs a fast check of all 15 tiers of acceptance criteria.
 Use this for rapid due diligence validation during buyer meetings.
 
 Expected runtime: ~1 minute
@@ -25,15 +25,19 @@ def run_test(path, name):
         print(f"  ✗ {name}: FAIL (File not found: {path})")
         return False
         
-    res = subprocess.run([sys.executable, abs_path], capture_output=True, text=True)
-    if res.returncode == 0:
-        print(f"  ✓ {name}: PASS")
-        return True
-    else:
-        print(f"  ✗ {name}: FAIL")
-        # Print a snippet of the error for debugging
-        if res.stderr:
-            print(f"    Error: {res.stderr.splitlines()[-1]}")
+    try:
+        res = subprocess.run([sys.executable, abs_path], capture_output=True, text=True, timeout=60)
+        if res.returncode == 0:
+            print(f"  ✓ {name}: PASS")
+            return True
+        else:
+            print(f"  ✗ {name}: FAIL")
+            # Print a snippet of the error for debugging
+            if res.stderr:
+                print(f"    Error: {res.stderr.splitlines()[-1]}")
+            return False
+    except subprocess.TimeoutExpired:
+        print(f"  ✗ {name}: FAIL (Timeout)")
         return False
 
 def validate_all():
@@ -41,7 +45,7 @@ def validate_all():
     print("PORTFOLIO A: MASTER ACCEPTANCE CRITERIA VALIDATION")
     print("="*80)
     print("\nThis script validates that all patent families meet their")
-    print("explicit acceptance criteria, including the $2.9B God-Tier Upgrades.")
+    print("explicit acceptance criteria, including the $100B+ Omega Tier.")
     
     results = []
     
@@ -109,8 +113,15 @@ def validate_all():
     results.append(("Planetary Arbitrage", run_test("24_Sovereign_Orchestration/planetary_carbon_arbitrage.py", "Sun-Follower")))
     results.append(("Sovereign Inertia", run_test("24_Sovereign_Orchestration/sovereign_grid_inertia.py", "Grid Stabilizer")))
     
-    # Tier 12: $100B+ Hard Engineering Proofs
-    print("\n$100B+ HARD ENGINEERING PROOFS (TIER 12)")
+    # Tier 12: $100B+ Facility & Planetary Moats
+    print("\n$100B+ FACILITY & PLANETARY MOATS (TIER 12)")
+    print("-" * 30)
+    results.append(("Transformer Resonance", run_test("18_Facility_Scale_Moats/transformer_resonance_moat.py", "Blocking IVR")))
+    results.append(("IVR Thermal Limit", run_test("18_Facility_Scale_Moats/ivr_thermal_limit.py", "The Integration Wall")))
+    results.append(("Global Latency Map", run_test("19_Planetary_Orchestration/global_latency_map.py", "Speed of Light")))
+
+    # Tier 13: $100B+ Hard Engineering Proofs
+    print("\n$100B+ HARD ENGINEERING PROOFS (TIER 13)")
     print("-" * 30)
     results.append(("Silicon Timing", run_test("14_ASIC_Implementation/aipp_timing_closure.py", "Post-Layout RTL")))
     results.append(("Asynchronous Proof", run_test("STANDARDS_BODY/metastability_robust_proof.py", "Metastability Safety")))
@@ -118,8 +129,8 @@ def validate_all():
     results.append(("Fabric Incast", run_test("10_Fabric_Orchestration/adversarial_incast_sim.py", "Express-Lane Scale")))
     results.append(("Non-Linear Stability", run_test("01_PreCharge_Trigger/nonlinear_stability_audit.py", "Lyapunov Sweep")))
     
-    # Tier 13: Extreme Engineering Audit
-    print("\nEXTREME ENGINEERING AUDIT (TIER 13)")
+    # Tier 14: Extreme Engineering Audit
+    print("\nEXTREME ENGINEERING AUDIT (TIER 14)")
     print("-" * 30)
     results.append(("Resonant Clock", run_test("25_Adiabatic_Recycling/resonant_lc_tank_sim.py", "Adiabatic Logic")))
     results.append(("Body Biasing", run_test("26_Adaptive_Body_Biasing/body_bias_leakage_sim.py", "Leakage Choking")))
@@ -127,8 +138,8 @@ def validate_all():
     results.append(("Coherent Sync", run_test("28_Optical_Phase_Lock/optical_phase_determinism_sim.py", "THz Phase-Lock")))
     results.append(("Gradient Migration", run_test("29_Sparse_Gradient_Migration/planetary_gradient_migrator.py", "Sparsity Migration")))
 
-    # Tier 14: Omega-Tier Physics & Economy
-    print("\nOMEGA-TIER PHYSICS & ECONOMY (TIER 14)")
+    # Tier 15: Omega-Tier Physics & Economy
+    print("\nOMEGA-TIER PHYSICS & ECONOMY (TIER 15)")
     print("-" * 30)
     results.append(("Silence Tokens", run_test("05_Memory_Orchestration/hbm_silence_token_enforcement.py", "Temporal Guard Band")))
     results.append(("Multi-Phase Clock", run_test("25_Adiabatic_Recycling/multi_phase_resonant_clock.py", "EMI Shielded Resonance")))
