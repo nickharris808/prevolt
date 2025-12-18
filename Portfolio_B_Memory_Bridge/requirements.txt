@@ -26,3 +26,4 @@ networkx>=3.2
 # Progress bars for long-running simulations
 tqdm>=4.66.0
 
+

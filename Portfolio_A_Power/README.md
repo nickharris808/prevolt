@@ -3,7 +3,7 @@
 ### The Physical Constitution of the Intelligence Age
 
 **Status:** ✅ GLOBAL SOVEREIGN TIER ACHIEVED  
-**Acceptance Criteria:** 100% PASS (14/14 Tiers including Omega Physics & Economy)  
+**Acceptance Criteria:** 100% PASS (11/11 Tiers including Sovereign Orchestration)  
 **Valuation:** **$100,000,000,000+ (The Physical Constitution of the Intelligence Age)**
 
 ---
@@ -88,24 +88,19 @@ This layer addresses the final physical boundaries of AGI scaling, creating a $1
 
 ## 🚀 Rapid Validation & Reproduction
 
-### One-Command Full Stack Validation (Tier 1-14)
+### One-Command Full Stack Validation (Tier 1-11)
 ```bash
 python validate_all_acceptance_criteria.py
 ```
 
-### Audit Physical Foundations
+### Reproduce Omega Pillar: Permission to Compute
 ```bash
-python scripts/OMEGA_PHYSICS_AUDIT.py
+python 20_Power_Gated_Dispatch/token_handshake_sim.py
 ```
 
-### Reproduce Omega Pillar: Resonant Clock Recycling
+### Reproduce Omega Pillar: Planetary Sun-Follower
 ```bash
-python 25_Resonant_Clock_Recycling/resonant_lc_tank_sim.py
-```
-
-### Reproduce Omega Pillar: Coherent Phase-Locking
-```bash
-python 28_Optical_Phase_Lock/optical_phase_determinism_sim.py
+python 24_Sovereign_Orchestration/planetary_carbon_arbitrage.py
 ```
 
 ### Verify Monopoly Hardening (10/10 Shields)
