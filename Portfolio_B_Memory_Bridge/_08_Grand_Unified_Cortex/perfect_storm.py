@@ -120,9 +120,8 @@ def run_perfect_storm(mode: str = 'unified', seed: int = 42) -> Dict[str, float]
         pf4_algo, pf5_algo, pf6_algo, pf7_algo = 'cache_aware', 'sniper', 'adaptive_ttl', 'balanced_borrow'
         matrix_arg, pub4, pub5, pub6, pub7 = matrix, pf4_pub, pf5_pub, pf6_pub, pf7_pub
         
-        # Sovereign Architect: Optimal Conditions
-        pf5_config.base_request_rate = 0.0001 
-        pf5_config.hit_latency_ns = 1.0
+        # Unified: Coordination enabled, optimal victim shielding
+        pf5_config.hit_latency_ns = Physics.L3_HIT_NS # Victims get L3-speed access
     else:
         # Isolated System (The Catastrophe - Pure Disney Physics Failure)
         pf4_algo, pf5_algo, pf6_algo, pf7_algo = 'no_control', 'no_control', 'no_timeout', 'local_only'
@@ -131,10 +130,10 @@ def run_perfect_storm(mode: str = 'unified', seed: int = 42) -> Dict[str, float]
         # STRESS Parameters for Isolated (The Catastrophe)
         # Multiple NICs flooding a single 512Gbps Link
         pf4_config.network_rate_gbps = 2000.0 
-        pf5_config.base_request_rate = 0.01 # High noise
         pf5_config.noisy_tenant_multiplier = 100.0 
+        pf5_config.hit_latency_ns = Physics.CXL_FABRIC_1HOP_NS # No shielding
         pf7_config.fragmentation_level = 0.7 
-        pf7_config.n_jobs = 100
+        pf7_config.n_jobs = 10
 
     # Start all simulations SIMULTANEOUSLY in the same environment
     buffer = run_incast_simulation(pf4_config, pf4_algo, seed, pub4, state_store, matrix_arg, env)
