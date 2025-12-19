@@ -93,7 +93,7 @@ python STANDARDS_BODY/formal_verification_report.py
 
 ### Test 7: The Master Validation (1 minute)
 ```bash
-# Run all 51 components across 16 tiers
+# Run all 53 components across 16 tiers
 python validate_all_acceptance_criteria.py
 ```
 **Outcome:** 51/51 PASS in 30-60 seconds.
