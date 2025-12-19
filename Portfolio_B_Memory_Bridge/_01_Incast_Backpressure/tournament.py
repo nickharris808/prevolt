@@ -39,6 +39,7 @@ from shared.visualization import (
 )
 
 from simulation import IncastConfig, run_incast_simulation
+from shared.physics_engine import Physics
 
 
 # =============================================================================
@@ -166,27 +167,27 @@ def create_scenarios() -> List[Scenario]:
     
     # Scenario 1: Uniform traffic, standard buffer
     scenarios.append(Scenario(
-        name="Uniform_10MB",
+        name="Uniform_16MB",
         params={
             'traffic_pattern': 'uniform',
-            'buffer_capacity_bytes': 10_000_000,
-            'simulation_duration_us': 500.0,
-            'network_rate_gbps': 200.0,
-            'memory_rate_gbps': 100.0,
+            'buffer_capacity_bytes': Physics.NIC_BUFFER_BYTES,
+            'simulation_duration_ns': 100_000.0,
+            'network_rate_gbps': 600.0,
+            'memory_rate_gbps': 512.0,
             'n_senders': 1
         },
-        description="Steady-state uniform traffic with 10MB buffer"
+        description="Steady-state uniform traffic with 16MB buffer"
     ))
     
     # Scenario 2: Bursty traffic (AI inference pattern)
     scenarios.append(Scenario(
-        name="Bursty_10MB",
+        name="Bursty_16MB",
         params={
             'traffic_pattern': 'bursty',
-            'buffer_capacity_bytes': 10_000_000,
-            'simulation_duration_us': 500.0,
-            'network_rate_gbps': 200.0,
-            'memory_rate_gbps': 100.0,
+            'buffer_capacity_bytes': Physics.NIC_BUFFER_BYTES,
+            'simulation_duration_ns': 100_000.0,
+            'network_rate_gbps': 600.0,
+            'memory_rate_gbps': 512.0,
             'burst_factor': 5.0,
             'n_senders': 1
         },
@@ -195,16 +196,16 @@ def create_scenarios() -> List[Scenario]:
     
     # Scenario 3: Incast - The worst case (many-to-one)
     scenarios.append(Scenario(
-        name="Incast_50_senders",
+        name="Incast_300_senders",
         params={
             'traffic_pattern': 'incast',
-            'buffer_capacity_bytes': 10_000_000,
-            'simulation_duration_us': 500.0,
-            'network_rate_gbps': 200.0,
-            'memory_rate_gbps': 100.0,
-            'n_senders': 50
+            'buffer_capacity_bytes': Physics.NIC_BUFFER_BYTES,
+            'simulation_duration_ns': 100_000.0,
+            'network_rate_gbps': 600.0,
+            'memory_rate_gbps': 512.0,
+            'n_senders': 300
         },
-        description="Incast congestion with 50 simultaneous senders"
+        description="Incast congestion with 300 simultaneous senders"
     ))
     
     # Scenario 4: Incast with small buffer (stress test)
@@ -213,26 +214,26 @@ def create_scenarios() -> List[Scenario]:
         params={
             'traffic_pattern': 'incast',
             'buffer_capacity_bytes': 1_000_000,  # 1MB only
-            'simulation_duration_us': 500.0,
-            'network_rate_gbps': 200.0,
-            'memory_rate_gbps': 100.0,
-            'n_senders': 50
+            'simulation_duration_ns': 100_000.0,
+            'network_rate_gbps': 1000.0, # Massive overload
+            'memory_rate_gbps': 512.0,
+            'n_senders': 300
         },
         description="Incast with undersized 1MB buffer - stress test"
     ))
     
-    # Scenario 5: Incast with large buffer (best case for baseline)
+    # Scenario 5: Incast with large switch buffer
     scenarios.append(Scenario(
-        name="Incast_Large_Buffer",
+        name="Incast_Switch_Buffer",
         params={
             'traffic_pattern': 'incast',
-            'buffer_capacity_bytes': 100_000_000,  # 100MB
-            'simulation_duration_us': 500.0,
-            'network_rate_gbps': 200.0,
-            'memory_rate_gbps': 100.0,
-            'n_senders': 50
+            'buffer_capacity_bytes': Physics.SWITCH_BUFFER_BYTES,
+            'simulation_duration_ns': 100_000.0,
+            'network_rate_gbps': 2000.0, # 2 Tbps peak incast
+            'memory_rate_gbps': 512.0,
+            'n_senders': 300
         },
-        description="Incast with large 100MB buffer"
+        description="Incast hitting a shared switch buffer (128MB)"
     ))
     
     return scenarios
@@ -269,7 +270,7 @@ def generate_visualizations(
     for algo in runner.algorithms:
         algo_data = df[
             (df['algorithm'] == algo.name) & 
-            (df['scenario'] == 'Incast_50_senders')
+            (df['scenario'] == 'Incast_300_senders')
         ]['avg_occupancy'].values
         queue_data[algo.name] = algo_data
     
@@ -278,7 +279,7 @@ def generate_visualizations(
         buffer_capacity=1.0,  # Already normalized to fraction
         output_dir=output_dir,
         filename='queue_depth_histogram',
-        title='Buffer Occupancy Distribution (Incast, 50 Senders)'
+        title='Buffer Occupancy Distribution (Incast, 300 Senders)'
     )
     
     # =========================================================================
@@ -323,14 +324,13 @@ def generate_visualizations(
         lower_is_better=False
     )
     
-    # =========================================================================
     # Figure 4: Latency Comparison
     # =========================================================================
     print("Generating latency comparison...")
     
     latency_stats = {}
     for algo in runner.algorithms:
-        stats = runner.compute_statistics('avg_latency_us')
+        stats = runner.compute_statistics('avg_latency_ns')
         for s in stats:
             if s.algorithm == algo.name:
                 latency_stats[algo.name] = (s.mean, s.ci_lower, s.ci_upper)
@@ -340,7 +340,7 @@ def generate_visualizations(
         output_dir=output_dir,
         filename='latency_comparison',
         title='Average Latency by Algorithm',
-        y_label='Latency (μs)',
+        y_label='Latency (ns)',
         lower_is_better=True
     )
     
@@ -405,7 +405,7 @@ def print_statistical_summary(
     print("STATISTICAL SUMMARY FOR PATENT CLAIM SUPPORT")
     print("=" * 80)
     
-    metrics = ['drop_rate', 'throughput_fraction', 'avg_latency_us', 'avg_occupancy', 'utilization']
+    metrics = ['drop_rate', 'throughput_fraction', 'avg_latency_ns', 'avg_occupancy', 'utilization']
     
     for metric in metrics:
         print(f"\n### Metric: {metric}")
@@ -414,8 +414,9 @@ def print_statistical_summary(
         # Print statistics for each algorithm
         stats = runner.compute_statistics(metric)
         for s in stats:
+            unit = "ns" if "latency" in metric else ""
             print(f"  {s.algorithm}:")
-            print(f"    Mean: {s.mean:.6f} (95% CI: [{s.ci_lower:.6f}, {s.ci_upper:.6f}])")
+            print(f"    Mean: {s.mean:.6f}{unit} (95% CI: [{s.ci_lower:.6f}, {s.ci_upper:.6f}])")
             print(f"    Std:  {s.std:.6f}")
         
         # Print pairwise comparisons against baseline
@@ -501,8 +502,8 @@ def main():
     higher_is_better = {
         'drop_rate': False,  # Lower is better
         'throughput_fraction': True,  # Higher is better
-        'avg_latency_us': False,  # Lower is better
-        'p99_latency_us': False,  # Lower is better
+        'avg_latency_ns': False,  # Lower is better
+        'p99_latency_ns': False,  # Lower is better
         'avg_occupancy': False,  # Lower is better (want headroom)
         'max_occupancy': False,  # Lower is better
         'backpressure_events': False,  # Lower is better (less oscillation)

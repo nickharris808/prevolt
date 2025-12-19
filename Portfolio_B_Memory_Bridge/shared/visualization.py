@@ -66,6 +66,15 @@ def setup_style():
     plt.rcParams.update(STYLE_SETTINGS)
     sns.set_palette(ALGORITHM_COLORS)
 
+def format_time_ns(ns_val: float) -> str:
+    """Format nanoseconds to most readable units (ns/us/ms)."""
+    if ns_val < 1000.0:
+        return f"{ns_val:.1f} ns"
+    elif ns_val < 1_000_000.0:
+        return f"{ns_val/1000.0:.1f} μs"
+    else:
+        return f"{ns_val/1_000_000.0:.1f} ms"
+
 
 def save_figure(
     fig: plt.Figure,

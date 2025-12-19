@@ -46,3 +46,4 @@
 - We are not "selling a simulation"; we are **selling a production-ready hardware spec.**
 
 **Portfolio A is now technically undeniable.** 🎯
+

@@ -371,10 +371,11 @@ class SharedCache:
         data_key: int,
         current_time: float,
         qp_id: int = 0,
-        priority: int = 0
+        priority: int = 0,
+        rng: Optional[np.random.Generator] = None
     ):
         """
-        Access data in the cache.
+        Access data in the cache with stochastic latency.
         """
         stats = self._get_or_create_stats(tenant_id)
         stats.requests_submitted += 1
@@ -391,7 +392,12 @@ class SharedCache:
             heapq.heappush(self.lru_heap, (current_time, slot_id))
             stats.cache_hits += 1
             was_hit = True
-            service_time = self.hit_latency_ns
+            
+            # Physics-Correct: Hits also have jitter (e.g. L3 bank conflicts)
+            if rng:
+                service_time = Physics.get_stochastic_latency(self.hit_latency_ns, rng)
+            else:
+                service_time = self.hit_latency_ns
         else:
             stats.cache_misses += 1
             slot_id = self._find_or_evict_slot(current_time)
@@ -406,7 +412,12 @@ class SharedCache:
             slot.access_count = 1
             self.key_to_slot[cache_key] = slot_id
             heapq.heappush(self.lru_heap, (current_time, slot_id))
-            service_time = self.miss_latency_ns
+            
+            # Physics-Correct: Misses have heavy tail
+            if rng:
+                service_time = Physics.get_stochastic_latency(self.miss_latency_ns, rng)
+            else:
+                service_time = self.miss_latency_ns
             
         # Track access performance - PF5-C: include qp_id
         self.flow_tracker.record_access(tenant_id, was_hit, current_time, qp_id)
@@ -415,7 +426,6 @@ class SharedCache:
         # Victims (priority 1) jump ahead of bullies (priority 0)
         with self.controller.request(priority=priority) as req:
             yield req
-            # Wait time is calculated from the time we entered the queue to now
             yield self.env.timeout(service_time)
             
         return was_hit, service_time

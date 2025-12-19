@@ -57,7 +57,7 @@
 *   **PF8-A: TLV Telemetry Bus (The Baseline)** - 64-bit hardware event broker for 200ns cross-layer state sharing.
 *   **PF8-B: Priority-Weighted Coordination** - Ruleset where safety-critical signals (Deadlock) override optimization signals (Borrowing).
 *   **PF8-C: Predictive State Propagation** - Forecasting future buffer depths using dV/dt telemetry from multiple sources.
-*   **PF8-D: Conflict Resolution (Game Theory)** - Nash Equilibrium logic for competing resource goals between NIC and Memory Controller.
+*   **PF8-D: Social Welfare Coordination (Game Theory)** - **[Invention]** Nash Equilibrium logic that dynamically balances Safety, Fairness, and Throughput by maximizing Global Utility.
 *   **PF8-E: Adaptive Coordination Matrix** - Online learning of threshold adjustments based on workload history.
 *   **PF8-F: Hierarchical Orchestration** - Multi-layer control: 1ns Local Reflexes + 200ns Cortex Strategy + 1ms Software Supervision.
 

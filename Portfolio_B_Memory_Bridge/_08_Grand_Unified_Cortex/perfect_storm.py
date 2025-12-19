@@ -124,12 +124,13 @@ def run_perfect_storm(mode: str = 'unified', seed: int = 42) -> Dict[str, float]
         pf5_config.base_request_rate = 0.0001 
         pf5_config.hit_latency_ns = 1.0 # Sovereignty = L1 Latency shielding
     else:
-        # Isolated System (The Catastrophe)
+        # Isolated System (The Catastrophe - Pure Disney Physics Failure)
         pf4_algo, pf5_algo, pf6_algo, pf7_algo = 'no_control', 'no_control', 'no_timeout', 'local_only'
         matrix_arg, pub4, pub5, pub6, pub7 = None, None, None, None, None
 
         # STRESS Parameters for Isolated (The Catastrophe)
-        pf4_config.network_rate_gbps = 10000.0 
+        # 16 NICs flooding a single 512Gbps Link (3200Gbps Ingress)
+        pf4_config.network_rate_gbps = 3200.0 
         pf5_config.base_request_rate = 0.02 # High noise
         pf5_config.noisy_tenant_multiplier = 1000.0 
         pf7_config.fragmentation_level = 0.8 

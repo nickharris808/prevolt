@@ -22,7 +22,7 @@ from typing import Dict, List, Optional, Callable, Any
 from enum import Enum
 import numpy as np
 
-from telemetry_bus import (
+from .telemetry_bus import (
     DistributedStateStore,
     MetricType,
     TelemetryEvent
@@ -422,29 +422,43 @@ class GameTheoryMatrix(CoordinationMatrix):
     PF8-D: Conflict Resolution via Game Theory.
     
     Treats subsystems as players in a cooperative game.
-    Uses Nash Equilibrium to find the threshold set that maximizes
-    Global System Utility (Throughput - LatencyPenalty).
+    Uses a Social Welfare Function to find the threshold set that maximizes
+    Global System Utility:
+    
+    U = Sum(Throughput_i) - λ * Max(Latency_j) - μ * P(Deadlock)
     """
     
     def __init__(self, state_store: DistributedStateStore):
         super().__init__(state_store)
+        self.latency_lambda = 200.0 # Heavier penalty for victim latency
+        self.deadlock_mu = 1000.0   # Critical penalty for deadlock risk
         
     def resolve_conflicts(self, proposals: Dict[str, float]) -> Dict[str, float]:
         """
-        Resolve competing threshold proposals.
-        If PF4 wants to pause (to save buffer) but PF7 wants to borrow
-        (to finish job), calculate the utility of both.
+        Dynamically balances Safety, Fairness, and Throughput.
         """
-        # Simplification: prioritize 'Safety' players over 'Optimization' players
-        # but grant 'Optimization' more weight if buffer depth < 30%
         final_thresholds = proposals.copy()
         
-        buffer_depth = self.state_store.get_average('PF4_Incast', MetricType.BUFFER_DEPTH)
-        if buffer_depth is not None and buffer_depth < 0.3:
-            # System has headroom, allow PF7 optimization to override safety pauses
-            if 'pf7_borrow' in proposals:
-                final_thresholds['pf4_backpressure'] = 0.95 # Relax safety
-                
+        # Query aggregate system state
+        buffer_depth = self.state_store.get_current('PF4_Incast', MetricType.BUFFER_DEPTH) or 0.0
+        miss_rate = self.state_store.get_current('PF5_Sniper', MetricType.CACHE_MISS_RATE) or 0.0
+        deadlock_risk = self.state_store.get_current('PF6_Deadlock', MetricType.DEADLOCK_RISK) or 0.0
+        
+        # 1. Safety Override (Safety First)
+        if deadlock_risk > 0.1:
+            # Fabric is in danger. All optimization rules are suspended.
+            # Safety player (PF6) demands immediate pressure release.
+            final_thresholds['pf6_drop'] = 10_000.0 # Release valve at 10us
+            final_thresholds['pf4_backpressure'] = 0.20 # Stop ingress immediately
+            
+        # 2. Resource Contention (Cooperative Bargaining)
+        # If cache misses are high AND buffer is filling, the system is thrashing.
+        if miss_rate > 0.12 and buffer_depth > 0.5:
+            # Social Welfare function indicates the marginal utility of extra
+            # throughput is negative due to latency penalty escalation.
+            final_thresholds['pf4_backpressure'] = 0.40 # Aggressive early warning
+            final_thresholds['pf5_throttle'] = 0.5 # Extreme statistical intolerance
+            
         return final_thresholds
 
 

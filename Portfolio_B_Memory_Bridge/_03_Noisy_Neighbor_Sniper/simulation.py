@@ -287,7 +287,7 @@ def tenant_process(env, profile, throttler, cache, state, rng):
         if throttler.should_admit(profile.tenant_id, current_time):
             state.admitted_requests += 1
             start_time = env.now
-            result = yield from cache.access(profile.tenant_id, key, current_time, qp_id, priority)
+            result = yield from cache.access(profile.tenant_id, key, current_time, qp_id, priority, rng)
             was_hit, service_time = result
             
             # Record completion - exclude warm-up (first 100us)

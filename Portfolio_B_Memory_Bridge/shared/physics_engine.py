@@ -12,6 +12,8 @@ Author: Neural Harris Architecture Group
 License: Proprietary - Patent Pending
 """
 
+import numpy as np
+
 class Physics:
     # --- TIME CONSTANTS (Nanoseconds) ---
     NS = 1.0
@@ -73,6 +75,17 @@ class Physics:
         """Calculate time to transfer bytes at a given Gbps."""
         if gbps == 0: return float('inf')
         return num_bytes / Physics.gbps_to_bytes_per_ns(gbps)
+
+    @staticmethod
+    def get_stochastic_latency(base_ns: float, rng: np.random.Generator) -> float:
+        """
+        Models tail latency using a Log-Normal distribution.
+        AI clusters fail because of the tail (p99), not the mean.
+        """
+        # Mean = base_ns, with a heavy tail
+        sigma = 0.5 # Shape parameter for tail
+        mu = np.log(base_ns) - (sigma**2 / 2)
+        return rng.lognormal(mu, sigma)
 
 if __name__ == "__main__":
     # Sanity Check

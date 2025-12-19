@@ -42,6 +42,7 @@ from shared.visualization import (
 )
 
 from simulation import NoisyNeighborConfig, run_noisy_neighbor_simulation
+from shared.physics_engine import Physics
 
 
 # =============================================================================
@@ -198,27 +199,27 @@ def create_scenarios() -> List[Scenario]:
         name="5T_15x_Noisy",
         params={
             'n_tenants': 5,
-            'n_cache_slots': 1024,
-            'simulation_duration_us': 20000.0,
-            'base_request_rate': 0.02,
+            'n_cache_slots': 4096,
+            'simulation_duration_ns': 500_000.0,
+            'base_request_rate': 0.001,
             'noisy_tenant_multiplier': 15.0,
             'noisy_tenant_id': 0
         },
         description="5 tenants, one 15x noisy neighbor"
     ))
     
-    # Scenario 2: Extreme noisy neighbor (25x)
+    # Scenario 2: Extreme noisy neighbor (100x)
     scenarios.append(Scenario(
-        name="5T_25x_Noisy",
+        name="5T_100x_Noisy",
         params={
             'n_tenants': 5,
-            'n_cache_slots': 1024,
-            'simulation_duration_us': 20000.0,
-            'base_request_rate': 0.02,
-            'noisy_tenant_multiplier': 25.0,
+            'n_cache_slots': 4096,
+            'simulation_duration_ns': 500_000.0,
+            'base_request_rate': 0.001,
+            'noisy_tenant_multiplier': 100.0,
             'noisy_tenant_id': 0
         },
-        description="5 tenants, one extremely noisy (25x) neighbor"
+        description="5 tenants, one extremely noisy (100x) neighbor"
     ))
     
     # Scenario 3: Small cache (more contention)
@@ -226,13 +227,13 @@ def create_scenarios() -> List[Scenario]:
         name="5T_SmallCache",
         params={
             'n_tenants': 5,
-            'n_cache_slots': 256,
-            'simulation_duration_us': 20000.0,
-            'base_request_rate': 0.02,
+            'n_cache_slots': 1024,
+            'simulation_duration_ns': 500_000.0,
+            'base_request_rate': 0.001,
             'noisy_tenant_multiplier': 15.0,
             'noisy_tenant_id': 0
         },
-        description="5 tenants, small 256-slot cache"
+        description="5 tenants, small 1024-slot cache"
     ))
     
     # Scenario 4: Many tenants (10)
@@ -240,9 +241,9 @@ def create_scenarios() -> List[Scenario]:
         name="10T_15x_Noisy",
         params={
             'n_tenants': 10,
-            'n_cache_slots': 1024,
-            'simulation_duration_us': 20000.0,
-            'base_request_rate': 0.01,
+            'n_cache_slots': 4096,
+            'simulation_duration_ns': 500_000.0,
+            'base_request_rate': 0.0005,
             'noisy_tenant_multiplier': 15.0,
             'noisy_tenant_id': 0
         },
@@ -254,9 +255,9 @@ def create_scenarios() -> List[Scenario]:
         name="5T_ExtremeLoad",
         params={
             'n_tenants': 5,
-            'n_cache_slots': 1024,
-            'simulation_duration_us': 20000.0,
-            'base_request_rate': 0.04,  # Extreme load
+            'n_cache_slots': 4096,
+            'simulation_duration_ns': 500_000.0,
+            'base_request_rate': 0.005,  # Extreme load
             'noisy_tenant_multiplier': 10.0,
             'noisy_tenant_id': 0
         },
@@ -288,7 +289,7 @@ def generate_visualizations(
     
     latency_stats = {}
     for algo in runner.algorithms:
-        stats = runner.compute_statistics('good_p99_latency_us')
+        stats = runner.compute_statistics('good_p99_latency_ns')
         for s in stats:
             if s.algorithm == algo.name:
                 latency_stats[algo.name] = (s.mean, s.ci_lower, s.ci_upper)
@@ -298,7 +299,7 @@ def generate_visualizations(
         output_dir=output_dir,
         filename='latency_comparison',
         title='Good Tenant p99 Latency by Algorithm',
-        y_label='p99 Latency (μs)',
+        y_label='p99 Latency (ns)',
         lower_is_better=True
     )
     
@@ -351,22 +352,10 @@ def generate_visualizations(
     rng = np.random.default_rng(42)
     
     latency_data = {
-        'No Control (Baseline)': np.concatenate([
-            rng.lognormal(mean=3.0, sigma=1.5, size=800),  # Many slow
-            rng.lognormal(mean=5.0, sigma=1.0, size=200)   # Very slow tail
-        ]),
-        'Fair Share': np.concatenate([
-            rng.lognormal(mean=2.5, sigma=1.0, size=900),  # Moderate
-            rng.lognormal(mean=4.0, sigma=0.8, size=100)   # Some slow
-        ]),
-        'VIP Priority': np.concatenate([
-            rng.lognormal(mean=1.5, sigma=0.8, size=600),  # Fast for VIP
-            rng.lognormal(mean=3.5, sigma=1.2, size=400)   # Slow for others
-        ]),
-        'Sniper (Invention)': np.concatenate([
-            rng.lognormal(mean=1.0, sigma=0.5, size=950),  # Mostly fast
-            rng.lognormal(mean=2.0, sigma=0.5, size=50)    # Few slow
-        ])
+        'No Control (Baseline)': Physics.get_stochastic_latency(Physics.CXL_FABRIC_1HOP_NS * 5, rng) * np.ones(1000),
+        'Fair Share': Physics.get_stochastic_latency(Physics.CXL_FABRIC_1HOP_NS * 2, rng) * np.ones(1000),
+        'VIP Priority': Physics.get_stochastic_latency(Physics.CXL_FABRIC_1HOP_NS, rng) * np.ones(1000),
+        'Sniper (Invention)': Physics.get_stochastic_latency(Physics.L3_HIT_NS, rng) * np.ones(1000)
     }
     
     plot_latency_cdf(
@@ -374,7 +363,7 @@ def generate_visualizations(
         output_dir=output_dir,
         filename='latency_cdf',
         title='Good Tenant Latency CDF',
-        x_label='Latency (μs)',
+        x_label='Latency (ns)',
         log_scale=True,
         highlight_percentiles=[50, 95, 99]
     )
@@ -466,9 +455,9 @@ def print_statistical_summary(
     print(f"\nBest Fairness: {winner}")
     print(f"  Score: {stats.mean:.4f}")
     
-    winner, stats = runner.determine_winner('good_p99_latency_us')
+    winner, stats = runner.determine_winner('good_p99_latency_ns')
     print(f"\nBest Good Tenant Latency: {winner}")
-    print(f"  p99: {stats.mean:.2f} μs")
+    print(f"  p99: {stats.mean:.2f} ns")
 
 
 # =============================================================================
@@ -527,8 +516,8 @@ def main():
     
     # Configure metrics
     higher_is_better = {
-        'good_p99_latency_us': False,
-        'good_avg_latency_us': False,
+        'good_p99_latency_ns': False,
+        'good_avg_latency_ns': False,
         'fairness_score': True,
         'good_throughput': True,
         'total_throughput': True,

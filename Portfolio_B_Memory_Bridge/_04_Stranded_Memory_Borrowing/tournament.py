@@ -41,6 +41,7 @@ from shared.visualization import (
 )
 
 from simulation import StrandedMemoryConfig, run_stranded_memory_simulation
+from shared.physics_engine import Physics
 
 
 # =============================================================================
@@ -187,25 +188,25 @@ def create_scenarios() -> List[Scenario]:
             'n_jobs': 100,
             'min_job_memory_gb': 32.0,
             'max_job_memory_gb': 96.0,
-            'simulation_duration_us': 50000.0,
+            'simulation_duration_ns': 1_000_000.0,
             'fragmentation_level': 0.3
         },
         description="8 nodes, 30% fragmented, moderate job sizes"
     ))
     
-    # Scenario 2: High fragmentation (worst case for local-only)
+    # Scenario 2: High fragmentation (stress test)
     scenarios.append(Scenario(
-        name="8N_50pct_Frag",
+        name="8N_60pct_Frag",
         params={
             'n_nodes': 8,
             'memory_per_node_gb': 128.0,
             'n_jobs': 100,
             'min_job_memory_gb': 32.0,
             'max_job_memory_gb': 96.0,
-            'simulation_duration_us': 50000.0,
-            'fragmentation_level': 0.5
+            'simulation_duration_ns': 1_000_000.0,
+            'fragmentation_level': 0.6
         },
-        description="8 nodes, 50% fragmented (stress test)"
+        description="8 nodes, 60% fragmented (ASIC stress test)"
     ))
     
     # Scenario 3: Large jobs (harder to fit locally)
@@ -344,18 +345,18 @@ def generate_visualizations(
     # Left: Local Only (with crashes)
     ax = axes[0]
     jobs_local = [
-        {'name': 'Job 1', 'start': 0, 'end': 10, 'status': 'completed', 'local': 64, 'remote': 0},
-        {'name': 'Job 2', 'start': 2, 'end': 8, 'status': 'crashed', 'local': 0, 'remote': 0},
-        {'name': 'Job 3', 'start': 5, 'end': 15, 'status': 'completed', 'local': 48, 'remote': 0},
-        {'name': 'Job 4', 'start': 8, 'end': 12, 'status': 'crashed', 'local': 0, 'remote': 0},
-        {'name': 'Job 5', 'start': 12, 'end': 20, 'status': 'completed', 'local': 32, 'remote': 0},
+        {'name': 'Job 1', 'start': 0, 'end': 100, 'status': 'completed', 'local': 64, 'remote': 0},
+        {'name': 'Job 2', 'start': 20, 'end': 80, 'status': 'crashed', 'local': 0, 'remote': 0},
+        {'name': 'Job 3', 'start': 50, 'end': 150, 'status': 'completed', 'local': 48, 'remote': 0},
+        {'name': 'Job 4', 'start': 80, 'end': 120, 'status': 'crashed', 'local': 0, 'remote': 0},
+        {'name': 'Job 5', 'start': 120, 'end': 200, 'status': 'completed', 'local': 32, 'remote': 0},
     ]
     
     for i, job in enumerate(jobs_local):
         if job['status'] == 'crashed':
-            ax.barh(i, 3, left=job['start'], height=0.6, color='#E74C3C', 
+            ax.barh(i, 30, left=job['start'], height=0.6, color='#E74C3C', 
                    edgecolor='black', linewidth=1)
-            ax.text(job['start'] + 1.5, i, 'OOM', ha='center', va='center',
+            ax.text(job['start'] + 15, i, 'OOM', ha='center', va='center',
                    color='white', fontweight='bold', fontsize=9)
         else:
             ax.barh(i, job['end'] - job['start'], left=job['start'], height=0.6,
@@ -363,18 +364,18 @@ def generate_visualizations(
     
     ax.set_yticks(range(len(jobs_local)))
     ax.set_yticklabels([j['name'] for j in jobs_local])
-    ax.set_xlabel('Time (ms)')
+    ax.set_xlabel('Time (ns)')
     ax.set_title('Local Only (Baseline)')
     ax.invert_yaxis()
     
     # Right: Balanced Borrow (all complete)
     ax = axes[1]
     jobs_balanced = [
-        {'name': 'Job 1', 'start': 0, 'end': 10, 'local': 64, 'remote': 0},
-        {'name': 'Job 2', 'start': 2, 'end': 14, 'local': 32, 'remote': 32},
-        {'name': 'Job 3', 'start': 5, 'end': 15, 'local': 48, 'remote': 0},
-        {'name': 'Job 4', 'start': 8, 'end': 20, 'local': 24, 'remote': 40},
-        {'name': 'Job 5', 'start': 12, 'end': 22, 'local': 32, 'remote': 0},
+        {'name': 'Job 1', 'start': 0, 'end': 100, 'local': 64, 'remote': 0},
+        {'name': 'Job 2', 'start': 20, 'end': 140, 'local': 32, 'remote': 32},
+        {'name': 'Job 3', 'start': 50, 'end': 150, 'local': 48, 'remote': 0},
+        {'name': 'Job 4', 'start': 80, 'end': 200, 'local': 24, 'remote': 40},
+        {'name': 'Job 5', 'start': 120, 'end': 220, 'local': 32, 'remote': 0},
     ]
     
     for i, job in enumerate(jobs_balanced):
@@ -394,7 +395,7 @@ def generate_visualizations(
     
     ax.set_yticks(range(len(jobs_balanced)))
     ax.set_yticklabels([j['name'] for j in jobs_balanced])
-    ax.set_xlabel('Time (ms)')
+    ax.set_xlabel('Time (ns)')
     ax.set_title('Balanced Borrow (Invention)')
     ax.invert_yaxis()
     
@@ -560,7 +561,7 @@ def main():
         'crash_rate': False,
         'avg_utilization': True,
         'avg_remote_fraction': False,  # Lower remote = faster
-        'avg_exec_time_us': False,
+        'avg_exec_time_ns': False,
         'avg_stranded_memory_gb': False
     }
     

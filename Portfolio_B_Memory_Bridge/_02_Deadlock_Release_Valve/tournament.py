@@ -40,6 +40,7 @@ from shared.visualization import (
 )
 
 from simulation import DeadlockConfig, run_deadlock_simulation
+from shared.physics_engine import Physics
 
 
 # =============================================================================
@@ -65,7 +66,7 @@ class NoTimeoutAlgorithm(Algorithm):
 
 class FixedTTLAlgorithm(Algorithm):
     """
-    Fixed TTL: Drop packets after 1ms in buffer.
+    Fixed TTL: Drop packets after 50us in buffer (Physics-Correct).
     """
     
     @property
@@ -73,7 +74,7 @@ class FixedTTLAlgorithm(Algorithm):
         return "Fixed Timeout (PF6-A)"
     
     def run(self, scenario: Scenario, seed: int) -> Dict[str, float]:
-        config = DeadlockConfig(**scenario.params, ttl_timeout_us=1000.0)
+        config = DeadlockConfig(**scenario.params, ttl_timeout_ns=50_000.0)
         return run_deadlock_simulation(config, 'fixed_ttl', seed)
 
 
@@ -89,7 +90,7 @@ class AdaptiveTTLAlgorithm(Algorithm):
     def run(self, scenario: Scenario, seed: int) -> Dict[str, float]:
         config = DeadlockConfig(
             **scenario.params,
-            adaptive_ttl_base_us=1500.0,
+            adaptive_ttl_base_ns=25_000.0,
             adaptive_ttl_multiplier=2.0
         )
         return run_deadlock_simulation(config, 'adaptive_ttl', seed)
@@ -105,7 +106,7 @@ class CoordinatedValveAlgorithm(Algorithm):
         return "Coordinated Valve (PF6-C)"
     
     def run(self, scenario: Scenario, seed: int) -> Dict[str, float]:
-        config = DeadlockConfig(**scenario.params, ttl_timeout_us=2000.0)
+        config = DeadlockConfig(**scenario.params, ttl_timeout_ns=50_000.0)
         return run_deadlock_simulation(config, 'coordinated', seed)
 
 
@@ -119,7 +120,7 @@ class CreditShufflingAlgorithm(Algorithm):
         return "Credit Shuffling (PF6-D)"
     
     def run(self, scenario: Scenario, seed: int) -> Dict[str, float]:
-        config = DeadlockConfig(**scenario.params, ttl_timeout_us=3000.0)
+        config = DeadlockConfig(**scenario.params, ttl_timeout_ns=100_000.0)
         return run_deadlock_simulation(config, 'shuffling', seed)
 
 
@@ -134,7 +135,7 @@ class FastRetransmitValve(Algorithm):
     
     def run(self, scenario: Scenario, seed: int) -> Dict[str, float]:
         # Simulates fast path by having a shorter base TTL.
-        config = DeadlockConfig(**scenario.params, adaptive_ttl_base_us=500.0)
+        config = DeadlockConfig(**scenario.params, adaptive_ttl_base_ns=10_000.0)
         return run_deadlock_simulation(config, 'adaptive_ttl', seed)
 
 
@@ -152,9 +153,9 @@ def create_scenarios() -> List[Scenario]:
         params={
             'n_switches': 3,
             'buffer_capacity_packets': 100,
-            'simulation_duration_us': 5000.0,
-            'deadlock_injection_time_us': 1000.0,
-            'deadlock_duration_us': 2000.0,
+            'simulation_duration_ns': 500_000.0,
+            'deadlock_injection_time_ns': 100_000.0,
+            'deadlock_duration_ns': 200_000.0,
             'injection_rate': 0.8
         },
         description="3-switch ring with moderate deadlock injection"
@@ -166,9 +167,9 @@ def create_scenarios() -> List[Scenario]:
         params={
             'n_switches': 3,
             'buffer_capacity_packets': 100,
-            'simulation_duration_us': 5000.0,
-            'deadlock_injection_time_us': 1000.0,
-            'deadlock_duration_us': 2000.0,
+            'simulation_duration_ns': 500_000.0,
+            'deadlock_injection_time_ns': 100_000.0,
+            'deadlock_duration_ns': 200_000.0,
             'injection_rate': 0.95
         },
         description="3-switch ring with severe deadlock conditions"
@@ -180,9 +181,9 @@ def create_scenarios() -> List[Scenario]:
         params={
             'n_switches': 3,
             'buffer_capacity_packets': 50,
-            'simulation_duration_us': 5000.0,
-            'deadlock_injection_time_us': 1000.0,
-            'deadlock_duration_us': 2000.0,
+            'simulation_duration_ns': 500_000.0,
+            'deadlock_injection_time_ns': 100_000.0,
+            'deadlock_duration_ns': 200_000.0,
             'injection_rate': 0.9
         },
         description="3-switch ring with small 50-packet buffers"
@@ -194,9 +195,9 @@ def create_scenarios() -> List[Scenario]:
         params={
             'n_switches': 4,
             'buffer_capacity_packets': 100,
-            'simulation_duration_us': 5000.0,
-            'deadlock_injection_time_us': 1000.0,
-            'deadlock_duration_us': 2000.0,
+            'simulation_duration_ns': 500_000.0,
+            'deadlock_injection_time_ns': 100_000.0,
+            'deadlock_duration_ns': 200_000.0,
             'injection_rate': 0.85
         },
         description="4-switch ring with moderate deadlock"
@@ -208,9 +209,9 @@ def create_scenarios() -> List[Scenario]:
         params={
             'n_switches': 3,
             'buffer_capacity_packets': 100,
-            'simulation_duration_us': 8000.0,
-            'deadlock_injection_time_us': 1000.0,
-            'deadlock_duration_us': 5000.0,
+            'simulation_duration_ns': 1_000_000.0,
+            'deadlock_injection_time_ns': 100_000.0,
+            'deadlock_duration_ns': 500_000.0,
             'injection_rate': 0.9
         },
         description="3-switch ring with extended deadlock window"
@@ -222,9 +223,9 @@ def create_scenarios() -> List[Scenario]:
         params={
             'n_switches': 3,
             'buffer_capacity_packets': 100,
-            'simulation_duration_us': 5000.0,
-            'deadlock_injection_time_us': 1000.0,
-            'deadlock_duration_us': 2000.0,
+            'simulation_duration_ns': 500_000.0,
+            'deadlock_injection_time_ns': 100_000.0,
+            'deadlock_duration_ns': 200_000.0,
             'injection_rate': 0.95,
             'congestion_only_mode': True
         },
@@ -277,7 +278,7 @@ def generate_visualizations(
     
     recovery_stats = {}
     for algo in runner.algorithms:
-        stats = runner.compute_statistics('recovery_time_us')
+        stats = runner.compute_statistics('recovery_time_ns')
         for s in stats:
             if s.algorithm == algo.name:
                 recovery_stats[algo.name] = (s.mean, s.ci_lower, s.ci_upper)
@@ -287,7 +288,7 @@ def generate_visualizations(
         output_dir=output_dir,
         filename='recovery_time_comparison',
         title='Time to Recover from Deadlock',
-        y_label='Recovery Time (μs)',
+        y_label='Recovery Time (ns)',
         lower_is_better=True
     )
     
@@ -340,47 +341,40 @@ def generate_visualizations(
     
     fig, ax = plt.subplots(figsize=(12, 6))
     
-    # Simulate time series for illustration
-    time = np.linspace(0, 5, 500)  # 5ms simulation
+    # Simulate time series for illustration (nanosecond scale)
+    time = np.linspace(0, 500, 500)  # 500ns simulation
     
     # No Timeout: drops to 0 and stays there
     no_timeout = np.ones_like(time) * 100
-    no_timeout[100:] = np.maximum(0, 100 - (time[100:] - 1) * 50)
-    no_timeout[200:] = 0  # Permanent deadlock
+    no_timeout[100:] = np.maximum(0, 100 - (time[100:] - 100) * 5)
+    no_timeout[200:] = 0  
     
-    # Fixed TTL: drops to 0, recovers at 1ms
+    # Fixed TTL: drops to 0, recovers at 50ns
     fixed_ttl = np.ones_like(time) * 100
-    fixed_ttl[100:200] = np.maximum(0, 100 - (time[100:200] - 1) * 100)
-    fixed_ttl[200:250] = 0  # Deadlock
-    fixed_ttl[250:] = np.minimum(100, (time[250:] - 2.5) * 200)  # Recovery
+    fixed_ttl[100:200] = np.maximum(0, 100 - (time[100:200] - 100) * 10)
+    fixed_ttl[200:250] = 0  
+    fixed_ttl[250:] = np.minimum(100, (time[250:] - 250) * 20)  # Recovery
     
     # Adaptive TTL: minimal dip, fast recovery
     adaptive_ttl = np.ones_like(time) * 100
-    adaptive_ttl[100:200] = np.maximum(20, 100 - (time[100:200] - 1) * 60)
-    adaptive_ttl[200:] = np.minimum(100, adaptive_ttl[199] + (time[200:] - 2) * 100)
+    adaptive_ttl[100:200] = np.maximum(20, 100 - (time[100:200] - 100) * 6)
+    adaptive_ttl[200:] = np.minimum(100, adaptive_ttl[199] + (time[200:] - 200) * 10)
     
     ax.plot(time, no_timeout, label='No Timeout (Baseline)', 
            color=ALGORITHM_COLORS[0], linewidth=2)
-    ax.plot(time, fixed_ttl, label='Fixed TTL (1ms)',
+    ax.plot(time, fixed_ttl, label='Fixed TTL (50ns)',
            color=ALGORITHM_COLORS[1], linewidth=2)
     ax.plot(time, adaptive_ttl, label='Adaptive TTL (Invention)',
            color=ALGORITHM_COLORS[3], linewidth=2)
     
     # Add deadlock zone
-    ax.axvspan(1, 3, alpha=0.2, color='red', label='Deadlock Window')
+    ax.axvspan(100, 300, alpha=0.2, color='red', label='Deadlock Window')
     
-    # Add annotations
-    ax.annotate('DEADLOCK\nFREEZE', xy=(2, 10), fontsize=12, 
-               color='red', fontweight='bold', ha='center')
-    ax.annotate('RECOVERY', xy=(3.5, 80), fontsize=10,
-               color='green', fontweight='bold', ha='center',
-               arrowprops=dict(arrowstyle='->', color='green'))
-    
-    ax.set_xlabel('Time (ms)')
+    ax.set_xlabel('Time (ns)')
     ax.set_ylabel('Throughput (Gbps)')
-    ax.set_title('Throughput Recovery After Deadlock Injection')
+    ax.set_title('Throughput Recovery After Deadlock Injection (Cycle-Accurate)')
     ax.legend(loc='lower right')
-    ax.set_xlim(0, 5)
+    ax.set_xlim(0, 500)
     ax.set_ylim(-5, 110)
     
     save_figure(fig, output_dir, 'throughput_recovery')
