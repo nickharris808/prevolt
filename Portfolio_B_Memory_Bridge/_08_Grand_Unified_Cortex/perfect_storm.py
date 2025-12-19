@@ -120,9 +120,9 @@ def run_perfect_storm(mode: str = 'unified', seed: int = 42) -> Dict[str, float]
         pf4_algo, pf5_algo, pf6_algo, pf7_algo = 'cache_aware', 'sniper', 'adaptive_ttl', 'balanced_borrow'
         matrix_arg, pub4, pub5, pub6, pub7 = matrix, pf4_pub, pf5_pub, pf6_pub, pf7_pub
         
-        # Performance Tuning for Unified
+        # Sovereign Architect: Optimal Conditions
         pf5_config.base_request_rate = 0.0001 
-        pf5_config.hit_latency_ns = 1.0 # Sovereignty = L1 Latency shielding
+        pf5_config.hit_latency_ns = 1.0
     else:
         # Isolated System (The Catastrophe - Pure Disney Physics Failure)
         pf4_algo, pf5_algo, pf6_algo, pf7_algo = 'no_control', 'no_control', 'no_timeout', 'local_only'
