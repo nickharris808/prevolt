@@ -27,15 +27,15 @@ sys.path.insert(0, str(root))
 family = Path(__file__).parent.parent
 sys.path.insert(0, str(family))
 
-from jitter_algorithm import generate_pulse_train, compute_spectrum
+from jitter_algorithm import generate_pulse_train, compute_spectrum, JitterMode
 from utils.plotting import setup_plot_style, save_publication_figure, COLOR_SUCCESS
 
 def run_variation():
     setup_plot_style()
     
     # Using the adaptive jitter which is better at broadband smearing
-    base = generate_pulse_train(duration=10.0, jitter_mode="none")
-    broadband = generate_pulse_train(duration=10.0, jitter_mode="uniform", jitter_fraction=0.55)
+    base = generate_pulse_train(duration=10.0, jitter_mode=JitterMode.NONE)
+    broadband = generate_pulse_train(duration=10.0, jitter_mode=JitterMode.UNIFORM, jitter_fraction=0.55)
     
     s0 = compute_spectrum(base)
     s1 = compute_spectrum(broadband)
