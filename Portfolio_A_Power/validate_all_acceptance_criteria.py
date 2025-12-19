@@ -2,42 +2,54 @@
 Portfolio A: Master Acceptance Criteria Validator
 =================================================
 
-This script runs a fast check of all 15 tiers of acceptance criteria.
-Use this for rapid due diligence validation during buyer meetings.
+This script validates all core patent families and key components.
+Optimized for reliability and clear error reporting.
 
-Expected runtime: ~1 minute
+Expected runtime: ~1-2 minutes
 """
 
 import subprocess
 import sys
 import os
 from pathlib import Path
+import time
 
 # Add root to sys.path
 root = Path(__file__).parent
 sys.path.insert(0, str(root))
 
-def run_test(path, name):
-    print(f"Validating {name}...")
-    # Use absolute path
+def run_test(path, name, timeout=60):
+    print(f"Validating {name}...", end=' ', flush=True)
     abs_path = str(root / path)
+    
     if not os.path.exists(abs_path):
-        print(f"  ✗ {name}: FAIL (File not found: {path})")
+        print(f"✗ FAIL (Not found)")
         return False
-        
+    
+    start_time = time.time()
     try:
-        res = subprocess.run([sys.executable, abs_path], capture_output=True, text=True, timeout=60)
+        res = subprocess.run([sys.executable, abs_path], 
+                           capture_output=True, 
+                           text=True, 
+                           timeout=timeout)
+        elapsed = time.time() - start_time
+        
         if res.returncode == 0:
-            print(f"  ✓ {name}: PASS")
+            print(f"✓ PASS ({elapsed:.1f}s)")
             return True
         else:
-            print(f"  ✗ {name}: FAIL")
-            # Print a snippet of the error for debugging
+            print(f"✗ FAIL (exit {res.returncode})")
             if res.stderr:
-                print(f"    Error: {res.stderr.splitlines()[-1]}")
+                lines = res.stderr.splitlines()
+                if lines:
+                    print(f"    → {lines[-1][:80]}")
             return False
+            
     except subprocess.TimeoutExpired:
-        print(f"  ✗ {name}: FAIL (Timeout)")
+        print(f"⏱ TIMEOUT (>{timeout}s)")
+        return False
+    except Exception as e:
+        print(f"✗ ERROR ({str(e)[:60]})")
         return False
 
 def validate_all():
