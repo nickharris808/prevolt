@@ -119,12 +119,12 @@ EXECUTIVE_SUMMARY_FOR_BUYER.md       (10 pages) ← START HERE (for sellers)
 ### Technical Documentation (Deep Dive)
 
 ```
-PORTFOLIO_B_COMPREHENSIVE_TECHNICAL_BRIEF.md  (47 pages)
+PORTFOLIO_B_COMPREHENSIVE_TECHNICAL_BRIEF.md  (47 pages) 📜 HISTORICAL
 ├─ Strategic context (AI scaling crisis)
-├─ 4 fundamental problems + solutions
+├─ 4 fundamental problems + solutions (original version)
 ├─ Complete simulation framework
-├─ Patent claims (original version)
-└─ Valuation analysis ($150-300M original ask)
+├─ Patent claims (4 patents before revision to 3)
+└─ Valuation analysis ($150-300M original ask - pre-validation)
 
 DUE_DILIGENCE_RED_TEAM_CRITIQUE.md           (47 pages)
 ├─ Technical critique (8 critical flaws)
