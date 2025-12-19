@@ -93,7 +93,8 @@ def run_perfect_storm():
     df = pd.DataFrame(results)
     
     # Create the 'Wow' Graph
-    os.makedirs('results', exist_ok=True)
+    save_dir = os.path.join(os.path.dirname(__file__), 'results')
+    os.makedirs(save_dir, exist_ok=True)
     plt.figure(figsize=(15, 10))
     
     plt.subplot(3, 1, 1)
@@ -120,8 +121,8 @@ def run_perfect_storm():
     plt.legend()
     
     plt.tight_layout()
-    plt.savefig('results/perfect_storm_unified_dashboard.png')
-    print("\n✓ Grand Unified Dashboard saved to Portfolio_B_Memory_Bridge/results/")
+    plt.savefig(os.path.join(save_dir, 'perfect_storm_unified_dashboard.png'))
+    print(f"\n✓ Grand Unified Dashboard saved to {save_dir}/")
 
 if __name__ == "__main__":
     run_perfect_storm()

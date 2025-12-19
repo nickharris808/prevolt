@@ -91,7 +91,8 @@ def simulate_tournament():
     print(f"  - ✓ PROOF: 4D Sniper is {caught_percent/max(1, (100-gamed_percent)):.1f}x more resilient to gaming.")
 
     # Visualization
-    os.makedirs('results', exist_ok=True)
+    save_dir = os.path.join(os.path.dirname(__file__), 'results')
+    os.makedirs(save_dir, exist_ok=True)
     plt.figure(figsize=(12, 8))
     
     plt.subplot(2, 1, 1)
@@ -111,8 +112,8 @@ def simulate_tournament():
     plt.legend()
     
     plt.tight_layout()
-    plt.savefig('results/adversarial_sniper_proof.png')
-    print("\n✓ Proof graph saved to Portfolio_B_Memory_Bridge/03_Noisy_Neighbor_Sniper/results/")
+    plt.savefig(os.path.join(save_dir, 'adversarial_sniper_proof.png'))
+    print(f"\n✓ Proof graph saved to {save_dir}/")
 
 if __name__ == "__main__":
     simulate_tournament()

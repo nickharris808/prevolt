@@ -56,7 +56,8 @@ def run_borrowing_audit():
     df = pd.DataFrame(results)
     
     # Visualization
-    os.makedirs('results', exist_ok=True)
+    save_dir = os.path.join(os.path.dirname(__file__), 'results')
+    os.makedirs(save_dir, exist_ok=True)
     plt.figure(figsize=(10, 6))
     for label, group in df.groupby('borrow_pct'):
         plt.plot(group['utilization'], group['latency'], label=label, linewidth=2)
@@ -68,9 +69,9 @@ def run_borrowing_audit():
     plt.legend()
     plt.grid(True, alpha=0.3)
     
-    plt.savefig('results/qos_borrowing_proof.png')
+    plt.savefig(os.path.join(save_dir, 'qos_borrowing_proof.png'))
     print("  - ✓ PROOF: Local jobs (0% Remote) maintained <150ns latency until 80% utilization.")
-    print("\n✓ Proof graph saved to Portfolio_B_Memory_Bridge/04_Stranded_Memory_Borrowing/results/")
+    print(f"\n✓ Proof graph saved to {save_dir}/")
 
 if __name__ == "__main__":
     run_borrowing_audit()

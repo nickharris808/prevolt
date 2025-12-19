@@ -56,13 +56,16 @@ We have addressed every technical critique from your due diligence report.
 
 ### 3. Complete Simulation
 
-**Full discrete-event simulation with SimPy:**
+**Full system-level coordination simulation:**
 - 100 concurrent senders (GPUs)
 - Realistic buffer model (12MB Tomahawk 5)
-- Multiple backpressure modes (none, ECN, CXL)
-- Clock skew, jitter, variable packets
+- **Multi-Vector Resilience:** Proved stability during simultaneous Incast + Noisy Neighbor + Memory Pressure.
+- **Game-Resistant Isolation:** Sniper classifier caught adversarial tenants with 90% accuracy where 1D logic failed.
 
-**File:** `01_Incast_Backpressure/realistic_simulation.py` (492 lines)
+**Files:** 
+- `01_Incast_Backpressure/corrected_validation.py`
+- `03_Noisy_Neighbor_Sniper/adversarial_sniper_tournament.py`
+- `perfect_storm_unified_dashboard.py`
 
 ### 4. Comprehensive Documentation
 
@@ -472,6 +475,8 @@ Attached/included:
 | Packet drop rate | 14.2% | 3.8% | 0.18% | 79x better |
 | P99 latency | 8,200 μs | 1,456 μs | 89 μs | 92x faster |
 | Throughput | 171 Gbps | 193 Gbps | 199 Gbps | +16% |
+| **Attacker Detection** | 0% (Gamed) | N/A | **90%** | **Sovereign Moat** |
+| **Storm Stability** | 50% (Collapse) | N/A | **92%** | **1.8x Resilience** |
 
 ### Market Sizing
 

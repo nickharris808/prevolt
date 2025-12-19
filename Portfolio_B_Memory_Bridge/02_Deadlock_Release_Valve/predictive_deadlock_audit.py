@@ -95,7 +95,8 @@ def run_deadlock_audit():
     print(f"  - ✓ PROOF: Predictive dropping maintained 100% throughput during saturation.")
 
     # Visualization
-    os.makedirs('results', exist_ok=True)
+    save_dir = os.path.join(os.path.dirname(__file__), 'results')
+    os.makedirs(save_dir, exist_ok=True)
     plt.figure(figsize=(12, 6))
     plt.plot(df['step'], df['occ_0'], label='Switch 0 Occupancy', color='blue')
     plt.axhline(y=0.85, color='orange', linestyle='--', label='Predictive Threshold')
@@ -104,8 +105,8 @@ def run_deadlock_audit():
     plt.title('Predictive Deadlock Prevention: Occupancy Control')
     plt.ylabel('Buffer Occupancy')
     plt.legend()
-    plt.savefig('results/predictive_deadlock_proof.png')
-    print("\n✓ Proof graph saved to Portfolio_B_Memory_Bridge/02_Deadlock_Release_Valve/results/")
+    plt.savefig(os.path.join(save_dir, 'predictive_deadlock_proof.png'))
+    print(f"\n✓ Proof graph saved to {save_dir}/")
 
 if __name__ == "__main__":
     run_deadlock_audit()
