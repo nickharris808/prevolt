@@ -58,3 +58,6 @@ python simulation.py
 ## Patent Claim (Draft)
 
 > "A network switching apparatus configured to parse an IPv6 header field containing a quantized voltage health value, and to modulate transmission bandwidth to a downstream compute node within a bounded reaction time (≤2 RTTs) in response to decreases in said voltage health value, thereby maintaining a supply voltage above a safety threshold without out-of-band wiring."
+
+
+

@@ -62,3 +62,6 @@ python simulation.py
 ## Patent Claim (Draft)
 
 > "A network scheduling apparatus configured to detect a periodic spectral component in an outgoing traffic stream and to inject controlled timing jitter into packet release decisions such that a target spectral line (e.g., 100Hz) is reduced by at least a threshold (≥20dB), while maintaining an average added scheduling delay below a defined fraction of an end-to-end latency budget."
+
+
+

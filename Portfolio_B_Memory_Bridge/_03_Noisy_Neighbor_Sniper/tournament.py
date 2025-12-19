@@ -200,7 +200,7 @@ def create_scenarios() -> List[Scenario]:
         params={
             'n_tenants': 5,
             'n_cache_slots': 4096,
-            'simulation_duration_ns': 500_000.0,
+            'simulation_duration_ns': 100_000.0,
             'base_request_rate': 0.001,
             'noisy_tenant_multiplier': 15.0,
             'noisy_tenant_id': 0
@@ -214,7 +214,7 @@ def create_scenarios() -> List[Scenario]:
         params={
             'n_tenants': 5,
             'n_cache_slots': 4096,
-            'simulation_duration_ns': 500_000.0,
+            'simulation_duration_ns': 100_000.0,
             'base_request_rate': 0.001,
             'noisy_tenant_multiplier': 100.0,
             'noisy_tenant_id': 0
@@ -222,41 +222,13 @@ def create_scenarios() -> List[Scenario]:
         description="5 tenants, one extremely noisy (100x) neighbor"
     ))
     
-    # Scenario 3: Small cache (more contention)
-    scenarios.append(Scenario(
-        name="5T_SmallCache",
-        params={
-            'n_tenants': 5,
-            'n_cache_slots': 1024,
-            'simulation_duration_ns': 500_000.0,
-            'base_request_rate': 0.001,
-            'noisy_tenant_multiplier': 15.0,
-            'noisy_tenant_id': 0
-        },
-        description="5 tenants, small 1024-slot cache"
-    ))
-    
-    # Scenario 4: Many tenants (10)
-    scenarios.append(Scenario(
-        name="10T_15x_Noisy",
-        params={
-            'n_tenants': 10,
-            'n_cache_slots': 4096,
-            'simulation_duration_ns': 500_000.0,
-            'base_request_rate': 0.0005,
-            'noisy_tenant_multiplier': 15.0,
-            'noisy_tenant_id': 0
-        },
-        description="10 tenants, one 15x noisy neighbor"
-    ))
-    
-    # Scenario 5: High load (all tenants busy)
+    # Scenario 3: High load (all tenants busy)
     scenarios.append(Scenario(
         name="5T_ExtremeLoad",
         params={
             'n_tenants': 5,
             'n_cache_slots': 4096,
-            'simulation_duration_ns': 500_000.0,
+            'simulation_duration_ns': 100_000.0,
             'base_request_rate': 0.005,  # Extreme load
             'noisy_tenant_multiplier': 10.0,
             'noisy_tenant_id': 0

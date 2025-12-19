@@ -70,3 +70,7 @@ All participating hardware MUST implement the following "First Principles" coord
 ## 5. Backward Compatibility
 
 Subsystems (PF4-PF7) can operate in "Reflex-Only" mode if the PF8 Telemetry Bus is absent. In this state, they use static, conservative thresholds (e.g., 80% HWM). Participation in PF8 is required for "Sovereign Tier" performance.
+
+
+
+

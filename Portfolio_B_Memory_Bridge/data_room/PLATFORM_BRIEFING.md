@@ -41,3 +41,7 @@ By acquiring Portfolio B, you own the **Standard Specification**.
 - **Hardware-Ready**: P4/Verilog references provided for direct integration.
 
 **Portfolio B is the Operating System for the Physics of AI.**
+
+
+
+

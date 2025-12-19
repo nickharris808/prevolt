@@ -68,3 +68,6 @@ def simulate_puf_authentication():
 if __name__ == "__main__":
     simulate_puf_authentication()
 
+
+
+

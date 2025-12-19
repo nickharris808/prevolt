@@ -94,3 +94,6 @@ endmodule
 //
 // Timing: @ 1GHz, 3 cycles = 3ns total latency (still sub-microsecond).
 
+
+
+

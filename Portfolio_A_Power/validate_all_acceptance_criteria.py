@@ -159,10 +159,12 @@ def validate_all():
     results.append(("Entropy Credits", run_test("21_Thermodynamic_Settlement/entropy_credit_ledger.py", "AI Clearinghouse")))
     results.append(("Power Audit", run_test("13_Sovereign_Security/power_signature_audit.py", "Physical Attestation")))
     
-    # Tier 16: The Final Lock (Supply Chain Security)
-    print("\nTHE FINAL LOCK: SUPPLY CHAIN SECURITY (TIER 16)")
+    # Tier 16: The Final Lock (Supply Chain & Memory Wall)
+    print("\nTHE FINAL LOCK: SUPPLY CHAIN & MEMORY WALL (TIER 16)")
     print("-" * 30)
     results.append(("Silicon Provenance", run_test("30_Silicon_Provenance/puf_power_fingerprint.py", "Power-PUF")))
+    results.append(("CXL Latency Hiding", run_test("12_Storage_Fabric/cxl_latency_pre_dispatch.py", "CXL Memory Wall")))
+    results.append(("Master Pareto", run_test("scripts/master_pareto_charts.py", "Decision Surface")))
     
     # Summary
     print("\n" + "="*80)
@@ -185,3 +187,6 @@ def validate_all():
 
 if __name__ == "__main__":
     validate_all()
+
+
+

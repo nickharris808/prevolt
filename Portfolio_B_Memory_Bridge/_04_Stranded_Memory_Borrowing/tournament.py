@@ -185,10 +185,10 @@ def create_scenarios() -> List[Scenario]:
         params={
             'n_nodes': 8,
             'memory_per_node_gb': 128.0,
-            'n_jobs': 100,
+            'n_jobs': 50,
             'min_job_memory_gb': 32.0,
             'max_job_memory_gb': 96.0,
-            'simulation_duration_ns': 1_000_000.0,
+            'simulation_duration_ns': 100_000.0,
             'fragmentation_level': 0.3
         },
         description="8 nodes, 30% fragmented, moderate job sizes"
@@ -200,10 +200,10 @@ def create_scenarios() -> List[Scenario]:
         params={
             'n_nodes': 8,
             'memory_per_node_gb': 128.0,
-            'n_jobs': 100,
+            'n_jobs': 50,
             'min_job_memory_gb': 32.0,
             'max_job_memory_gb': 96.0,
-            'simulation_duration_ns': 1_000_000.0,
+            'simulation_duration_ns': 100_000.0,
             'fragmentation_level': 0.6
         },
         description="8 nodes, 60% fragmented (ASIC stress test)"

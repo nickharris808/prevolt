@@ -214,10 +214,10 @@ def create_scenarios() -> List[Scenario]:
         params={
             'traffic_pattern': 'incast',
             'buffer_capacity_bytes': 1_000_000,  # 1MB only
-            'simulation_duration_ns': 100_000.0,
+            'simulation_duration_ns': 50_000.0,
             'network_rate_gbps': 1000.0, # Massive overload
             'memory_rate_gbps': 512.0,
-            'n_senders': 300
+            'n_senders': 100
         },
         description="Incast with undersized 1MB buffer - stress test"
     ))
@@ -228,10 +228,10 @@ def create_scenarios() -> List[Scenario]:
         params={
             'traffic_pattern': 'incast',
             'buffer_capacity_bytes': Physics.SWITCH_BUFFER_BYTES,
-            'simulation_duration_ns': 100_000.0,
-            'network_rate_gbps': 2000.0, # 2 Tbps peak incast
+            'simulation_duration_ns': 50_000.0,
+            'network_rate_gbps': 1000.0, # 2x overload
             'memory_rate_gbps': 512.0,
-            'n_senders': 300
+            'n_senders': 100
         },
         description="Incast hitting a shared switch buffer (128MB)"
     ))

@@ -178,3 +178,6 @@ if __name__ == "__main__":
     print(f"  LC Resonant Freq:    {VRM_RESONANT_FREQ_HZ:.1f} Hz")
     print("=" * 60)
 
+
+
+

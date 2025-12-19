@@ -175,3 +175,6 @@ While all simulations execute correctly, production silicon will achieve lower p
 
 **Portfolio A is 98% executable and technically sound. Final polish needed on positioning.**
 
+
+
+

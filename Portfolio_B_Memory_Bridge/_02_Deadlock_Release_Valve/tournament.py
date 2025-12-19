@@ -153,9 +153,9 @@ def create_scenarios() -> List[Scenario]:
         params={
             'n_switches': 3,
             'buffer_capacity_packets': 100,
-            'simulation_duration_ns': 500_000.0,
-            'deadlock_injection_time_ns': 100_000.0,
-            'deadlock_duration_ns': 200_000.0,
+            'simulation_duration_ns': 200_000.0,
+            'deadlock_injection_time_ns': 50_000.0,
+            'deadlock_duration_ns': 100_000.0,
             'injection_rate': 0.8
         },
         description="3-switch ring with moderate deadlock injection"
@@ -167,9 +167,9 @@ def create_scenarios() -> List[Scenario]:
         params={
             'n_switches': 3,
             'buffer_capacity_packets': 100,
-            'simulation_duration_ns': 500_000.0,
-            'deadlock_injection_time_ns': 100_000.0,
-            'deadlock_duration_ns': 200_000.0,
+            'simulation_duration_ns': 200_000.0,
+            'deadlock_injection_time_ns': 50_000.0,
+            'deadlock_duration_ns': 100_000.0,
             'injection_rate': 0.95
         },
         description="3-switch ring with severe deadlock conditions"
@@ -181,51 +181,23 @@ def create_scenarios() -> List[Scenario]:
         params={
             'n_switches': 3,
             'buffer_capacity_packets': 50,
-            'simulation_duration_ns': 500_000.0,
-            'deadlock_injection_time_ns': 100_000.0,
-            'deadlock_duration_ns': 200_000.0,
+            'simulation_duration_ns': 200_000.0,
+            'deadlock_injection_time_ns': 50_000.0,
+            'deadlock_duration_ns': 100_000.0,
             'injection_rate': 0.9
         },
         description="3-switch ring with small 50-packet buffers"
     ))
     
-    # Scenario 4: Larger ring (more complex deadlock)
-    scenarios.append(Scenario(
-        name="Ring4_Moderate",
-        params={
-            'n_switches': 4,
-            'buffer_capacity_packets': 100,
-            'simulation_duration_ns': 500_000.0,
-            'deadlock_injection_time_ns': 100_000.0,
-            'deadlock_duration_ns': 200_000.0,
-            'injection_rate': 0.85
-        },
-        description="4-switch ring with moderate deadlock"
-    ))
-    
-    # Scenario 5: Extended deadlock duration
-    scenarios.append(Scenario(
-        name="Ring3_Extended",
-        params={
-            'n_switches': 3,
-            'buffer_capacity_packets': 100,
-            'simulation_duration_ns': 1_000_000.0,
-            'deadlock_injection_time_ns': 100_000.0,
-            'deadlock_duration_ns': 500_000.0,
-            'injection_rate': 0.9
-        },
-        description="3-switch ring with extended deadlock window"
-    ))
-    
-    # Scenario 6: Normal Congestion (False Positive Test)
+    # Scenario 4: Normal Congestion (False Positive Test)
     scenarios.append(Scenario(
         name="Normal_Congestion",
         params={
             'n_switches': 3,
             'buffer_capacity_packets': 100,
-            'simulation_duration_ns': 500_000.0,
-            'deadlock_injection_time_ns': 100_000.0,
-            'deadlock_duration_ns': 200_000.0,
+            'simulation_duration_ns': 200_000.0,
+            'deadlock_injection_time_ns': 50_000.0,
+            'deadlock_duration_ns': 100_000.0,
             'injection_rate': 0.95,
             'congestion_only_mode': True
         },

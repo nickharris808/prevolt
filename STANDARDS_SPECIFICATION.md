@@ -119,3 +119,6 @@ If the PTP clock drift exceeds $1\mu s$, GPOP is automatically disabled. The Swi
 *   **Interface:** Must support PCIe VDM or a dedicated LVDS pin for GPOP signals. Legacy I2C/SMBus are prohibited for sub-microsecond signaling.
 *   **Slew Rate:** Must support programmed $dV/dt$ ramps for pre-charge.
 
+
+
+

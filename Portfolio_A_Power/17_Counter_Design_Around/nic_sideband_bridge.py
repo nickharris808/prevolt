@@ -67,3 +67,6 @@ def run_nic_bridge_audit():
 if __name__ == "__main__":
     run_nic_bridge_audit()
 
+
+
+

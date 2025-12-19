@@ -86,3 +86,6 @@ def simulate_structural_fatigue():
 
 if __name__ == "__main__":
     simulate_structural_fatigue()
+
+
+

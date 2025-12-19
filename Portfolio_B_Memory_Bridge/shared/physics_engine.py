@@ -93,3 +93,7 @@ if __name__ == "__main__":
     print(f"200G Packet (1500B) Time: {Physics.bytes_to_ns(1500, Physics.ETH_200G):.2f} ns")
     print(f"CXL Link Fill Time (16MB): {Physics.bytes_to_ns(Physics.NIC_BUFFER_BYTES, Physics.CXL_LINK_GBPS) / Physics.US:.2f} us")
     print(f"DRAM Bandwidth vs CXL: {Physics.DRAM_BW_GBPS / Physics.CXL_LINK_GBPS:.1f}x surplus")
+
+
+
+

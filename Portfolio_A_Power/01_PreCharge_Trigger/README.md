@@ -75,3 +75,6 @@ python tournament.py
 ## Patent Claim (Draft)
 
 > "A network switching apparatus configured to detect a compute-heavy packet and to delay transmission of said packet for a delay interval, while transmitting a pre-trigger control frame to a downstream voltage regulator module prior to releasing the packet, such that a downstream supply voltage remains above a safety threshold during a resulting load transient, wherein the delay interval is less than a performance limit."
+
+
+

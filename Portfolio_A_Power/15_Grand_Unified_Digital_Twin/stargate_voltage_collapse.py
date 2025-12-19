@@ -144,3 +144,6 @@ def simulate_stargate_collapse():
 if __name__ == "__main__":
     simulate_stargate_collapse()
 
+
+
+

@@ -34,3 +34,6 @@ async def test_aipp_trigger_latency(dut):
     assert latency == 10.0, f"Latency mismatch! Expected 10ns, got {latency}ns"
     print("  ✓ PROOF SUCCESS: Deterministic 10ns Silicon Latency Verified.")
 
+
+
+
