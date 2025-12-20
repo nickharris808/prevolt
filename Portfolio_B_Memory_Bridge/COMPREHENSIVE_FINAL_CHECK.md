@@ -52,7 +52,7 @@
 - **Telemetry Bus Overhead**: 50ns async delivery ✅
 - **Coordination Rules**: 4 cross-layer rules verified ✅
 - **Game Theory Resolution**: Nash Equilibrium for conflicts ✅
-- **Result**: 2.44x throughput, 700x latency improvement ✅
+- **Result**: 1.05x throughput, 700x latency improvement ✅
 
 ---
 
@@ -69,7 +69,7 @@
 - **Regressions Detected**: 0 (100% stable) ✅
 
 ### Perfect Storm Validation
-- **Throughput**: 2.44x improvement ✅
+- **Throughput**: 1.05x improvement ✅
 - **Latency**: 700x improvement ✅
 - **Drops**: 0% vs 62% ✅
 - **Completion**: 90% vs 11% ✅
@@ -186,7 +186,7 @@
 | **Hardware Readiness** | ✅ PERFECT | Protocol spec + reference design |
 | **Data Room Complete** | ✅ PERFECT | All strategic docs present |
 | **Acceptance Criteria** | ✅ PERFECT | 8/8 criteria passed |
-| **Perfect Storm Alpha** | ✅ PERFECT | 2.44x throughput, 700x latency |
+| **Perfect Storm Alpha** | ✅ PERFECT | 1.05x throughput, 700x latency |
 
 ---
 

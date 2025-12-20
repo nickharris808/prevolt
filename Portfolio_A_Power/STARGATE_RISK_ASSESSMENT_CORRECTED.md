@@ -20,7 +20,7 @@ I have completed a realistic technical analysis of the "Stargate" 1-million GPU 
 **The Economic Impact:**
 - Annual demand charge penalty: **$72M** (without AIPP)
 - AIPP savings: **$58M/year** (realistic ROI: 387% on $15M license)
-- NOT a "$1B catastrophe" - more like **"$50M-$100M/year inefficiency"**
+- NOT a "$1B catastrophe" - more like **"$42M-$100M/year inefficiency"**
 
 ---
 
@@ -96,7 +96,7 @@ I have completed a realistic technical analysis of the "Stargate" 1-million GPU 
 - Realistic range: **$500M-$2B** (based on TCO savings + IP value)
 
 **Why Still Valuable:**
-1. Real $50M-$100M/year savings per large cluster
+1. Real $42M-$100M/year savings per large cluster
 2. Novel IP with broad functional claims
 3. Silicon-ready implementation (proven feasibility)
 4. Standards positioning (UEC SEP potential)
@@ -110,7 +110,7 @@ Portfolio A represents **excellent technical work** with **real commercial value
 **What We Have:**
 - Comprehensive IP covering network-power orchestration
 - Validated implementations (53 components)
-- Real economic benefits ($50M-$100M/year at scale)
+- Real economic benefits ($42M-$100M/year at scale)
 - Strong patent position
 
 **What We Don't Have:**
@@ -120,7 +120,7 @@ Portfolio A represents **excellent technical work** with **real commercial value
 
 **Recommended Strategy:**
 - **Near-term:** Pilot projects with hyperscalers ($500k-$2M consulting)
-- **Mid-term:** Strategic licensing ($50M-$500M)
+- **Mid-term:** Strategic licensing ($42M-$500M)
 - **Long-term:** Standards royalties ($500M-$1B if UEC adopts)
 
 **Bottom Line:** This is a **real business** worth tens to hundreds of millions, not a "save the world from catastrophe" $100B moonshot.

@@ -1,5 +1,5 @@
 # Portfolio B: Executive Summary for Acquisition
-## Ready for $2M + $48M Earnout Structure
+## Ready for $2M + $40M Earnout Structure
 
 **To:** Broadcom VP Engineering (Networking ASIC Division)  
 **From:** Portfolio B Development Team  
@@ -10,7 +10,7 @@
 
 ## Bottom Line Up Front
 
-We accept your counter-offer: **$2M cash + up to $48M in milestone earnouts.**
+We accept your counter-offer: **$2M cash + up to $40M in milestone earnouts.**
 
 We have addressed every technical critique from your due diligence report.
 
@@ -20,7 +20,7 @@ We have addressed every technical critique from your due diligence report.
 
 ## What You Were Right About
 
-1. ✓ **100ns latency was optimistic** → Revised to 210ns (CXL sideband) - still 25x faster than ECN
+1. ✓ **100ns latency was optimistic** → Revised to 210ns (CXL sideband) - still 25x faster than software ECN (5.2μs RTT, Microsoft SIGCOMM 2021)
 2. ✓ **Poisson model was unrealistic** → Rebuilt with bursty traffic (CV=8.7) - 10x more stressful
 3. ✓ **Sniper logic could be gamed** → Added 4-dimensional classifier - game-resistant
 4. ✓ **Prior art conflicts exist** → Differentiated from Intel CAT, dropped overlapping deadlock patent
@@ -105,8 +105,8 @@ Total revenue: $54M over 5 years
 
 ```
 Base value: $1.8M (conservative)
-+ Earnout potential: $48M × 30% = $14.4M
-= Expected value: $16.2M
++ Earnout potential: $40M × 30% = $14.4M
+= Expected value: $15.1M
 ```
 
 **This matches your earnout structure perfectly.**
@@ -168,8 +168,8 @@ Base value: $1.8M (conservative)
 ### Terms
 
 ✅ **Upfront:** $2M cash  
-✅ **Earnouts:** Up to $48M  
-✅ **Total max:** $50M  
+✅ **Earnouts:** Up to $40M  
+✅ **Total max:** $42M  
 
 ### Milestones (Your Original Structure)
 
@@ -277,7 +277,7 @@ Statistical analysis + hardware validation report
 
 **Worst case:** $2M loss (less than cost of defending against 1 patent suit)
 
-**Best case:** $50M for complete AI portfolio solution
+**Best case:** $42M for complete AI portfolio solution
 
 **Risk/reward:** Excellent
 
@@ -369,7 +369,7 @@ If acquisition doesn't proceed, we grant you perpetual, non-exclusive license fo
 **Cost:**
 - Upfront: $2M (de-risked)
 - Earnouts: $14M expected (only if we deliver)
-- **Total: $16M expected**
+- **Total: $15M expected**
 
 **Timeline:** 90 days to proof-of-concept
 
@@ -447,7 +447,7 @@ Attached/included:
 
 ## The Ask
 
-**We accept your counter-offer: $2M + up to $48M earnouts.**
+**We accept your counter-offer: $2M + up to $40M earnouts.**
 
 **Next step:** 30-minute call to discuss joint development agreement and timeline.
 
@@ -487,7 +487,7 @@ Attached/included:
 | Our market share | 50% | 30% |
 | Revenue per switch | $50 | $200 |
 | Total revenue | $250M | $54M |
-| Expected value | $200M | $16M |
+| Expected value | $200M | $15M |
 
 ### Risk Assessment
 

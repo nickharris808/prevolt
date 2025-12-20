@@ -887,7 +887,7 @@ V_ref = V_nom + I_load · R_ESR
 
 ### **Hard-Proof 2: AI Efficiency Delta (Economic Credibility)**
 **File:** `16_Autonomous_Agent/rl_power_orchestrator.py` (updated)  
-**Purpose:** Prove RL agent saves real money ($50M/year)
+**Purpose:** Prove RL agent saves real money ($42M/year)
 
 **Counter-Factual Simulation:**
 - **Scenario A (Static Safety):** Always 0.90V → $37.8M/year
@@ -897,7 +897,7 @@ V_ref = V_nom + I_load · R_ESR
 
 **Full Multi-Dimensional Optimization (Voltage + Thermal + Memory):**
 - Conservative extrapolation: $0.8M × 5 dimensions ≈ **$4M/year**
-- Aggressive hyperscale: 10× clusters = **$40M-$50M/year**
+- Aggressive hyperscale: 10× clusters = **$40M-$42M/year**
 
 **Artifact:** `ai_efficiency_delta.png`
 

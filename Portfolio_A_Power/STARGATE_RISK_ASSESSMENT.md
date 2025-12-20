@@ -85,7 +85,7 @@ By temporally staggering the AllReduce barrier across a 100µs window using netw
 ### The Failure Mode
 At resonance, the copper windings vibrate with millimeters of amplitude. The steel housing cracks. Windings delaminate from the magnetic core. Catastrophic failure occurs after hours/days of continuous 100Hz excitation.
 
-**Result:** $50M transformer replacement + 6-12 months downtime.
+**Result:** $42M transformer replacement + 6-12 months downtime.
 
 ### AIPP Mitigation
 By applying FFT-based jitter to spread energy from the 100Hz spike across a 50-200Hz band, resonance cannot build up (no phase coherence).

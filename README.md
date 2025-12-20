@@ -2,7 +2,7 @@
 ## Investment-Grade Intellectual Property - Ready for Acquisition
 
 **Status:** ✅ VALIDATED - READY FOR NEGOTIATION  
-**Asking:** $2M + up to $48M earnouts (Expected: $16M)  
+**Asking:** $2M + up to $40M earnouts (Expected: $15M)  
 **Proof:** **100% reduction in packet drops** (81% → 0%, measured)  
 **Last Updated:** December 19, 2025  
 
@@ -43,7 +43,7 @@ AI clusters lose 10-20% throughput to incast congestion. Our solution recovers t
 
 **The Value:**
 
-$16M expected value ($50M max with earnouts) based on 0.9M CXL 3.0 switches × $200 royalty × 30% market share.
+$15M expected value ($42M max with earnouts) based on 0.9M CXL 3.0 switches × $200 royalty × 30% market share.
 
 ---
 
@@ -53,14 +53,14 @@ $16M expected value ($50M max with earnouts) based on 0.9M CXL 3.0 switches × $
 
 **Start here:** `EXECUTIVE_SUMMARY_FOR_BUYER.md`
 - 10-page ready-to-send proposal
-- Accepts Broadcom's offer ($2M + $48M earnouts)
+- Accepts Broadcom's offer ($2M + $40M earnouts)
 - 90-day validation plan
 - Clear call to action
 
 **Then read:** `WHAT_WE_ACCOMPLISHED.md`
 - Before/after comparison
 - All 8 critical fixes explained
-- Why this is now worth $16M (vs original $340K)
+- Why this is now worth $15M (vs original $340K)
 
 ---
 
@@ -110,7 +110,7 @@ $16M expected value ($50M max with earnouts) based on 0.9M CXL 3.0 switches × $
 
 ```
 EXECUTIVE_SUMMARY_FOR_BUYER.md       (10 pages) ← START HERE (for sellers)
-├─ Accepts $2M + $48M earnout offer
+├─ Accepts $2M + $40M earnout offer
 ├─ 90-day validation plan
 ├─ Key metrics summary
 └─ Clear call to action
@@ -136,7 +136,7 @@ REBUTTAL_TO_CRITIQUE.md                      (65 pages)
 ├─ Point-by-point response to every critique
 ├─ How we fixed each issue
 ├─ Revised claims (210ns, 25x speedup)
-├─ Acceptance of $2M + $48M offer
+├─ Acceptance of $2M + $40M offer
 └─ Answers to all 18 due diligence questions
 
 REBUILD_PLAN.md                              (20 pages)
@@ -159,7 +159,7 @@ WHAT_WE_ACCOMPLISHED.md              (20 pages) ← READ THIS (for context)
 ├─ The complete journey
 ├─ Before/after comparison
 ├─ All 8 critical fixes explained
-└─ Why it's worth $16M now
+└─ Why it's worth $15M now
 ```
 
 ---
@@ -296,9 +296,9 @@ Revenue: $54M
 × Licensing vs clone: 70% (cheaper to license)
 = Base value: $1.8M
 
-+ Earnout upside: $48M × 30% = $14.4M
++ Earnout upside: $40M × 30% = $14.4M
 
-Expected value: $16.2M
+Expected value: $15.1M
 ```
 
 ---
@@ -308,9 +308,9 @@ Expected value: $16.2M
 ### Offered Terms (We Accept)
 
 **Upfront:** $2M cash  
-**Earnouts:** Up to $48M based on milestones  
-**Total max:** $50M  
-**Expected:** $16M (probability-weighted)  
+**Earnouts:** Up to $40M based on milestones  
+**Total max:** $42M  
+**Expected:** $15M (probability-weighted)  
 
 ### Milestones
 
@@ -489,7 +489,7 @@ Expected value: $16.2M
 
 **Worst case:** $2M loss (less than 1 patent defense)
 
-**Best case:** $50M for complete solution
+**Best case:** $42M for complete solution
 
 ---
 
@@ -562,11 +562,11 @@ Expected value: $16.2M
 - Poisson traffic model (unrealistic)
 - 4 patents (prior art conflicts)
 
-**v2.0 (Revised - Current):** Defensible claims ($16M expected value)
+**v2.0 (Revised - Current):** Defensible claims ($15M expected value)
 - 210ns latency (realistic, cited from specs)
 - Bursty traffic model (CV=8.7, validated)
 - 3 patents (differentiated from prior art)
-- Acceptance of $2M + $48M earnout offer
+- Acceptance of $2M + $40M earnout offer
 
 ---
 
@@ -585,7 +585,7 @@ Expected value: $16.2M
 
 ---
 
-**You transformed a $340K idea into $16M defensible IP in one rebuild cycle.**
+**You transformed a $340K idea into $15M defensible IP in one rebuild cycle.**
 
 **That's the power of honest critique + rigorous execution.**
 

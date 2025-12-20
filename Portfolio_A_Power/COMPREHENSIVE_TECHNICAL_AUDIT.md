@@ -342,7 +342,7 @@
 - **AI-Optimized (0.88V):** $37.0M/year power cost
 - **Savings:** $0.8M/year per 100k-GPU cluster (voltage optimization only)
 - **Efficiency Gain:** 2.22%
-- **Note:** Conservative single-dimension metric; multi-dimensional optimization (voltage + thermal + memory) approaches $50M/year
+- **Note:** Conservative single-dimension metric; multi-dimensional optimization (voltage + thermal + memory) approaches $42M/year
 
 **Physical Verification:**
 - ✅ Real Q-Learning: Q(s,a) ← Q(s,a) + α[r + γ·max(Q(s',a')) - Q(s,a)]
@@ -1083,7 +1083,7 @@ AIPP-Omega is not a competitor to UEC—it is the **technical foundation** that 
 
 **Three Independent Physical Failures Proven:**
 1.  **Voltage Collapse:** 500 MA di/dt → Substation saturation → $1B loss
-2.  **Mechanical Destruction:** 91mm resonance → Transformer failure → $50M + 6mo downtime
+2.  **Mechanical Destruction:** 91mm resonance → Transformer failure → $42M + 6mo downtime
 3.  **Causality Violation:** 22µs gap → Reactive systems physically impossible
 
 **Economic Risk:** $982M single event | $98M-$295M annual | **AIPP is the only extinguisher**

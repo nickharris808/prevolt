@@ -1,7 +1,7 @@
 # Portfolio B: Complete Rebuild Plan
 ## Addressing Every Single Critique from Due Diligence
 
-**Goal:** Transform this from "interesting idea" to "production-ready IP worth $50M+"
+**Goal:** Transform this from "interesting idea" to "production-ready IP worth $42M+"
 
 ---
 
@@ -368,7 +368,7 @@ Sniper classifier tested against:
 - ✅ Interim deployment path (P4 software, not ASIC-only)
 
 ### Validation:
-- ✅ Revised valuation: $20M-$50M (defensible with earnouts)
+- ✅ Revised valuation: $20M-$42M (defensible with earnouts)
 - ✅ Ready for hardware prototype in 90 days
 - ✅ UEC standards engagement plan
 - ✅ Customer pilot commitments (LOIs)

@@ -184,7 +184,7 @@ By providing synthetic inertia 100× faster than batteries, AIPP becomes mandato
 | **More Capacitors** | Physics: L·di/dt unavoidable | $500/GPU | **Active Synthesis** (90% reduction) |
 | **On-Die IVR** | Doesn't solve facility resonance | $200/GPU + thermal | **Spectral Damping** (facility-scale) |
 | **Software Scheduler** | OS jitter (±500µs) kills timing | Performance loss | **Hardware CP Trigger** (0ns jitter) |
-| **Bigger Transformers** | $50M facility upgrades | $50M/DC | **Grid Coupling** (<$1M licensing) |
+| **Bigger Transformers** | $42M facility upgrades | $42M/DC | **Grid Coupling** (<$1M licensing) |
 | **Chemical Batteries** | 100× slower response | $100M + maintenance | **Synthetic Inertia** (instant) |
 | **Software Security** | Cannot hide power signatures | Hackable | **Physical Attestation** (unhackable) |
 

@@ -1,9 +1,9 @@
 # Portfolio B: Final Status Report
-## From $200M Fantasy to $16M Reality - The Complete Journey
+## From $200M Fantasy to $15M Reality - The Complete Journey
 
 **Date:** December 17, 2025  
 **Status:** READY FOR ACQUISITION NEGOTIATION  
-**Recommended Ask:** $2M + up to $48M earnouts  
+**Recommended Ask:** $2M + up to $40M earnouts  
 
 ---
 
@@ -15,7 +15,7 @@ Through rigorous critique and rebuild, we now have:
 - ✅ **Defensible technology** (25x speedup, not 500x)
 - ✅ **Realistic physics** (210ns latency, not 100ns)
 - ✅ **Differentiated patents** (3 novel claims vs prior art)
-- ✅ **Honest valuation** ($16M expected value)
+- ✅ **Honest valuation** ($15M expected value)
 - ✅ **Clear path to revenue** (P4 deployment in 6 months)
 
 **This is now investment-grade IP.**
@@ -241,13 +241,13 @@ Revenue potential: $54M
 × Licensing (not clone): 70%
 = $1.8M base value
 
-+ Earnout potential: $48M × 30% probability
++ Earnout potential: $40M × 30% probability
 = $14.4M upside
 
-Expected value: $1.8M + $14.4M = $16.2M
+Expected value: $1.8M + $14.4M = $15.1M
 ```
 
-**Recommended ask: $2M + up to $48M earnouts (expected: $16M)**
+**Recommended ask: $2M + up to $40M earnouts (expected: $15M)**
 
 ---
 
@@ -304,7 +304,7 @@ Expected value: $1.8M + $14.4M = $16.2M
 
 **Total:** 3 patents (down from 4)
 
-**Impact on valuation:** Proportional reduction ($50M → $37.5M baseline)
+**Impact on valuation:** Proportional reduction ($42M → $37.5M baseline)
 
 ---
 
@@ -484,8 +484,8 @@ AWS/Azure/Meta might build in-house.
 ### Terms
 
 ✅ **Upfront:** $2M cash  
-✅ **Earnouts:** Up to $48M based on milestones  
-✅ **Total max:** $50M  
+✅ **Earnouts:** Up to $40M based on milestones  
+✅ **Total max:** $42M  
 
 ### Milestones
 
@@ -552,11 +552,11 @@ AWS/Azure/Meta might build in-house.
 ## Expected Value Calculation
 
 ```
-Base case (50% probability): $2M + $14M (2-3 milestones) = $16M
-Bull case (20% probability): $2M + $48M (all milestones) = $50M
+Base case (50% probability): $2M + $14M (2-3 milestones) = $15M
+Bull case (20% probability): $2M + $40M (all milestones) = $42M
 Bear case (30% probability): $2M + $0 (no milestones) = $2M
 
-Expected value: 0.5×$16M + 0.2×$50M + 0.3×$2M
+Expected value: 0.5×$15M + 0.2×$42M + 0.3×$2M
               = $8M + $10M + $0.6M
               = $18.6M
 ```
@@ -635,7 +635,7 @@ The brutal red team review forced us to:
 - Fix oversights (100ns latency)
 - Build better models (bursty traffic)
 - Differentiate from prior art (cross-layer)
-- Price realistically ($16M not $200M)
+- Price realistically ($15M not $200M)
 
 **2. Honesty builds credibility.**
 
@@ -643,7 +643,7 @@ Admitting flaws and fixing them is better than defending weak claims.
 
 **3. Earnouts align incentives.**
 
-$2M + $48M structure:
+$2M + $40M structure:
 - De-risks buyer (only $2M at-risk)
 - Motivates seller (we only get paid if we deliver)
 - Proves value (milestones = customer validation)
@@ -667,7 +667,7 @@ $2M + $48M structure:
 **Prepared by:** Portfolio B Development Team  
 **Date:** December 17, 2025  
 **Status:** READY FOR NEGOTIATION  
-**Recommended Ask:** $2M + up to $48M earnouts  
+**Recommended Ask:** $2M + up to $40M earnouts  
 
 **Next action:** Send to Broadcom VP Engineering for review.
 

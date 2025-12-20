@@ -31,7 +31,7 @@
    - What's ready, what's pending
 
 2. **`PORTFOLIO_B_MASTER_SUMMARY.md`** (45 min)
-   - All validated claims (210ns, 25x, $16M)
+   - All validated claims (210ns, 25x, $15M)
    - All 8 simulation results
    - Complete patent portfolio
    - Deal structure accepted
@@ -164,7 +164,7 @@
     - Shows starting point ($200M ask)
     - Historical context
 
-**These show the journey from $340K to $16M.**
+**These show the journey from $340K to $15M.**
 
 ---
 
@@ -204,7 +204,7 @@
 ### Documents Ready
 
 - [x] PORTFOLIO_B_MASTER_SUMMARY.md exists
-- [x] All claims are validated (210ns, 25x, $16M, 3 patents)
+- [x] All claims are validated (210ns, 25x, $15M, 3 patents)
 - [x] VALIDATION_RESULTS.md has latest metrics
 - [x] Quick reference created
 - [x] Email template prepared
@@ -220,8 +220,8 @@
 ### Deal Terms Confirmed
 
 - [x] Upfront: $2M cash
-- [x] Earnouts: Up to $48M
-- [x] Expected value: $16M
+- [x] Earnouts: Up to $40M
+- [x] Expected value: $15M
 - [x] Structure: ACCEPTED
 
 ### Package Prepared
@@ -269,7 +269,7 @@
 
 ---
 
-### Are you comfortable with $16M valuation?
+### Are you comfortable with $15M valuation?
 
 **YES →** Great! That's what we're accepting.
 
@@ -298,7 +298,7 @@ Open: `QUICK_REFERENCE_CURRENT_CLAIMS.md`
 - Latency: 210 ns
 - Speedup: 25x
 - Drop reduction: 100%
-- Valuation: $16M expected
+- Valuation: $15M expected
 - Patents: 3 (dropped deadlock)
 
 ---
@@ -380,7 +380,7 @@ Has talking points and Q&A for common questions.
 
 ---
 
-### "I don't know if $16M is the right price"
+### "I don't know if $15M is the right price"
 
 **Solution:** Read `PORTFOLIO_B_MASTER_SUMMARY.md` Section "Valuation Breakdown"
 
@@ -398,7 +398,7 @@ Shows the conservative risk-adjusted calculation.
 - ✅ 8/8 graphs generated
 - ✅ All parameters cited from datasheets
 - ✅ Sovereign Audit status: PASSED
-- ✅ Expected value: $16M (realistic)
+- ✅ Expected value: $15M (realistic)
 
 **It's ready. You're experiencing pre-send jitters. Send it.**
 
@@ -426,7 +426,7 @@ You asked for a "deep audit" of all markdown files.
 - ✅ 8 working simulations (100% drop reduction, 90x game resistance, 1.8x storm stability)
 - ✅ 2,131 lines of production code
 - ✅ All parameters cited from Intel/JEDEC/Broadcom specs
-- ✅ $16M realistic valuation (risk-adjusted)
+- ✅ $15M realistic valuation (risk-adjusted)
 - ✅ 3 differentiated patents
 
 **What's ready:**
@@ -440,7 +440,7 @@ You asked for a "deep audit" of all markdown files.
 **The portfolio went through:**
 1. Original claims ($200M, 100ns, 500x)
 2. Brutal critique ($340K reality check)
-3. Complete rebuild (210ns, 25x, $16M)
+3. Complete rebuild (210ns, 25x, $15M)
 4. Validation with working simulations
 5. Deep audit of all 101 files
 6. Finalization with master summary
@@ -449,7 +449,7 @@ You asked for a "deep audit" of all markdown files.
 
 **Next step: Send the email.**
 
-**Expected outcome: $2M this month, $3M in 90 days, $16M total over 3 years.**
+**Expected outcome: $2M this month, $3M in 90 days, $15M total over 3 years.**
 
 ---
 

@@ -151,11 +151,11 @@ Unified coordination of backpressure + isolation + borrowing during simultaneous
 
 **Why it's novel:**
 - First system-level demonstration of cross-layer coordination
-- Shows 1.8× higher stability under "Perfect Storm" (incast + noisy neighbor + memory pressure)
+- Shows 1.05× higher stability under "Perfect Storm" (incast + noisy neighbor + memory pressure)
 - Proves coordination beats local optimization
 
 **The brag:**
-> "We built and validated the first 'Operating System for AI Cluster Physics,' demonstrating 1.8× higher throughput under simultaneous multi-vector failure compared to standard reactive approaches."
+> "We built and validated the first 'Operating System for AI Cluster Physics,' demonstrating 1.05× higher throughput under simultaneous multi-vector failure compared to standard reactive approaches."
 
 **Publications:**
 - SOSP 2026: "The Sovereign Cortex: An OS for AI Infrastructure"
@@ -262,12 +262,12 @@ Unified coordination of backpressure + isolation + borrowing during simultaneous
 
 ---
 
-### Blog Post 2: "From $340K to $16M in 90 Days"
+### Blog Post 2: "From $340K to $15M in 90 Days"
 
 **Thesis:** Intellectual honesty creates more value than hiding flaws
 
 **Your hook:**
-> "A brutal technical critique reduced our IP valuation from $200M to $340K. Instead of defending our flawed assumptions, we rebuilt everything. 90 days later, we have an acquisition offer worth $16M with proof. Here's how."
+> "A brutal technical critique reduced our IP valuation from $200M to $340K. Instead of defending our flawed assumptions, we rebuilt everything. 90 days later, we have an acquisition offer worth $15M with proof. Here's how."
 
 **Platform:** YC Blog, Hacker News, or startup Medium
 
@@ -296,17 +296,17 @@ Unified coordination of backpressure + isolation + borrowing during simultaneous
 
 ### For Investors
 
-- ✅ "Accepted acquisition offer: $2M + $48M earnouts from strategic buyer (Broadcom)"
+- ✅ "Accepted acquisition offer: $2M + $40M earnouts from strategic buyer (Broadcom)"
 - ✅ "3 patents positioned for Standard Essential (SEP) status via UEC adoption"
 - ✅ "$180M total addressable market (0.9M CXL switches × $200 royalty)"
 - ✅ "All technical claims validated through 2,131 lines of working code"
 
 ### For Technical Audiences
 
-- ✅ "100% packet drop elimination (81% → 0%) - first zero-loss result in literature"
+- ✅ "100% packet drop elimination (81% → 0%) - first zero-loss result for memory-initiated flow control in Ethernet-based AI clusters"
 - ✅ "25× faster than software ECN (210ns vs 5,200ns feedback latency)"
 - ✅ "90× more accurate than Intel CAT at detecting adversarial tenants"
-- ✅ "Validated at 100,000-node scale with 100× telemetry overhead reduction"
+- ✅ "analytically validated for 100,000-node scale with 100× telemetry overhead reduction"
 
 ### For Business Audiences
 
@@ -482,7 +482,7 @@ Unified coordination of backpressure + isolation + borrowing during simultaneous
 
 **Goal:** Get your design into UEC specification
 
-**Value:** $50M+ if adopted (Standard Essential Patent)
+**Value:** $42M+ if adopted (Standard Essential Patent)
 
 ---
 
@@ -555,7 +555,7 @@ Unified coordination of backpressure + isolation + borrowing during simultaneous
 - IEEE Spectrum: "How Cross-Layer Design Solved the Incast Problem"
 - Ars Technica: "The $100B Problem in AI Infrastructure (And How to Fix It)"
 
-**Pitch:** "First zero-loss result in datacenter networking"
+**Pitch:** "first Ethernet memory-initiated zero-loss result in datacenter networking"
 
 ---
 
@@ -567,7 +567,7 @@ Unified coordination of backpressure + isolation + borrowing during simultaneous
 
 **Your advantage:**
 - Solves a $100B problem
-- First zero-loss result
+- first Ethernet memory-initiated zero-loss result
 - Validated implementation
 
 **Probability:** 10% (highly competitive, but you have strong results)
@@ -612,9 +612,9 @@ Unified coordination of backpressure + isolation + borrowing during simultaneous
 
 ```
 100%     Drop reduction (81% → 0%)
-25×      Speedup vs ECN
+25×      Speedup vs software ECN (5.2μs RTT, Microsoft SIGCOMM 2021)
 90×      Game resistance vs 1D detection
-1.8×     Stability under multi-vector stress
+1.05×     Stability under multi-vector stress
 100×     Telemetry compression for hyperscale
 <3%      False-positive rate (intent-aware)
 210 ns   Feedback latency (CXL sideband)
@@ -624,8 +624,8 @@ Unified coordination of backpressure + isolation + borrowing during simultaneous
 ### Business
 
 ```
-$16M     Expected acquisition value
-$50M     Maximum with all earnouts
+$15M     Expected acquisition value
+$42M     Maximum with all earnouts
 $180M    Total addressable market
 $15M/yr  Value per 100k-GPU cluster
 $100B/yr Industry-wide congestion cost
@@ -650,7 +650,7 @@ $100B/yr Industry-wide congestion cost
 
 ### This Week: Blog Post
 
-**Write:** "From $340K to $16M in 90 Days"
+**Write:** "From $340K to $15M in 90 Days"
 
 **Why:** Fast (1 week), high viral potential, demonstrates integrity
 

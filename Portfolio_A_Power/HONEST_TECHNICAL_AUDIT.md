@@ -123,14 +123,14 @@
 1.  ✅ Replace broken Stargate simulation with realistic version (DONE)
 2.  🔄 Re-run corrected transformer fatigue model
 3.  ❌ DELETE or deeply fix TDDB model (currently showing backwards results)
-4.  📝 Update all strategic docs to reflect REALISTIC economics ($50M-$100M/year, not $1B catastrophe)
+4.  📝 Update all strategic docs to reflect REALISTIC economics ($42M-$100M/year, not $1B catastrophe)
 
 ### Honest Valuation Revision:
 - **Previous Claim:** $100B (based on "physical impossibility without AIPP")
 - **Realistic Range:** $500M-$5B (based on TCO savings + IP value + standards potential)
 
 **Justification:**
-- $50M-$100M/year savings × 10-20 year horizon = $500M-$2B NPV
+- $42M-$100M/year savings × 10-20 year horizon = $500M-$2B NPV
 - Standard-Essential Patent potential (UEC): +$500M-$1B
 - Strategic value to Nvidia/Broadcom: +$500M-$2B
 
@@ -140,7 +140,7 @@
 
 **What We Actually Have:**
 - ✅ Novel, validated IP for network-power orchestration
-- ✅ Real TCO benefits ($50M-$100M/year at Stargate scale)
+- ✅ Real TCO benefits ($42M-$100M/year at Stargate scale)
 - ✅ Silicon-ready implementation (proven timing closure)
 - ✅ Comprehensive validation (53 components)
 - ✅ Strong patent position (80+ claims, protocol-agnostic)
@@ -152,7 +152,7 @@
 
 **Realistic Near-Term Revenue:**
 - Pilot/consulting: $500k-$2M (6-12 months)
-- Strategic license: $50M-$500M (18-36 months)
+- Strategic license: $42M-$500M (18-36 months)
 - Standards royalties: $100M-$1B (5-10 years, if UEC adopts)
 
 ---

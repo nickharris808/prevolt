@@ -102,7 +102,7 @@ At 1M-GPU scale, AllReduce synchronization creates 500 Mega-Amp aggregate load s
 |-----------------|------|
 | **Business Interruption** | $182M (48hr × $3.8M/hr depreciation) |
 | **Equipment Damage** | $400M (10,000 GPUs destroyed by transient) |
-| **Transformer Replacement** | $50M |
+| **Transformer Replacement** | $42M |
 | **Regulatory/Reputation** | $350M |
 | **Total Single Event** | **$982 Million** |
 
@@ -134,7 +134,7 @@ Temporal staggering via network switch spreads the 500 MA load across 100µs win
 **For Munich Re/Swiss Re:**
 - Partner with AIPP to become "Authorized Certification Body"
 - Charge audit/certification fees: $500k-$1M per facility
-- Reduce expected losses by $50M-$200M per policy
+- Reduce expected losses by $42M-$200M per policy
 - **Net Benefit:** $49M-$199M per facility in improved loss ratios
 
 ---
@@ -175,7 +175,7 @@ Munich Re/Swiss Re receive:
 **Return:** 
 - Loss ratio improvement: 200%+ → 95% (sustainable)
 - Market differentiation: First reinsurer with AI-specific risk models
-- Revenue: $500k-$1M certification fees per facility × 100 facilities = $50M-$100M
+- Revenue: $500k-$1M certification fees per facility × 100 facilities = $42M-$100M
 
 **Payback:** 6-12 months
 

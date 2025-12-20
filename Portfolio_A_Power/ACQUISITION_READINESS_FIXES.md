@@ -257,7 +257,7 @@ These phrases make technical buyers **cringe**.
 > "We've built the Physical Constitution of AI worth $100B. Without us, Stargate will explode."
 
 **Do Say:**
-> "We've identified a cross-layer power orchestration opportunity worth $50M-$100M/year 
+> "We've identified a cross-layer power orchestration opportunity worth $42M-$100M/year 
 > in TCO savings at hyperscale. We have 51 validated components, formal proofs, and 
 > silicon-ready RTL. We're seeking $2B-$5B for strategic licensing + co-development, 
 > with milestones tied to real deployment metrics. Our moonshot vision is a global 

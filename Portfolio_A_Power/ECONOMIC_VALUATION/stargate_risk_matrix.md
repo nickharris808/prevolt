@@ -35,7 +35,7 @@ The insurance premium for this risk (estimated at 10% annual probability) is **$
 |--------|-------|-------------|
 | **Useful Life** | 3 years | Industry standard for AI hardware |
 | **Depreciation per Hour** | $3.8 Million | $100B / (3 years × 8760 hours) |
-| **Power Cost** | $50 Million/year | 1 GW × $0.12/kWh × 8760 hours |
+| **Power Cost** | $42 million/year | 1 GW × $0.12/kWh × 8760 hours |
 | **Maintenance** | $5 Million/year | 5% annual service costs |
 
 ---
@@ -47,11 +47,11 @@ The insurance premium for this risk (estimated at 10% annual probability) is **$
 
 | Cost Component | Amount | Rationale |
 |----------------|--------|-----------|
-| **Transformer Replacement** | $50 Million | 100MVA utility-scale transformer + installation |
+| **Transformer Replacement** | $42 million | 100MVA utility-scale transformer + installation |
 | **Facility Downtime** | $182 Million | 48 hours × $3.8M/hour (depreciation) |
 | **GPU Damage** | $400 Million | 10,000 GPUs destroyed by voltage transient (1% of cluster) |
 | **Data Loss** | $100 Million | Checkpoint corruption, model re-training |
-| **Regulatory Penalties** | $50 Million | Grid interconnection violations, environmental |
+| **Regulatory Penalties** | $42 million | Grid interconnection violations, environmental |
 | **Reputation/Customer SLA** | $200 Million | Service credits, customer churn |
 | **TOTAL SINGLE EVENT COST** | **$982 Million** | **Nearly $1 Billion** |
 

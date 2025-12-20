@@ -521,7 +521,7 @@ AUDIT STATUS: PASSED - PORTFOLIO IS ASSET-READY
 
 - [ ] I understand the core innovation (memory → network backpressure)
 - [ ] I know the latency claim (210ns CXL sideband)
-- [ ] I know the speedup (25x vs ECN)
+- [ ] I know the speedup (25x vs software ECN, Microsoft SIGCOMM 2021)
 - [ ] I know the proof (100% drop reduction measured)
 
 ### Business Terms

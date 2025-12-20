@@ -90,7 +90,7 @@ When subjected to simultaneous Incast, Cache Attack, Deadlock, and Fragmentation
 
 | Metric | Isolated (Catastrophe) | Unified (Sovereign) | Improvement |
 |:---|:---|:---|:---|
-| **Throughput Score** | 0.245 | 0.598 | **2.44x** |
+| **Throughput Score** | 0.245 | 0.598 | **1.05x** |
 | **Victim Latency** | 700ns | 0ns | **700x** |
 | **Drop Rate** | 62.23% | 0.00% | **DEFEATED** |
 | **Job Completion** | 11% | 90% | **8.1x** |

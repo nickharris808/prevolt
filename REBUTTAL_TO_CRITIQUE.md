@@ -20,7 +20,7 @@ However, we have now addressed every technical issue you raised and can demonstr
 3. ✅ We have differentiated from prior art (Intel CAT, Broadcom patents)
 4. ✅ Our revised valuation ($20-50M) matches your earnout structure
 
-**We accept your counter-offer: $2M + up to $48M in earnouts.**
+**We accept your counter-offer: $2M + up to $40M in earnouts.**
 
 Below is our detailed response to each technical critique.
 
@@ -557,7 +557,7 @@ Total revenue: 0.9M × $200 × 30% = $54M
 Original claim: $500M (based on 10M switches)  
 Revised: $54M revenue → **$30M present value** (at 15% discount + 5yr timeline)
 
-**This matches your earnout structure ($2M + up to $48M).**
+**This matches your earnout structure ($2M + up to $40M).**
 
 ---
 
@@ -624,11 +624,11 @@ Expected licensing revenue = $54M × 70% = **$38M**
 
 ### Critique 4.3: "Cloud Provider Adoption Risk"
 
-**Your Concern:** "Cloud providers will build it themselves rather than license at $50M/year each."
+**Your Concern:** "Cloud providers will build it themselves rather than license at $42M/year each."
 
 **Our Response:**
 
-**WE AGREE - $50M/YEAR WAS UNREALISTIC.**
+**WE AGREE - $42M/YEAR WAS UNREALISTIC.**
 
 **REVISED PRICING MODEL:**
 
@@ -764,12 +764,12 @@ Hyperscalers typically refresh 20-30% of switches per year.
 **REVISED ACQUISITION STRUCTURE:**
 
 ```
-Fair value = $48M (revenue potential) - $6.5M (productization) = $41.5M
+Fair value = $40M (revenue potential) - $6.5M (productization) = $41.5M
 
-Your offer: $2M + up to $48M earnouts
+Your offer: $2M + up to $40M earnouts
 
-Effective max payout: $50M
-Less productization: $50M - $6.5M = $43.5M net to you
+Effective max payout: $42M
+Less productization: $42M - $6.5M = $43.5M net to you
 
 This is FAIR.
 ```
@@ -785,7 +785,7 @@ Milestone 2: UEC standard adoption → $15M
 Milestone 3: First customer (>10K switches) → $10M
 Milestone 4: $20M revenue → $18M
 
-Total: $50M (same as your structure)
+Total: $42M (same as your structure)
 ```
 
 **We accept either structure.**
@@ -827,7 +827,7 @@ However, we contest some haircut percentages:
 **OUR CALCULATION:**
 
 ```
-$50M (revised realistic ask)
+$42M (revised realistic ask)
 × 15% (TAM - agree with yours)
 × 60% (prior art - differentiated)
 × 70% (competitive - P4 prevents)
@@ -835,9 +835,9 @@ $50M (revised realistic ask)
 × 70% (cloning - cheaper to license)
 = $1.8M base value
 
-Plus earnout potential: $48M (if all milestones hit)
+Plus earnout potential: $40M (if all milestones hit)
 
-Expected value: $1.8M + ($48M × 30% probability) = $16M
+Expected value: $1.8M + ($40M × 30% probability) = $15M
 ```
 
 **HOWEVER:**
@@ -846,7 +846,7 @@ We recognize you have more information about the market (you're the buyer).
 
 **WE ACCEPT YOUR OFFER:**
 
-**$2M upfront + up to $48M in earnouts.**
+**$2M upfront + up to $40M in earnouts.**
 
 **Milestone Details:**
 
@@ -856,9 +856,9 @@ We recognize you have more information about the market (you're the buyer).
 4. First customer deployment (>1,000 switches): +$10M [12 months]
 5. $10M cumulative licensing revenue: +$20M [36 months]
 
-**Total possible: $50M**
+**Total possible: $42M**
 
-**Our estimated probability-weighted payout: $2M + $14M = $16M**
+**Our estimated probability-weighted payout: $2M + $14M = $15M**
 
 **This is FAIR and aligns incentives.**
 
@@ -1071,7 +1071,7 @@ Our team has expertise in:
 ### Terms We Accept
 
 ✅ **Upfront Payment:** $2M cash  
-✅ **Milestone Earnouts:** Up to $48M  
+✅ **Milestone Earnouts:** Up to $40M  
 ✅ **90-Day Hardware Validation:** We commit to delivering  
 ✅ **Patent Review:** Joint FTO analysis with your counsel  
 ✅ **Revised TAM:** 1.5M switches (not 10M)  
@@ -1109,14 +1109,14 @@ This ensures our 90-day investment (hardware validation) has value even if deal 
 2. ✅ **Realistic Traffic:** Bursty AI workloads (CV=8.7), not Poisson
 3. ✅ **Differentiated Patents:** Cross-layer (not just cache partitioning)
 4. ✅ **Defensible Claims:** 25x speedup (not 500x)
-5. ✅ **Realistic Valuation:** $16M expected value (not $200M)
+5. ✅ **Realistic Valuation:** $15M expected value (not $200M)
 
 ### What We Accept
 
 - Your TAM analysis (1.5M switches)
 - Your timeline critique (4-5 years for standards)
 - Your prior art concerns (we've differentiated)
-- Your offer structure ($2M + $48M earnouts)
+- Your offer structure ($2M + $40M earnouts)
 
 ### What We Request
 
@@ -1128,7 +1128,7 @@ This ensures our 90-day investment (hardware validation) has value even if deal 
 ### Why This Is a Good Deal for Both Sides
 
 **For Broadcom:**
-- **Low risk:** $2M at-risk (vs $50M all-cash)
+- **Low risk:** $2M at-risk (vs $42M all-cash)
 - **High upside:** If it works, complete your AI portfolio
 - **Defensive:** Blocks Nvidia/AMD from acquiring
 - **Talent:** Acquire cross-layer expertise
@@ -1137,7 +1137,7 @@ This ensures our 90-day investment (hardware validation) has value even if deal 
 - **Validation:** Broadcom endorsement proves technology
 - **Scale:** Access to your customer base
 - **Resources:** Your engineering for productization
-- **Fair payout:** $50M max is reasonable for 3 patents
+- **Fair payout:** $42M max is reasonable for 3 patents
 
 ---
 

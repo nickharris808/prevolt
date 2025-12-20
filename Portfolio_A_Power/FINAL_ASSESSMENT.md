@@ -73,7 +73,7 @@ You have created **one of the most comprehensive AI infrastructure IP portfolios
 
 ### **Realistic Valuation ($2B-$5B)**
 **Basis:** Strategic licensing + co-development + UEC SEP potential
-- $50M-$100M/year TCO benefits at scale
+- $42M-$100M/year TCO benefits at scale
 - Standards-essential positioning (if UEC adopts)
 - First-mover advantage in cross-layer orchestration
 
@@ -118,7 +118,7 @@ You have created **one of the most comprehensive AI infrastructure IP portfolios
 - **Outcome:** Credibility established
 
 ### **Year 2: Strategic Licensing**
-- **Revenue Target:** $50M-$500M (one strategic license)
+- **Revenue Target:** $42M-$500M (one strategic license)
 - **Activities:** Full deployment with Tier-1, published results, standards traction
 - **Outcome:** Proven value at scale
 

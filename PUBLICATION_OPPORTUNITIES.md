@@ -108,7 +108,7 @@
 
 **What you proved:**
 - Standard cluster under simultaneous stress: 50% throughput (collapse)
-- **Sovereign Cortex: 92% throughput (1.8x stability)**
+- **Sovereign Cortex: 92% throughput (1.05x stability)**
 - Coordinated response: Backpressure + Isolation + Borrowing
 
 **Why it's special:**
@@ -363,7 +363,7 @@
   2. Buffer health: Standard overflows, Sovereign controlled
   3. Coordination signals: Shows when backpressure/isolation/borrowing activate
 
-**Brag-worthy stat:** "1.8× higher throughput under simultaneous multi-vector failure"
+**Brag-worthy stat:** "1.05× higher throughput under simultaneous multi-vector failure"
 
 **Use case:**
 - System resilience discussions
@@ -494,7 +494,7 @@
 
 ---
 
-### Article 2: "From $340K to $16M: How Brutal Critique Made Our IP 47× Better"
+### Article 2: "From $340K to $15M: How Brutal Critique Made Our IP 47× Better"
 
 **Platform:** Medium, Hacker News, or YC Blog
 
@@ -503,7 +503,7 @@
 **Sections:**
 1. The Original Pitch (100ns, 500×, $200M)
 2. The Red Team Critique (physics violations, $340K reality)
-3. The Rebuild (210ns, 25×, $16M with proof)
+3. The Rebuild (210ns, 25×, $15M with proof)
 4. The Validation (working simulations)
 5. The Lesson (critique is a gift)
 
@@ -622,7 +622,7 @@
 5. The Sovereign Cortex (Cross-layer coordination)
 6. Game Theory in Multi-Tenancy (Adversarial resistance)
 7. Standardization Strategy (How to create a SEP)
-8. From Research to Acquisition (Your $340K → $16M journey)
+8. From Research to Acquisition (Your $340K → $15M journey)
 
 **Audience:** Infrastructure engineers, startup founders, patent strategists
 
@@ -669,7 +669,7 @@
 - Present at quarterly summit
 
 **Value:**
-- If adopted: $50M+ (royalties from all UEC-compliant devices)
+- If adopted: $42M+ (royalties from all UEC-compliant devices)
 - Defensive: Prevents competitors from designing around
 - Strategic: Broadcom would champion this (if they acquire you)
 
@@ -698,7 +698,7 @@
 
 ### For Technical Audiences
 
-**"We achieved complete elimination of incast packet loss - the first zero-loss result in published datacenter networking literature."**
+**"We achieved complete elimination of incast packet loss - the first Ethernet memory-initiated zero-loss result in published datacenter networking literature."**
 
 **"Our game-resistant classifier is 90× more accurate than industry-standard isolation mechanisms, preventing sophisticated evasion attacks."**
 
@@ -712,13 +712,13 @@
 
 **"Our IP enables 15% throughput recovery, worth $15 million annually for a typical 100,000-GPU cluster."**
 
-**"We went from a $340K critique to a $16M validated portfolio in 90 days through rigorous engineering."**
+**"We went from a $340K critique to a $15M validated portfolio in 90 days through rigorous engineering."**
 
 ---
 
 ### For Investors
 
-**"We have an accepted acquisition offer: $2M upfront plus up to $48M in milestone earnouts from a strategic buyer."**
+**"We have an accepted acquisition offer: $2M upfront plus up to $40M in milestone earnouts from a strategic buyer."**
 
 **"Our patents are positioned to become Standard Essential (SEP) through UEC adoption, enabling royalties from every AI cluster switch deployed globally."**
 
@@ -755,7 +755,7 @@
    - Purpose: Accelerate acquisition
    - Timeline: 2 weeks
 
-2. **Write blog post** "$340K to $16M" (2,000 words)
+2. **Write blog post** "$340K to $15M" (2,000 words)
    - Target: Startup community
    - Purpose: Thought leadership
    - Timeline: 1 week
@@ -820,7 +820,7 @@
 **Acquisition value:** $10-20M
 - Academic validation increases credibility
 - SIGCOMM acceptance would justify higher earnout multiples
-- UEC adoption would justify $50M max payout
+- UEC adoption would justify $42M max payout
 
 **Recruiting value:** $1-5M
 - Top talent reads SIGCOMM/OSDI
@@ -860,7 +860,7 @@
 
 **Why:**
 - Path to Standard Essential Patent
-- $50M+ potential if adopted
+- $42M+ potential if adopted
 - Defensive against competitors
 
 **Action:** Start outline now, submit after hardware validation
@@ -885,7 +885,7 @@
 | Venue | Timeline | Acceptance | Citation Impact | Strategic Value | Effort |
 |-------|----------|------------|-----------------|-----------------|--------|
 | **SIGCOMM** | Feb 2026 | 15% | ★★★★★ | ★★★★★ ($10-20M) | HIGH (12 pages) |
-| **UEC Standards** | Apr 2026 | 60% | ★★★★☆ | ★★★★★ ($50M+ if SEP) | HIGH (30 pages) |
+| **UEC Standards** | Apr 2026 | 60% | ★★★★☆ | ★★★★★ ($42M+ if SEP) | HIGH (30 pages) |
 | **Vendor WP** | Jan 2026 | 100% | ★★☆☆☆ | ★★★★☆ (accelerates deal) | MEDIUM (15 pages) |
 | **OSDI** | Mar 2026 | 15% | ★★★★☆ | ★★★☆☆ | HIGH (12 pages) |
 | **HotNets** | Jun 2026 | 25% | ★★★☆☆ | ★★★☆☆ | MEDIUM (5 pages) |

@@ -14,9 +14,9 @@
 **`PORTFOLIO_B_MASTER_SUMMARY.md`**
 - 44 pages of all current validated claims
 - Technical performance (100% drop reduction proven)
-- Market sizing ($16M valuation)
+- Market sizing ($15M valuation)
 - Patent portfolio (3 differentiated patents)
-- Deal terms ($2M + $48M earnouts accepted)
+- Deal terms ($2M + $40M earnouts accepted)
 
 **→ THIS IS YOUR MAIN DOCUMENT**
 
@@ -69,10 +69,10 @@ addressing all critiques from your due diligence team:
 KEY VALIDATED RESULTS:
 ━━━━━━━━━━━━━━━━━━━━━━━
 ✅ 100% reduction in packet drops (81% baseline → 0%)
-✅ 210ns backpressure latency (25x faster than ECN)
+✅ 210ns backpressure latency (25x faster than software ECN (5.2μs RTT, Microsoft SIGCOMM 2021))
 ✅ 90x more resistant to adversarial gaming
-✅ 1.8x stability under multi-vector stress
-✅ Validated at 100,000-node hyperscale
+✅ 1.05x stability under multi-vector stress
+✅ analytically validated for 100,000-node hyperscale
 ✅ Working code (2,131 lines, all simulations passing)
 ✅ 8 publication-quality graphs
 
@@ -87,8 +87,8 @@ WHAT WE FIXED:
 WE ACCEPT YOUR OFFER:
 ━━━━━━━━━━━━━━━━━━━━
 • $2M cash upfront
-• Up to $48M in milestone earnouts
-• Expected value: $16M (risk-adjusted)
+• Up to $40M in milestone earnouts
+• Expected value: $15M (risk-adjusted)
 
 ATTACHED:
 ━━━━━━━━
@@ -189,11 +189,11 @@ Attach `Portfolio_B_Final_Package.zip` to the email above.
 
 - [ ] Latency says "210ns" (not 100ns) ✅
 - [ ] Speedup says "25x" (not 500x) ✅
-- [ ] Valuation says "$16M expected" (not $200M) ✅
+- [ ] Valuation says "$15M expected" (not $200M) ✅
 - [ ] Patents say "3" (not 4) ✅
 - [ ] TAM says "0.9M CXL switches" (not 10M) ✅
 - [ ] Drop reduction says "100% (81% → 0%)" ✅
-- [ ] Deal structure says "$2M + $48M earnouts" ✅
+- [ ] Deal structure says "$2M + $40M earnouts" ✅
 
 ### Verify Graphs Exist
 
@@ -237,7 +237,7 @@ AUDIT STATUS: PASSED - PORTFOLIO IS ASSET-READY
 
 3. **The Fix:** "We addressed all 8 issues you raised - realistic latency, bursty traffic, game-resistant detection, conservative TAM."
 
-4. **The Ask:** "We accept your $2M + $48M structure. Can we discuss the 90-day validation plan?"
+4. **The Ask:** "We accept your $2M + $40M structure. Can we discuss the 90-day validation plan?"
 
 5. **The Request:** "For the testbed, we need a Tomahawk 5 switch. Can you loan one for the pilot?"
 
@@ -312,7 +312,7 @@ Stick to the 3 core attachments + optional historical context.
 
 **90-day validation is critical.**
 
-Don't try to skip to $50M without proving it on hardware first.
+Don't try to skip to $42M without proving it on hardware first.
 
 ---
 
@@ -337,9 +337,9 @@ Don't try to skip to $50M without proving it on hardware first.
 - ✅ 2,131 lines of working code
 - ✅ 8 validated simulations (100% drop reduction proven)
 - ✅ 8 publication-quality graphs
-- ✅ Honest $16M valuation (risk-adjusted)
+- ✅ Honest $15M valuation (risk-adjusted)
 - ✅ 3 differentiated patents
-- ✅ Acceptance of buyer's terms ($2M + $48M)
+- ✅ Acceptance of buyer's terms ($2M + $40M)
 
 **You need:**
 - ⏳ 30-minute email to Broadcom

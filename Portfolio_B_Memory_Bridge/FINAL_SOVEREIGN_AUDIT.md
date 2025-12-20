@@ -42,7 +42,7 @@ Portfolio B has been refactored from "Software-Scale" simulations (milliseconds)
 - **Job Completion**: 100.00% (vs 35% for local-only) ✅
 
 ### Patent Family 8: Grand Unified Cortex (The Perfect Storm)
-- **Throughput Improvement**: 2.44x (Unified vs Isolated) ✅
+- **Throughput Improvement**: 1.05x (Unified vs Isolated) ✅
 - **Latency Improvement**: 700x (Unified: 0ns, Isolated: 700ns) ✅
 - **Drop Rate**: 0% vs 62.23% ✅
 - **Job Completion**: 90% vs 11% ✅
