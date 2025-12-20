@@ -120,14 +120,12 @@ def run_perfect_storm(mode: str = 'unified', seed: int = 42) -> Dict[str, float]
         pf4_algo, pf5_algo, pf6_algo, pf7_algo = 'cache_aware', 'sniper', 'adaptive_ttl', 'balanced_borrow'
         matrix_arg, pub4, pub5, pub6, pub7 = matrix, pf4_pub, pf5_pub, pf6_pub, pf7_pub
     else:
-        # Isolated System (The Catastrophe)
+        # Isolated System (FAIR COMPARISON - Same load as Unified)
         pf4_algo, pf5_algo, pf6_algo, pf7_algo = 'no_control', 'no_control', 'no_timeout', 'local_only'
         matrix_arg, pub4, pub5, pub6, pub7 = None, None, None, None, None
-
-        # Apply catastrophic stress to Isolated only
-        pf4_config.network_rate_gbps = 2500.0 # 5x overload
-        pf5_config.noisy_tenant_multiplier = 500.0 # Atomic bully
-        pf7_config.fragmentation_level = 0.7 # Severe fragmentation
+        
+        # FAIR COMPARISON: Both systems face IDENTICAL conditions
+        # (Removed artificial handicap - both systems get same load)
 
     # Start all simulations SIMULTANEOUSLY in the same environment
     buffer = run_incast_simulation(pf4_config, pf4_algo, seed, pub4, state_store, matrix_arg, env)
