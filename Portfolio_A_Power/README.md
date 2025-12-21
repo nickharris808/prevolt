@@ -12,6 +12,10 @@
 
 **New to Portfolio A?** Read **[`START_HERE.md`](START_HERE.md)** (5-minute overview)
 
+**For Quick Assessment:** Read **[`AUDIT_EXECUTIVE_SUMMARY.md`](AUDIT_EXECUTIVE_SUMMARY.md)** (1-page honest verdict)
+
+**For Complete Audit:** Read **[`DEEP_AUDIT_AND_PEER_REVIEW.md`](DEEP_AUDIT_AND_PEER_REVIEW.md)** (66-page systematic review)
+
 **For Executives:** Read **[`EXECUTIVE_SUMMARY_STRENGTHENED.md`](EXECUTIVE_SUMMARY_STRENGTHENED.md)** (complete measured data)
 
 **For Technical DD:** Read **[`COMPREHENSIVE_TECHNICAL_AUDIT.md`](COMPREHENSIVE_TECHNICAL_AUDIT.md)** (all 53 components verified)
