@@ -723,3 +723,6 @@ $100B/yr Industry-wide congestion cost
 **My rec: SIGCOMM paper (highest impact) + vendor whitepaper (helps deal close).**
 
 **Deadline: SIGCOMM submission February 15, 2026 (8 weeks away) - START NOW.** 🚀
+
+
+

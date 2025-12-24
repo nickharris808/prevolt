@@ -657,3 +657,6 @@ $40M:    Total earnouts (revised down from $40M)
 4. Email template (see above - includes disclosure)
 
 **This is now 100% defensible. Send it.** 🚀
+
+
+

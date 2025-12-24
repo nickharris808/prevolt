@@ -258,3 +258,6 @@ Best regards,
 - Monte Carlo output (shows 0.91× minimum, 2 regressions)
 
 **Everything is now on the table. 100% honest.** ✅
+
+
+

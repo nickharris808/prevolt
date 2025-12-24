@@ -286,3 +286,6 @@ Expected:          $15M (probability-weighted)
 4. `FORENSIC_AUDIT_FINDINGS.md` (rigging disclosure)
 
 **Everything is now on the table. Nothing hidden. 100% transparent.** ✅
+
+
+

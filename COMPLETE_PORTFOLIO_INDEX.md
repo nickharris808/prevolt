@@ -326,3 +326,6 @@
 **Recommendation: Do BOTH - publish while negotiating (publications increase acquisition value).**
 
 **Priority: SIGCOMM paper (deadline Feb 15) + Send package to Broadcom (this week).** 🚀
+
+
+

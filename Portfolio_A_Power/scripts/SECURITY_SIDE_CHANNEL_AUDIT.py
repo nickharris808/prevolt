@@ -42,3 +42,6 @@ def simulate_side_channel_attack():
 
 if __name__ == "__main__":
     simulate_side_channel_attack()
+
+
+

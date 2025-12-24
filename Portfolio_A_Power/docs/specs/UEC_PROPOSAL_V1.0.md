@@ -41,3 +41,6 @@ This proposal defines a **Predictive Power-Aware Egress (PPAE)** extension for U
 ---
 
 **© 2025 Neural Harris IP Holdings. Submitted for Peer Review.**
+
+
+

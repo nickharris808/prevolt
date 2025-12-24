@@ -365,3 +365,6 @@ Don't try to skip to $42M without proving it on hardware first.
 **Everything else is supporting documentation available on request.**
 
 **This is ready. Send it today.** ✅
+
+
+

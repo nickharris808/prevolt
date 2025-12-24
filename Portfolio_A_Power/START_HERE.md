@@ -176,3 +176,6 @@ A: **They solve point problems; we solve the system.** IVRs solve local voltage 
 
 
 
+
+
+

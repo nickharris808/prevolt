@@ -382,3 +382,6 @@ PCIE_ROUND_TRIP_LATENCY: float = 2 * (PCIE_TLP_HEADER_TIME +
 **Honesty:** 100% (nothing hidden)
 
 **SEND WITH FULL TRANSPARENCY.** ✅
+
+
+

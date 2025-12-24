@@ -536,3 +536,6 @@ $40M     Total earnouts (down from $48M)
 - `/Users/nharris/Desktop/portfolio/FORENSIC_AUDIT_FINDINGS.md` (disclosure)
 - `/Users/nharris/Desktop/portfolio/PORTFOLIO_B_MASTER_SUMMARY.md` (all honest claims)
 - `/Users/nharris/Desktop/portfolio/Portfolio_B_Memory_Bridge/VALIDATION_RESULTS.md` (proof)
+
+
+
