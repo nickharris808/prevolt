@@ -773,83 +773,146 @@ The token mechanism enables new business models:
 
 ## CLAIMS
 
+*Note: Claims are structured to anchor patentability on the combination of: (1) in-band token delivery at line-rate, (2) hardware gating at the CP-to-SM dispatch boundary, (3) microsecond-scale temporal validity tied to facility power dynamics, and (4) network switch as issuing authority with queue-depth visibility. These elements are individually known but their combination is non-obvious.*
+
 ### Independent Claims
 
-**Claim 1.** A method for controlling compute execution in a distributed computing system, comprising:
-- (a) receiving, at a hardware gating module within a compute node, a temporal token issued by a network switch;
-- (b) validating, via hardware logic circuits, the authenticity and temporal validity of said temporal token;
-- (c) controlling a clock signal to one or more execution units based on the validation result;
-- wherein instructions are dispatched to said execution units only when said temporal token is present and valid.
+**Claim 1.** A method for controlling instruction dispatch in a GPU-based compute node, comprising:
 
-**Claim 2.** A system for network-authorized compute gating, comprising:
-- a token issuer implemented in a network switch, configured to evaluate facility power state and issue temporal tokens to authorized compute nodes;
-- a token validator implemented in hardware logic at a compute node, configured to verify token authenticity in less than 100 nanoseconds;
-- a clock-gated dispatcher configured to enable or disable clock signals to execution units based on token validity;
-- wherein compute operations are physically prevented in the absence of a valid temporal token.
+- (a) receiving, at a network interface of said compute node, a data packet containing both (i) compute payload data and (ii) a temporal authorization token embedded in a header field of said packet;
 
-**Claim 3.** A compute node comprising:
-- a network interface configured to receive temporal tokens embedded in packet headers;
-- a hardware token validator configured to verify token signature and temporal bounds;
-- a clock gating circuit configured to halt clock signals to arithmetic logic units when token validation fails;
-- wherein the compute node is incapable of executing instructions without authorization from a network-issued token.
+- (b) extracting said temporal authorization token from said header field as part of a line-rate receive path, wherein said extraction occurs without invoking a software control plane;
+
+- (c) validating, via combinational hardware logic positioned between a Command Processor and one or more Streaming Multiprocessor execution clusters, the authenticity and temporal validity of said temporal authorization token, wherein said validation completes in less than 100 nanoseconds;
+
+- (d) in response to successful validation, enabling a clock signal to said Streaming Multiprocessor execution clusters, thereby permitting instruction dispatch; and
+
+- (e) in response to failed validation, maintaining said clock signal in a disabled state, thereby physically preventing instruction dispatch in a fail-closed configuration;
+
+- wherein said temporal authorization token includes a validity window of 10 to 1000 microseconds, said validity window being synchronized to facility power availability dynamics.
+
+**Claim 2.** A system for network-switch-authorized compute gating, comprising:
+
+- a network switch comprising:
+  - an egress queue per destination compute node, providing visibility into buffered packets awaiting transmission;
+  - a token issuer configured to evaluate (i) said egress queue depth, (ii) traffic class of pending packets, and (iii) facility power headroom, and to issue temporal authorization tokens to compute nodes based on said evaluation;
+  - logic to embed said temporal authorization tokens in-band within packet header fields of compute-bound traffic;
+
+- a compute node comprising:
+  - a network interface receiving packets containing in-band temporal authorization tokens;
+  - a hardware token validator implemented as combinational logic on a line-rate receive path, configured to verify token signature and temporal bounds;
+  - a clock-gated dispatcher positioned at a boundary between a Command Processor and execution unit clusters, configured to gate clock signals to said execution unit clusters based on token validity;
+
+- wherein compute operations at said compute node are physically prevented in the absence of a valid temporal authorization token, and wherein said token validity window is 10 to 1000 microseconds.
+
+**Claim 3.** A network switch for authorizing compute execution in a distributed AI training cluster, comprising:
+
+- an egress queue structure providing per-destination-GPU queue depth visibility;
+- a power budget register storing current facility power headroom;
+- a traffic class classifier categorizing packets by priority level;
+- a token issuer configured to:
+  - predict imminent power demand at each GPU from said queue depth;
+  - allocate power budget across GPUs based on said priority level;
+  - generate temporal authorization tokens with microsecond-granularity validity windows;
+  - embed said tokens in-band within packet headers;
+- wherein said switch controls instruction dispatch at remote GPUs by selectively issuing or withholding said tokens based on facility power state.
+
+**Claim 4.** A compute node comprising:
+
+- a network interface configured to receive packets containing temporal authorization tokens embedded in header fields;
+- a token validator implemented entirely as combinational hardware logic, without software or firmware override paths, said validator positioned on a line-rate receive path and configured to:
+  - extract token fields including validity timestamps and cryptographic signature;
+  - compare current local time against said validity timestamps with microsecond granularity;
+  - verify said cryptographic signature against a pre-shared secret;
+  - assert an authorization signal if and only if all checks pass;
+- a clock-gated dispatcher positioned between a Command Processor and Streaming Multiprocessor execution clusters, configured to:
+  - enable clock signals to targeted execution clusters when said authorization signal is asserted;
+  - disable clock signals to all execution clusters when said authorization signal is de-asserted;
+  - maintain a fail-closed default state with clock signals disabled;
+- wherein said compute node cannot execute instructions without a valid temporal authorization token delivered in-band from a network switch.
 
 ### Dependent Claims
 
-**Claim 4.** The method of Claim 1, wherein the temporal token comprises:
-- a power budget field indicating maximum authorized power consumption;
-- a valid-from timestamp indicating when authorization begins;
-- a valid-until timestamp indicating when authorization expires;
-- a cryptographic nonce for anti-replay protection;
-- a signature for authenticity verification.
+**Claim 5.** The method of Claim 1, wherein the temporal authorization token comprises:
+- a power budget field (32 bits) indicating maximum authorized power consumption in Watts;
+- a valid-from timestamp (16 bits) with microsecond granularity;
+- a valid-until timestamp (16 bits) with microsecond granularity, wherein valid-until minus valid-from defines the validity window;
+- a cryptographic nonce (32 bits) unique per token for anti-replay protection;
+- a truncated HMAC signature (32 bits) for authenticity verification.
 
-**Claim 5.** The method of Claim 1, wherein controlling the clock signal comprises:
-- enabling clock signals to a subset of execution units identified in the temporal token;
-- disabling clock signals to all other execution units;
-- applying reverse body bias to disabled execution units to reduce leakage current.
-
-**Claim 6.** The method of Claim 1, wherein validating the temporal token comprises:
-- extracting a signature from the token;
-- computing an expected signature using a pre-shared secret;
-- comparing the extracted signature to the expected signature;
-- verifying that a current timestamp falls within the token's valid time window.
-
-**Claim 7.** The system of Claim 2, wherein the token issuer is configured to:
-- deny token issuance when facility power load exceeds a threshold;
-- deny token issuance to low-priority compute nodes during power stress events;
-- limit token power budgets based on per-tenant allocations.
-
-**Claim 8.** The system of Claim 2, wherein the clock-gated dispatcher comprises:
-- independent clock gate cells for each of a plurality of execution unit clusters;
-- body bias controllers for each cluster;
-- logic to selectively enable a subset of clusters based on token content.
-
-**Claim 9.** The compute node of Claim 3, further comprising:
-- a substrate bias generator configured to apply reverse bias to halted execution units;
-- wherein leakage current is reduced by at least 100x during unauthorized periods.
-
-**Claim 10.** The method of Claim 1, wherein the temporal token is embedded in:
-- an IPv6 extension header;
+**Claim 6.** The method of Claim 1, wherein the temporal authorization token is embedded in one of:
+- an IPv6 Hop-by-Hop or Destination Options extension header;
 - a VXLAN header reserved field;
-- a custom AIPP (AI Power Protocol) header;
-- or a PCIe TLP vendor-defined field.
+- a RoCEv2/InfiniBand Immediate Data field;
+- a custom AIPP (AI Power Protocol) header encapsulated within an Ethernet frame;
+- a PCIe Transaction Layer Packet (TLP) vendor-defined field;
+and wherein token extraction occurs at wire speed as part of packet header parsing.
 
-**Claim 11.** The system of Claim 2, wherein the token validator is implemented entirely in combinational logic without software or firmware components, providing hardware-enforced bypass resistance.
+**Claim 7.** The method of Claim 1, wherein the validity window of 10 to 1000 microseconds is determined by the network switch based on:
+- current facility power headroom;
+- GPU VRM transient response time (typically 15 µs);
+- anticipated compute burst duration inferred from packet size and traffic class.
 
-**Claim 12.** The method of Claim 1, further comprising:
-- metering the number of tokens issued to each compute node;
-- billing compute usage based on token count;
-- enabling a compute-as-a-service business model with per-instruction licensing.
+**Claim 8.** The system of Claim 2, wherein the hardware token validator comprises:
+- combinational XOR-based message authentication code (MAC) verification completing in less than 10 nanoseconds;
+- dual-comparator timestamp bounds checking for valid-from and valid-until;
+- AND-reduction of all check results into a single authorization signal;
+- no programmable registers, software hooks, or firmware override capability.
 
-**Claim 13.** A network switch comprising:
-- a token issuer configured to generate temporal tokens based on facility power state;
-- logic to embed said tokens in packet headers destined for compute nodes;
-- wherein the switch controls which compute nodes may execute instructions and at what power level.
+**Claim 9.** The system of Claim 2, wherein the clock-gated dispatcher comprises:
+- integrated clock gating (ICG) cells at the root of each execution cluster's clock tree;
+- body bias controllers configured to apply reverse substrate bias to halted clusters, reducing leakage current by at least 100x;
+- fail-closed logic wherein the default state upon reset or token absence is clocks disabled and reverse bias applied.
 
-**Claim 14.** The method of Claim 1, wherein the hardware gating module gates a power rail to execution units rather than a clock signal, and wherein the method further comprises:
-- ramping power rail voltage gradually to prevent inductive kickback;
-- using soft-start circuitry during power gate enable transitions.
+**Claim 10.** The system of Claim 2, wherein the network switch token issuer is configured to:
+- deny token issuance when facility power headroom falls below a threshold;
+- reduce token validity window duration during power stress events;
+- prioritize token issuance to high-priority (Gold/Platinum) traffic classes while deferring low-priority (Bronze) traffic;
+- limit per-tenant power budget allocations based on contractual commitments.
 
-**Claim 15.** The method of Claim 1, wherein the hardware gating module gates memory access to high-bandwidth memory (HBM), and wherein compute is indirectly prevented by denying memory access required for computation.
+**Claim 11.** The network switch of Claim 3, wherein predicting imminent power demand comprises:
+- correlating queue depth with historical power consumption per packet type;
+- summing predicted power across all queued packets for each GPU;
+- comparing aggregate predicted power against facility power headroom;
+and wherein tokens are issued only when predicted power fits within available headroom.
+
+**Claim 12.** The compute node of Claim 4, further comprising:
+- a local real-time clock synchronized to the network switch via PTP (Precision Time Protocol) or equivalent;
+- wherein token timestamp comparison uses said synchronized clock to verify microsecond-granularity validity windows.
+
+**Claim 13.** The method of Claim 1, wherein validating the cryptographic signature comprises:
+- computing an expected signature as a function of power budget, timestamps, nonce, and a pre-shared secret;
+- comparing said expected signature to the signature field of the token;
+- wherein said computation uses XOR-reduction or truncated HMAC implementable in combinational logic within 10 nanoseconds.
+
+**Claim 14.** The method of Claim 1, wherein in response to failed validation, the method further comprises:
+- applying reverse substrate bias to Streaming Multiprocessor execution clusters to reduce leakage power by at least 100x;
+- signaling a negative acknowledgment (NACK) to the Command Processor;
+- buffering the compute request for retry upon receipt of a valid token.
+
+**Claim 15.** The method of Claim 1, wherein the hardware gating module alternatively gates a power rail rather than a clock signal, and wherein enabling the power rail comprises:
+- soft-start voltage ramping over 1-10 microseconds to prevent inductive kickback;
+- brown-out detection to halt dispatch if voltage droop is detected during ramp;
+and wherein the fail-closed default is power rail disabled.
+
+**Claim 16.** The method of Claim 1, wherein the hardware gating module alternatively gates access to high-bandwidth memory (HBM) rather than the clock signal, and wherein compute is indirectly prevented by denying memory access required for GEMM (General Matrix Multiply) operations.
+
+**Claim 17.** The system of Claim 2, further comprising:
+- a token metering counter at the network switch recording tokens issued per tenant;
+- billing logic configured to charge tenants based on token count, token power budget, and validity window duration;
+thereby enabling a compute-as-a-service business model with per-burst authorization.
+
+**Claim 18.** The network switch of Claim 3, wherein the token issuer is implemented within a programmable switch ASIC (e.g., Barefoot Tofino, Broadcom Memory, NVIDIA Spectrum) using P4 or equivalent dataplane programming, enabling line-rate token generation and embedding without control-plane latency.
+
+**Claim 19.** The compute node of Claim 4, wherein the token validator and clock-gated dispatcher are implemented as a synthesizable RTL IP block comprising fewer than 10,000 logic gates and meeting timing closure at 1 GHz with at least 25% slack.
+
+**Claim 20.** A method for preventing grid overload in a hyperscale AI training facility, comprising:
+- monitoring facility power headroom at a network switch;
+- evaluating egress queue depth to predict imminent power demand from buffered compute traffic;
+- issuing temporal authorization tokens with microsecond-granularity validity windows to GPUs only when predicted power fits within available headroom;
+- embedding said tokens in-band within packet headers;
+- at each GPU, gating clock signals to execution units via hardware logic that validates said tokens at line-rate;
+- wherein simultaneous kernel launches across the facility are coordinated to prevent aggregate power demand from exceeding facility breaker rating.
 
 ---
 
