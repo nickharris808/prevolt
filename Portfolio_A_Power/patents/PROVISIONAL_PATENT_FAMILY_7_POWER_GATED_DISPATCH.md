@@ -43,11 +43,9 @@ The present invention relates generally to power management and authorization in
 
 ## BACKGROUND OF THE INVENTION
 
-### The Uncontrolled Compute Problem
+### The Uncontrolled Compute Problem in Hyperscale AI Infrastructure
 
-Modern hyperscale data centers deploying artificial intelligence (AI) training and inference workloads face a fundamental challenge: **no hardware-level mechanism exists to authorize compute instructions based on facility power availability or network-layer intent.**
-
-Graphics Processing Units (GPUs) and specialized AI accelerators can launch computational kernels—dense matrix operations consuming 500-1500 Watts per device—without any coordination with the facility's power infrastructure. When thousands of GPUs simultaneously initiate compute bursts, the aggregate power demand can exceed facility breaker ratings, causing cascading failures.
+Modern hyperscale data centers deploying artificial intelligence (AI) training and inference workloads face a coordination challenge between network-delivered compute requests and facility power availability. Graphics Processing Units (GPUs) and specialized AI accelerators can launch computational kernels—dense matrix operations consuming 500-1500 Watts per device—upon receiving packets from the network, without coordination with the facility's real-time power budget.
 
 **The Scale of the Problem:**
 
@@ -57,71 +55,71 @@ A modern AI training cluster consists of:
 - **Aggregate peak demand:** 50-150 Megawatts
 - **Facility breaker rating:** Typically 100 Megawatts
 
-When GPUs operate autonomously without coordination:
+When GPUs operate without network-coordinated power budgeting:
 - **Simultaneous kernel launches** can create 125% of rated facility load
 - **Breaker trips** cause complete facility power loss
 - **Recovery time:** 30-60 minutes for full restart
 - **Economic impact:** $100,000+ per hour of lost training
 
-### The Fundamental Authorization Gap
+### The Specific Technical Gap Addressed by This Invention
 
-Current computing architectures have a critical gap:
+Prior art includes various token-based power management, instruction stalling, and networked power control concepts. However, the inventors have identified that **no prior system combines all of the following elements**:
 
-1. **Network Switch:** Has visibility into incoming compute requests (packets carrying matrix data, gradient updates, inference requests)
+1. **In-Band Token Delivery at Line-Rate:** Authorization token embedded in packet headers and validated as part of the fast-path receive/dispatch pipeline—not via a separate slow control plane.
 
-2. **GPU Command Processor:** Receives compute commands and dispatches them to Arithmetic Logic Units (ALUs)
+2. **Hardware Gating at a Specific Microarchitectural Boundary:** Physical clock/power gating inserted between the GPU Command Processor (CP) and the Streaming Multiprocessor (SM) execution clusters—the exact dispatch boundary where instructions transition from fetch to execute.
 
-3. **Power Delivery Network:** Provides electrical power to the compute hardware
+3. **Microsecond-Scale Temporal Validity Tied to Facility Power Dynamics:** Token validity windows of 10-100 microseconds synchronized to real-time facility power headroom, enabling the system to track power transients that occur faster than software control loops.
 
-**The Gap:** There is no mechanism connecting network visibility (which knows what compute is coming) to instruction dispatch (which controls when compute happens). The GPU will attempt to execute any instruction it receives, regardless of whether the facility has power capacity.
+4. **Network Switch as Authorization Authority:** The network switch—not a separate controller—issues tokens because it uniquely has:
+   - **Queue depth visibility:** Sees packets buffered for each GPU, directly predicting imminent power demand
+   - **Traffic class awareness:** Can prioritize Gold/Silver/Bronze tenants during power stress
+   - **Global arbitration:** Single point of coordination across thousands of GPUs
+   - **Anticipatory timing:** Sees compute requests 100-500µs before they reach GPUs
 
-### Prior Art Limitations
+### Prior Art Comparison
 
-#### Software Throttling via GPU Drivers
+The following prior art categories exist but lack the specific combination claimed herein:
 
-Existing approaches rely on software-based power management:
+#### Token-Based Power/Compute Gating (Exists, But Different Scope)
 
-```
-Driver Layer:
-  if (estimated_power > threshold):
-      delay_kernel_launch()
-```
+Prior systems use tokens for:
+- **Memory access control** (e.g., Intel TME/MKTME) - tokens gate memory encryption, not instruction dispatch
+- **Power domain sequencing** (e.g., ARM power gating) - controls rail enable, not network-synchronized authorization
+- **Compute licensing** (e.g., GPU feature unlocking) - persistent tokens, not microsecond-validity temporal tokens
 
-**Limitations:**
-- **Bypassable:** Malicious or buggy software can circumvent driver limits
-- **Latency:** Software decision loops operate on millisecond timescales
-- **No network visibility:** Driver doesn't know about incoming compute requests
-- **Trust model failure:** Cannot enforce physical limits through software
+**Distinction:** These tokens are not issued by a network switch based on facility power state, are not embedded in-band in packet headers, and do not have microsecond-scale temporal validity windows.
 
-#### Intel Running Average Power Limit (RAPL)
+#### Networked Power Management (Exists, But Control-Plane Based)
 
-Intel processors implement RAPL for power capping:
+Prior systems for networked power control use:
+- **IPMI/BMC out-of-band commands** - millisecond latency, software control plane
+- **DCIM (Data Center Infrastructure Management)** - second-scale polling loops
+- **Smart PDUs** - breaker-level control, no instruction-level granularity
 
-**Limitations:**
-- **Reactive, not proactive:** RAPL measures actual power consumption, then throttles
-- **Package-level granularity:** Cannot gate individual kernels or instructions
-- **No network coordination:** No visibility into distributed compute requests
-- **CPU-centric:** Limited applicability to GPU accelerators
+**Distinction:** These systems operate via slow control planes (10ms-10s latency), not in-band at line-rate (10ns). They cannot track microsecond power transients.
 
-#### Thermal Throttling
+#### Instruction Stalling/Gating (Exists, But Reactive)
 
-GPUs implement thermal protection:
+Prior systems stall instructions based on:
+- **RAPL power limits** - measures power, then throttles (reactive)
+- **Thermal throttling** - measures temperature, then limits (reactive)
+- **Back-pressure from memory controller** - stalls on memory not power
 
-**Limitations:**
-- **Reactive:** Only engages after temperature exceeds thresholds
-- **Coarse-grained:** Throttles entire GPU, not specific operations
-- **No predictive capability:** Cannot anticipate power events
-- **Damages compute:** Throttling during training corrupts gradient calculations
+**Distinction:** These systems are reactive (measure-then-throttle). The present invention is proactive (network issues token before compute begins, based on queue depth which predicts future power demand).
 
-### The Need for Hardware-Level Authorization
+### Summary of Novelty
 
-What is needed is a system that:
+The present invention combines:
+1. **In-band token delivery** (in packet header, validated at line-rate)
+2. **Hardware gating at the CP-to-SM dispatch boundary** (fail-closed clock/power gating)
+3. **Microsecond-scale temporal validity** (10-100µs windows with anti-replay nonces)
+4. **Network switch as issuing authority** (queue-depth and traffic-class visibility)
 
-1. **Physically gates compute execution** at the hardware level
-2. **Receives authorization from the network** which has visibility into incoming workload
-3. **Operates at nanosecond timescales** matching instruction dispatch rates
-4. **Cannot be bypassed** by software or firmware exploits
-5. **Enables coordinated power budgeting** across distributed compute infrastructure
+No single prior art reference contains all these elements, and their combination is non-obvious because:
+- The network switch is typically viewed as a packet forwarder, not a power authorization authority
+- Hardware gating typically responds to local sensors, not network-delivered tokens
+- Token validity is typically persistent (license keys) or session-based (minutes/hours), not microsecond-scale tied to power dynamics
 
 ---
 
@@ -131,19 +129,33 @@ The present invention provides a **Network-Authorized Hardware Compute Gating Sy
 
 ### Core Innovation
 
-The invention introduces a **hardware dispatch gate** positioned between a compute node's Command Processor and its execution units (ALUs). This gate requires a **Temporal Token** issued by a network switch to enable compute execution. Without a valid token, the hardware physically prevents instruction dispatch by gating clock signals and/or power rails to the execution units.
+The invention introduces a **hardware dispatch gate** at a specific microarchitectural boundary: **between the GPU Command Processor (CP) and the Streaming Multiprocessor (SM) execution clusters**. This is the precise point where decoded instructions transition from the fetch/decode pipeline to the execution units.
+
+The gate operates in a **fail-closed** mode: without a valid Temporal Token, all clock signals to execution clusters are physically disabled. The gate cannot be bypassed by software, firmware, or driver modification because it is implemented as synthesized combinational logic with no programmable override path.
+
+The **Temporal Token** is issued by a network switch—specifically chosen as the authorization authority because the switch has unique visibility into:
+- **Egress queue depth** per destination GPU (predicting imminent power demand)
+- **Traffic class** per flow (enabling priority-based power allocation)
+- **Aggregate request rate** across all GPUs (enabling global power budgeting)
+
+The token is delivered **in-band**, embedded in the packet header (e.g., IPv6 extension header, VXLAN reserved bits, or custom AIPP header field). This enables validation at **line-rate** as part of the receive/dispatch critical path—not via a slow out-of-band control plane that would add milliseconds of latency.
+
+The token includes a **microsecond-scale validity window** (10-100 µs) synchronized to facility power dynamics. This temporal granularity matches the timescale of:
+- VRM transient response (15 µs)
+- GPU power state transitions (50-200 µs)
+- Utility grid FCR events (1-second response, but µs-scale for local battery/capacitor coordination)
 
 ### Key Components
 
-1. **Temporal Token:** A cryptographically-secured, time-bounded authorization credential issued by the network switch
+1. **Temporal Token:** A 128-bit credential with microsecond-granularity validity window and anti-replay nonce, delivered in-band within packet headers
    
-2. **Hardware Token Validator:** Silicon logic that verifies token authenticity and temporal validity in less than 10 nanoseconds
+2. **Hardware Token Validator:** Combinational logic (no firmware) validating token signature and temporal bounds in < 10 ns, operating at line-rate on the receive path
 
-3. **Clock-Gated Dispatcher:** Hardware module that enables/disables clock signals to ALU clusters based on token state
+3. **Clock-Gated Dispatcher:** Hardware module at the CP-to-SM boundary that enables/disables clock signals to execution clusters in a fail-closed configuration (default = clocks off)
 
-4. **Body Bias Controller:** Optional substrate voltage control for leakage management during unauthorized periods
+4. **Body Bias Controller:** Substrate voltage control applying reverse bias to halted execution units, reducing leakage by 148x during unauthorized periods
 
-5. **Network Token Issuer:** Switch-side logic that evaluates facility power state and issues tokens to authorized compute nodes
+5. **Network Token Issuer (Switch-Side):** Logic within the switch ASIC that evaluates egress queue depth, traffic class, and facility power headroom to issue or deny tokens
 
 ### Operational Principle
 
