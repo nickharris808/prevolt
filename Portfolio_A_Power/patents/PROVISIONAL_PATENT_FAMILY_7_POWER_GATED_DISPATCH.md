@@ -157,6 +157,47 @@ The token includes a **microsecond-scale validity window** (10-100 µs) synchron
 
 5. **Network Token Issuer (Switch-Side):** Logic within the switch ASIC that evaluates egress queue depth, traffic class, and facility power headroom to issue or deny tokens
 
+### Why the Network Switch is the Correct Authorization Authority
+
+A key insight of this invention is that the **network switch** is uniquely suited to serve as the compute authorization authority—not a separate power controller, not a centralized scheduler, not the GPU driver. This is because:
+
+**1. Queue Visibility Provides Power Prediction**
+
+The switch's egress queues contain packets buffered for each GPU. These packets carry GEMM tiles, gradient updates, and inference requests—each with known power signatures. By inspecting queue depth and packet metadata, the switch can predict power demand 100-500 µs before packets reach the GPU:
+
+```
+Predicted_Power_GPU_i = Σ (packets in egress_queue[i]) × Power_per_Packet_Type
+```
+
+No other component in the system has this anticipatory visibility.
+
+**2. Traffic Class Enables Priority-Based Power Allocation**
+
+The switch classifies traffic by priority (e.g., DSCP, VLAN priority). During power stress, the switch can:
+- Continue issuing tokens to Gold-tier (high-priority) training jobs
+- Defer tokens to Bronze-tier (best-effort) inference jobs
+- Implement contractual SLAs for power allocation
+
+This priority arbitration requires the switch's traffic classification capabilities.
+
+**3. Single Point of Global Coordination**
+
+In a 100,000-GPU cluster, the switch (or switch fabric) is the only component that sees traffic to all GPUs simultaneously. It can:
+- Balance power allocation across the entire facility
+- Prevent pathological cases where all GPUs spike simultaneously
+- Implement facility-wide power budgets (e.g., "no more than 95 MW total")
+
+A per-GPU controller cannot achieve this global coordination.
+
+**4. In-Band Delivery Minimizes Latency**
+
+By embedding tokens in packet headers (not a separate control channel), authorization arrives with the compute request:
+- No additional round-trip to a power controller
+- No race condition between compute arrival and authorization arrival
+- Token is validated as part of the receive path (< 10 ns)
+
+Separate control planes (IPMI, BMC, DCIM) introduce 10 ms - 10 s latency—too slow for µs-scale power coordination.
+
 ### Operational Principle
 
 ```
@@ -298,6 +339,35 @@ Decoded:
   Signature:       0x8F4E6B2A = HMAC truncated to 32 bits
 ```
 
+**Microsecond-Scale Temporal Validity: Why This Granularity Matters**
+
+The 10-100 µs validity window is specifically chosen to match facility power dynamics:
+
+| Power Event | Timescale | Token Window Relationship |
+|------------|-----------|---------------------------|
+| VRM transient response | 15 µs | Token expires before VRM settles from unauthorized load |
+| GPU power state C0→C6 transition | 50-200 µs | Token can authorize a single power state transition |
+| Utility FCR (fast response) | 1 second | Many tokens can be issued/revoked within one FCR event |
+| Facility breaker trip | 10-50 ms | Tokens expire long before breaker mechanism engages |
+
+This tight temporal window provides:
+
+1. **Power Tracking Fidelity:** Token validity tracks real-time power headroom, not stale state
+2. **Anti-Hoarding:** GPUs cannot stockpile tokens for later unauthorized use
+3. **Fine-Grained Control:** Facility can revoke authorization by simply not issuing new tokens
+4. **Attack Resistance:** Token brute-force requires > 2 seconds; validity expires in < 100 µs
+
+**Anti-Replay via Nonce**
+
+Each token includes a 32-bit nonce that:
+1. Is generated cryptographically by the switch (e.g., via LFSR or hardware RNG)
+2. Is unique within each validity window
+3. Is recorded in a Bloom filter at the GPU to detect replay attempts
+
+Even if an attacker captures a valid token, they cannot replay it:
+- After 16-100 µs, the timestamp check fails
+- Within the validity window, the nonce is already recorded as "used"
+
 #### 1.3 Hardware Token Validator (GPU Side)
 
 The Token Validator is implemented in synthesizable RTL (Verilog) and resides at the interface between the GPU's Command Processor and its execution units.
@@ -370,9 +440,31 @@ module aipp_token_validator (
 endmodule
 ```
 
-#### 1.4 Clock-Gated Dispatcher
+#### 1.4 Clock-Gated Dispatcher at the CP-to-SM Boundary
 
-The Clock-Gated Dispatcher controls the physical clock signals to ALU clusters based on token authorization.
+The Clock-Gated Dispatcher is positioned at a **specific microarchitectural boundary**: between the GPU Command Processor (CP) and the Streaming Multiprocessor (SM) execution clusters. This is the precise point where:
+
+1. **Instructions exit the fetch/decode pipeline** (CP domain)
+2. **Instructions enter the execution domain** (SM domain)
+
+This boundary is architecturally significant because:
+
+- **CP Domain:** Handles kernel launch, warp scheduling, and instruction fetch—low power, safe to continue
+- **SM Domain:** Executes GEMM operations, FMA units, tensor cores—high power, must be gated
+
+By placing the gate at this boundary:
+- Kernel metadata can be fetched and examined (no power impact)
+- Actual compute is blocked until authorization is confirmed
+- State is preserved in registers (clock gating maintains register state)
+
+**Alternative Boundaries (and why CP-to-SM is preferred):**
+
+| Boundary | Pros | Cons |
+|----------|------|------|
+| Network-to-NIC | Earliest interception | Drops packets; requires retransmission |
+| NIC-to-PCIe | Early interception | Complex PCIe flow control |
+| **CP-to-SM** | **Preserves fetch, blocks execute** | **Ideal: low overhead, safe halt** |
+| SM-to-Memory | Blocks memory access | Incomplete: ALUs may still toggle |
 
 **Design Rationale - Clock Gating vs. Power Gating:**
 
@@ -918,7 +1010,7 @@ thereby enabling a compute-as-a-service business model with per-burst authorizat
 
 ## ABSTRACT
 
-A network-authorized hardware compute gating system prevents unauthorized compute operations in distributed computing infrastructure. A network switch evaluates facility power state and issues cryptographically-signed temporal tokens to authorized compute nodes. Each compute node includes a hardware token validator that verifies token authenticity and temporal validity in less than 10 nanoseconds. A clock-gated dispatcher enables or disables clock signals to execution units based on token validity. Instructions are physically prevented from executing in the absence of a valid token. The system eliminates grid overload events caused by uncoordinated compute bursts, enables per-instruction compute metering, and provides hardware-enforced bypass resistance. Implementation requires fewer than 5,000 logic gates and operates at 1 GHz with 32% timing margin.
+A system and method for network-switch-authorized hardware compute gating in GPU-based distributed computing infrastructure. A network switch—uniquely positioned with visibility into egress queue depth, traffic class, and pending compute requests—issues temporal authorization tokens with microsecond-granularity validity windows (10-1000 µs) synchronized to facility power dynamics. Tokens are embedded in-band within packet headers (e.g., IPv6 extension headers, VXLAN reserved fields) and validated at line-rate as part of the fast-path receive pipeline—without invoking slow control-plane software. At each compute node, a hardware token validator implemented as combinational logic (no firmware override) verifies token authenticity and temporal bounds in less than 10 nanoseconds. A clock-gated dispatcher positioned at the specific microarchitectural boundary between the GPU Command Processor and Streaming Multiprocessor execution clusters gates clock signals in a fail-closed configuration: clocks are disabled by default and enabled only upon successful token validation. The combination of (1) in-band line-rate token delivery, (2) hardware gating at the CP-to-SM dispatch boundary, (3) microsecond-scale temporal validity tied to power dynamics, and (4) network switch as issuing authority with queue-depth visibility provides a coordinated power authorization mechanism that prevents grid overload while operating at nanosecond timescales matching instruction dispatch rates. Implementation requires fewer than 5,000 logic gates and meets 1 GHz timing with 32% margin.
 
 ---
 
