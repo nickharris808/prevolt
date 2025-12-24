@@ -642,192 +642,274 @@ For purposes of these claims, the following terms have the following meanings:
 - IPv6 Flow Label matching a pre-configured pattern indicating AI/ML workload;
 - Presence of an RDMA Immediate Data field carrying a power-intensity indicator.
 
-**"Lead time interval"** means a duration, measured in microseconds, computed as a function of a measured control-loop response time constant (τ) of a voltage regulator module, wherein the lead time interval is at least equal to τ and at most equal to τ plus a safety margin not exceeding 50% of τ.
+**"Network processing node"** means any network-layer device capable of detecting packets and asserting a pre-charge trigger signal, including but not limited to:
+- A network switch (Top-of-Rack, leaf, or spine switch);
+- A SmartNIC or Data Processing Unit (DPU) with packet inspection capability;
+- An optical transceiver module with integrated packet detection logic;
+- A network interface controller (NIC) with programmable packet processing;
+- A Field-Programmable Gate Array (FPGA) positioned in the data path.
+
+**"Lead time interval"** means a duration computed as a function of a characteristic response time of the power delivery network. The characteristic response time may be characterized by one or more of:
+- A control-loop response time constant (τ) of a voltage regulator module (VRM);
+- A voltage settling time required for the VRM output to reach a target percentage (e.g., 90%, 95%, 99%) of a setpoint voltage;
+- An LC time constant of a power delivery network comprising series inductance and output capacitance;
+- A measured dI/dt capability of the VRM under load transient conditions.
+The lead time interval is at least equal to the characteristic response time and at most three times the characteristic response time.
 
 **"Voltage settling confirmation"** means a signal from a voltage regulator module indicating that an output voltage has reached at least 90% of a setpoint voltage and that a rate of voltage change is below 10 millivolts per microsecond.
 
-**"Maximum hold time"** means a duration, measured in microseconds, after which a packet held in an egress buffer is either released (if confirmation received) or triggers a fail-safe sequence (if no confirmation received). The maximum hold time is at least τ + 5µs and at most τ + 20µs.
+**"Maximum hold time"** means a duration after which a packet held in a buffer is either released (if confirmation received or timer expired) or triggers a fail-safe sequence. The maximum hold time is at least equal to the lead time interval and at most the lead time interval plus 20 microseconds.
 
 **"Limp mode"** means an operating mode of a compute node in which peak load current is limited to at most 50% of a normal rated peak load current.
 
+**"Reduced-capacitance power delivery network"** means a power delivery network having an output capacitance that is at least 20% less than a capacitance that would otherwise be required to maintain voltage stability during load transients in the absence of network-side buffering and pre-charge signaling.
+
 ---
 
-### Independent Claim 1 — Core Method (Single Invention Group)
+### Independent Claim 1 — Core Method (Broadened Network Node, Physics-Based Delay)
 
 **Claim 1.** A method for coordinated power delivery in a compute system, comprising:
 
-**(a) Packet Classification:** detecting, at a network switch, a power-intensive network packet destined for a compute node, wherein the power-intensive classification is determined by examining objective packet metadata comprising at least one of: (i) an RDMA opcode indicating a data transfer operation (opcode 0x0A, 0x0B, 0x04, or 0x05), (ii) a packet payload size exceeding 1 kilobyte, or (iii) a Differentiated Services Code Point (DSCP) value in the range 40-47;
+**(a) Packet Classification:** detecting, at a network processing node, a power-intensive network packet destined for a compute node, wherein:
+- the network processing node comprises one of: a network switch, a SmartNIC, a Data Processing Unit (DPU), an optical transceiver with integrated logic, or a network interface controller (NIC); and
+- the power-intensive classification is determined by examining objective packet metadata comprising at least one of: (i) an RDMA opcode indicating a data transfer operation, (ii) a packet payload size exceeding a size threshold, or (iii) a traffic class or priority indicator;
 
-**(b) Lead Time Computation:** computing a lead time interval as a function of a measured control-loop response time constant (τ) of a voltage regulator module (VRM) associated with the compute node, wherein:
-- the lead time interval is computed as: `lead_time = τ + safety_margin`, where τ is in the range of 10-20 microseconds and safety_margin is in the range of 1-10 microseconds;
-- the lead time interval is selected such that the VRM output voltage reaches at least 90% of a pre-charge setpoint before the compute node begins processing the packet payload;
+**(b) Lead Time Computation:** computing a lead time interval as a function of a characteristic response time of a power delivery network associated with the compute node, wherein:
+- the characteristic response time is determined by at least one of: a control-loop response time constant (τ) of a voltage regulator module (VRM), a voltage settling time of the VRM, or an LC time constant of the power delivery network;
+- the lead time interval is at least equal to the characteristic response time;
 
 **(c) Simultaneous Trigger and Hold:** upon detecting the power-intensive network packet:
-- (c1) transmitting, via a signaling path having a propagation latency of less than 1 microsecond, a pre-charge trigger signal from the network switch to the VRM, wherein the trigger signal has an assertion timing accuracy of ±100 nanoseconds or better; and
-- (c2) initiating a hold of the network packet in an egress buffer of the network switch;
+- (c1) transmitting a pre-charge trigger signal from the network processing node to the VRM via a signaling path; and
+- (c2) initiating a hold of the network packet in a buffer of the network processing node;
 
-**(d) Closed-Loop Handshake:** receiving, at the network switch, a voltage settling confirmation signal from the VRM, wherein the confirmation signal indicates that the VRM output voltage has reached at least 90% of the pre-charge setpoint voltage and that a rate of voltage change is below 10 millivolts per microsecond;
-
-**(e) Conditional Packet Release:** releasing the network packet to the compute node only after both conditions are satisfied:
-- (e1) the lead time interval has elapsed; AND
-- (e2) the voltage settling confirmation signal has been received;
+**(d) Release Condition:** releasing the network packet to the compute node only after at least one of the following release conditions is satisfied:
+- (d1) **Closed-Loop Handshake:** a voltage settling confirmation signal has been received from the VRM indicating that an output voltage has reached a target percentage of a setpoint voltage; OR
+- (d2) **Open-Loop Timer:** the lead time interval has elapsed;
 
 **(f) Packet-Absent Clamp Sequence:** if the pre-charge trigger was transmitted in step (c1) but no corresponding network packet arrives at the compute node within a maximum hold time:
-- autonomously ramping down the VRM output voltage from a pre-charged level to a nominal level at a controlled slew rate of at least 100 millivolts per microsecond but not exceeding 500 millivolts per microsecond to prevent an over-voltage condition;
+- autonomously ramping down the VRM output voltage from a pre-charged level to a nominal level to prevent an over-voltage condition;
 
-**(g) Trigger-Absent Limp Mode Sequence:** if a power-intensive network packet arrives at the compute node but no pre-charge trigger signal was received within a preceding guard interval of at least 5 microseconds:
-- signaling the compute node to enter limp mode, limiting peak load current to at most 50% of a normal rated peak load current;
+**(g) Trigger-Absent Limp Mode Sequence:** if a power-intensive network packet arrives at the compute node but no pre-charge trigger signal was received within a preceding guard interval:
+- signaling the compute node to enter limp mode, limiting peak load current;
 
-wherein the combination of (i) lead time computation coupled to measured VRM τ, (ii) closed-loop handshake requiring voltage settling confirmation, and (iii) fail-safe sequences for both packet-absent and trigger-absent conditions, collectively provide deterministic voltage stability during load transients that would otherwise cause voltage collapse.
+wherein the lead time interval is deliberately computed based on the characteristic response time of the power delivery network, such that the VRM has sufficient time to pre-charge before the load transient arrives.
 
 ---
 
-### Independent Claim 2 — Core System (Same Invention Group)
+### Independent Claim 2 — Core System (Broadened Network Node)
 
 **Claim 2.** A closed-loop power coordination system, comprising:
 
-**(a) Network Switch:** a network switch comprising:
-- a packet classifier configured to identify power-intensive network packets based on objective packet metadata including at least one of RDMA opcode, payload size, or DSCP value;
-- an egress buffer configured to hold packets for a programmable delay period;
-- a pre-charge trigger output having an assertion timing accuracy of ±100 nanoseconds or better;
-- a confirmation input configured to receive a voltage settling confirmation signal;
+**(a) Network Processing Node:** a network processing node comprising:
+- a packet classifier configured to identify power-intensive network packets based on objective packet metadata;
+- a buffer configured to hold packets for a programmable delay period;
+- a pre-charge trigger output;
+wherein the network processing node comprises one of: a network switch, a SmartNIC, a Data Processing Unit (DPU), an optical transceiver with integrated logic, or a network interface controller (NIC);
 
 **(b) Voltage Regulator Module (VRM):** a voltage regulator module comprising:
-- a pre-charge trigger input electrically connected to the pre-charge trigger output of the network switch;
-- a voltage settling status output configured to assert a confirmation signal when an output voltage reaches at least 90% of a setpoint voltage and a rate of voltage change is below 10 millivolts per microsecond;
-- a control loop having a measured response time constant (τ) in the range of 10-20 microseconds;
+- a pre-charge trigger input electrically connected to the pre-charge trigger output of the network processing node;
+- a control loop having a characteristic response time;
 
-**(c) Bidirectional Signaling Path:** a signaling path comprising:
-- a first signal line from the network switch to the VRM for the pre-charge trigger signal;
-- a second signal line from the VRM to the network switch for the voltage settling confirmation signal;
-wherein the bidirectional signaling path has a round-trip latency of less than 2 microseconds;
+**(c) Signaling Path:** a signaling path connecting the pre-charge trigger output to the VRM trigger input;
 
-**(d) Compute Node:** a compute node powered by the VRM and configured to process network packets, wherein the compute node is capable of drawing a load current of at least 200 Amperes within 2 microseconds of packet processing initiation;
+**(d) Compute Node:** a compute node powered by the VRM;
 
 **(e) Fail-Safe Logic:** logic configured to execute:
 - a packet-absent clamp sequence that ramps down VRM output voltage if a pre-charge trigger is transmitted but no corresponding packet arrives within a maximum hold time; and
 - a trigger-absent limp mode sequence that limits compute node load current if a packet arrives but no pre-charge trigger was received within a preceding guard interval;
 
-**(f) Lead Time Register:** a register storing a computed lead time interval, wherein the lead time interval is a function of the measured VRM response time constant (τ);
+**(f) Lead Time Register:** a register storing a computed lead time interval, wherein the lead time interval is a function of the characteristic response time of the power delivery network;
 
-wherein the system forms a closed control loop spanning network, power delivery, and compute domains, with packet release conditioned on voltage settling confirmation and fail-safe sequences preventing both over-voltage and under-voltage faults.
-
----
-
-### Dependent Claims — Packet Classification Specifics (Claims 3-6)
-
-**Claim 3.** The method of Claim 1, wherein the objective packet metadata comprises an RDMA Immediate Data field containing a 4-bit power-intensity indicator, and wherein the pre-charge setpoint voltage is scaled based on the power-intensity indicator value.
-
-**Claim 4.** The method of Claim 1, wherein the objective packet metadata comprises an IPv6 Flow Label having a bit pattern that matches a pre-configured mask indicating an AI/ML training or inference workload.
-
-**Claim 5.** The method of Claim 1, wherein the packet classifier further examines a TCP payload signature to identify NVIDIA Collective Communications Library (NCCL) AllReduce operations, which are classified as power-intensive.
-
-**Claim 6.** The system of Claim 2, wherein the packet classifier is implemented in a P4 programmable switch pipeline and the classification logic is updatable without hardware modification.
+wherein the system coordinates packet scheduling with power delivery network dynamics, and fail-safe sequences prevent both over-voltage and under-voltage faults.
 
 ---
 
-### Dependent Claims — Timing and Handshake Specifics (Claims 7-11)
+### Independent Claim 3 — Closed-Loop Handshake Method
 
-**Claim 7.** The method of Claim 1, wherein the lead time interval is computed as:
-`lead_time = τ × (1 + k)`
-where τ is the measured VRM response time constant and k is a safety factor in the range 0.1 to 0.5.
+**Claim 3.** A method for closed-loop power coordination between a network processing node and a voltage regulator module (VRM), comprising:
 
-**Claim 8.** The method of Claim 1, wherein the assertion timing accuracy of ±100 nanoseconds is achieved via IEEE 1588 Precision Time Protocol (PTP) synchronization between a clock domain of the network switch and a clock domain of the VRM controller.
+**(a)** transmitting a pre-charge trigger signal from the network processing node to the VRM upon detecting a power-intensive network packet;
 
-**Claim 9.** The method of Claim 1, wherein the voltage settling confirmation signal is encoded as a single-bit assertion on a dedicated LVDS signal line having a propagation delay of less than 50 nanoseconds.
+**(b)** holding the network packet in a buffer of the network processing node pending a release condition;
 
-**Claim 10.** The method of Claim 1, wherein step (d) comprises receiving the voltage settling confirmation signal via a PCIe Vendor Defined Message (VDM) transmitted from the VRM controller through a GPU network interface to the network switch.
+**(c)** receiving, at the network processing node, a voltage settling confirmation signal from the VRM, wherein the confirmation signal indicates that an output voltage of the VRM has reached at least a target percentage of a setpoint voltage;
 
-**Claim 11.** The system of Claim 2, wherein the bidirectional signaling path comprises optical fibers operating at different wavelengths for trigger and confirmation signals, enabling electrical isolation.
+**(d)** releasing the network packet to a compute node only after the voltage settling confirmation signal has been received;
 
----
-
-### Dependent Claims — Fail-Safe Specifics (Claims 12-16)
-
-**Claim 12.** The method of Claim 1, wherein the maximum hold time in step (f) is τ + 5 microseconds, where τ is the measured VRM response time constant.
-
-**Claim 13.** The method of Claim 1, wherein the controlled slew rate in step (f) is 200 millivolts per microsecond.
-
-**Claim 14.** The method of Claim 1, wherein the guard interval in step (g) is 10 microseconds.
-
-**Claim 15.** The method of Claim 1, wherein step (g) further comprises logging a trigger-absent event to a fault management system for post-incident analysis.
-
-**Claim 16.** The system of Claim 2, wherein the fail-safe logic is implemented in hardware as a state machine in a Field-Programmable Gate Array (FPGA), ensuring sub-microsecond fail-safe response time independent of software.
+wherein the method forms a closed control loop in which packet release is conditioned on actual VRM voltage state rather than a predetermined timer.
 
 ---
 
-### Dependent Claims — Signaling Path Embodiments (Claims 17-21)
+### Independent Claim 4 — Reduced-Capacitance System (Zero-Capacitance Benefit)
 
-**Claim 17.** The method of Claim 1, wherein the pre-charge trigger signal is transmitted via an in-band mechanism embedded in a network packet header field preceding the compute payload.
+**Claim 4.** A compute system with reduced power delivery network capacitance, comprising:
 
-**Claim 18.** The method of Claim 17, wherein the network packet header field comprises an IPv6 Hop-by-Hop Extension Header carrying a pre-charge option type.
+**(a) Network Processing Node:** a network processing node configured to:
+- detect power-intensive network packets destined for a compute node;
+- transmit a pre-charge trigger signal to a voltage regulator module (VRM) upon detection;
+- hold the power-intensive network packet in a buffer for a lead time interval computed as a function of a characteristic response time of the power delivery network;
+- release the network packet after the lead time interval;
 
-**Claim 19.** The method of Claim 1, wherein the pre-charge trigger signal is transmitted via an out-of-band mechanism comprising a dedicated Low-Voltage Differential Signaling (LVDS) sideband wire.
+**(b) Voltage Regulator Module (VRM):** a voltage regulator module configured to pre-charge an output voltage upon receiving the pre-charge trigger signal;
 
-**Claim 20.** The method of Claim 1, wherein the pre-charge trigger signal is transmitted via a PCIe Vendor Defined Message (VDM) routed through a network interface controller to an on-board VRM controller.
+**(c) Reduced-Capacitance Power Delivery Network:** a power delivery network connecting the VRM to the compute node, wherein:
+- the power delivery network has an output capacitance that is at least 20% less than a baseline capacitance, wherein the baseline capacitance is the capacitance that would be required to maintain voltage stability during load transients in the absence of the pre-charge trigger signal and packet buffering;
+- the reduced capacitance is enabled by the lead time interval providing the VRM with advance notice of impending load transients;
 
-**Claim 21.** The method of Claim 1, wherein the pre-charge trigger signal is transmitted via a dedicated optical wavelength in a wavelength-division multiplexed (WDM) fiber carrying both data and control signals.
+**(d) Compute Node:** a compute node powered by the reduced-capacitance power delivery network;
+
+wherein the network-side buffering and pre-charge signaling enable a reduction in decoupling capacitance, reducing bill-of-materials cost and board area compared to systems lacking network-power coordination.
 
 ---
 
-### Dependent Claims — Adaptive Calibration (Claims 22-25)
+### Dependent Claims — Network Processing Node Embodiments (Claims 5-8)
 
-**Claim 22.** The method of Claim 1, further comprising adaptive calibration of the lead time interval:
+**Claim 5.** The method of Claim 1, wherein the network processing node is a network switch selected from the group consisting of: a Top-of-Rack (ToR) switch, a leaf switch, a spine switch, or an aggregation switch.
+
+**Claim 6.** The method of Claim 1, wherein the network processing node is a SmartNIC or Data Processing Unit (DPU) connected to the compute node via a PCIe interface.
+
+**Claim 7.** The method of Claim 1, wherein the network processing node is an optical transceiver module having integrated packet detection and trigger assertion logic, wherein the trigger signal is transmitted as a modulated optical pulse on a separate wavelength.
+
+**Claim 8.** The method of Claim 1, wherein the network processing node is a Field-Programmable Gate Array (FPGA) positioned in a data path between a network interface and the compute node.
+
+---
+
+### Dependent Claims — Packet Classification Specifics (Claims 9-12)
+
+**Claim 9.** The method of Claim 1, wherein the objective packet metadata comprises an RDMA Immediate Data field containing a 4-bit power-intensity indicator, and wherein the pre-charge setpoint voltage is scaled based on the power-intensity indicator value.
+
+**Claim 10.** The method of Claim 1, wherein the objective packet metadata comprises an IPv6 Flow Label having a bit pattern that matches a pre-configured mask indicating an AI/ML training or inference workload.
+
+**Claim 11.** The method of Claim 1, wherein the packet classifier further examines a TCP payload signature to identify NVIDIA Collective Communications Library (NCCL) AllReduce operations, which are classified as power-intensive.
+
+**Claim 12.** The system of Claim 2, wherein the packet classifier is implemented in a P4 programmable pipeline and the classification logic is updatable without hardware modification.
+
+---
+
+### Dependent Claims — Characteristic Response Time Specifics (Claims 13-17)
+
+**Claim 13.** The method of Claim 1, wherein the characteristic response time is a control-loop response time constant (τ) of the VRM, and the lead time interval is computed as: `lead_time = τ × (1 + k)` where k is a safety factor in the range 0.1 to 0.5.
+
+**Claim 14.** The method of Claim 1, wherein the characteristic response time is a voltage settling time defined as the time required for the VRM output voltage to reach 95% of the setpoint voltage from an initial voltage.
+
+**Claim 15.** The method of Claim 1, wherein the characteristic response time is an LC time constant computed as: `τ_LC = 2π × √(L × C)` where L is the series inductance and C is the output capacitance of the power delivery network.
+
+**Claim 16.** The method of Claim 1, wherein the characteristic response time is measured periodically during system operation and stored in a calibration register accessible by the network processing node.
+
+**Claim 17.** The method of Claim 1, wherein the lead time interval is in the range of 5 microseconds to 100 microseconds, selected based on the characteristic response time.
+
+---
+
+### Dependent Claims — Release Condition Specifics (Claims 18-21)
+
+**Claim 18.** The method of Claim 1, wherein the release condition is the closed-loop handshake of step (d1), and the method further comprises a timeout mechanism that releases the packet after a maximum hold time if no confirmation is received, with an associated fault log entry.
+
+**Claim 19.** The method of Claim 1, wherein the release condition is the open-loop timer of step (d2), and the lead time interval is computed based on a worst-case characteristic response time plus a safety margin.
+
+**Claim 20.** The method of Claim 3, wherein the voltage settling confirmation signal is encoded as a single-bit assertion on a dedicated LVDS signal line having a propagation delay of less than 50 nanoseconds.
+
+**Claim 21.** The method of Claim 3, wherein the voltage settling confirmation signal is transmitted via a PCIe Vendor Defined Message (VDM) from the VRM controller through a GPU network interface to the network processing node.
+
+---
+
+### Dependent Claims — Fail-Safe Specifics (Claims 22-26)
+
+**Claim 22.** The method of Claim 1, wherein the maximum hold time in step (f) is the characteristic response time plus a fixed margin of 5-20 microseconds.
+
+**Claim 23.** The method of Claim 1, wherein the controlled slew rate in step (f) is in the range of 100-500 millivolts per microsecond.
+
+**Claim 24.** The method of Claim 1, wherein the guard interval in step (g) is in the range of 5-20 microseconds.
+
+**Claim 25.** The method of Claim 1, wherein step (g) further comprises logging a trigger-absent event to a fault management system for post-incident analysis.
+
+**Claim 26.** The system of Claim 2, wherein the fail-safe logic is implemented in hardware as a state machine in a Field-Programmable Gate Array (FPGA), ensuring sub-microsecond fail-safe response time independent of software.
+
+---
+
+### Dependent Claims — Signaling Path Embodiments (Claims 27-31)
+
+**Claim 27.** The method of Claim 1, wherein the pre-charge trigger signal is transmitted via an in-band mechanism embedded in a network packet header field preceding the compute payload.
+
+**Claim 28.** The method of Claim 27, wherein the network packet header field comprises an IPv6 Hop-by-Hop Extension Header carrying a pre-charge option type.
+
+**Claim 29.** The method of Claim 1, wherein the pre-charge trigger signal is transmitted via an out-of-band mechanism comprising a dedicated Low-Voltage Differential Signaling (LVDS) sideband wire.
+
+**Claim 30.** The method of Claim 1, wherein the pre-charge trigger signal is transmitted via a PCIe Vendor Defined Message (VDM) routed through a network interface controller to an on-board VRM controller.
+
+**Claim 31.** The method of Claim 1, wherein the pre-charge trigger signal is transmitted via a dedicated optical wavelength in a wavelength-division multiplexed (WDM) fiber carrying both data and control signals.
+
+---
+
+### Dependent Claims — Reduced Capacitance Specifics (Claims 32-35)
+
+**Claim 32.** The system of Claim 4, wherein the output capacitance is reduced by at least 30% compared to the baseline capacitance.
+
+**Claim 33.** The system of Claim 4, wherein the output capacitance is reduced by at least 50% compared to the baseline capacitance.
+
+**Claim 34.** The system of Claim 4, wherein the reduced capacitance results in a board area reduction of at least 10% in a power delivery network footprint.
+
+**Claim 35.** The system of Claim 4, wherein the reduced capacitance results in a bill-of-materials cost reduction of at least 5% for the power delivery network.
+
+---
+
+### Dependent Claims — Adaptive Calibration (Claims 36-39)
+
+**Claim 36.** The method of Claim 1, further comprising adaptive calibration of the lead time interval:
 (i) measuring, after each compute burst, a voltage error between an observed minimum voltage and a target voltage;
 (ii) updating the lead time interval based on a time-series of voltage error measurements using a state estimator;
 wherein the lead time interval automatically increases as VRM components age.
 
-**Claim 23.** The method of Claim 22, wherein the state estimator comprises a Kalman filter having a state vector including voltage error and droop rate.
+**Claim 37.** The method of Claim 36, wherein the state estimator comprises a Kalman filter having a state vector including voltage error and droop rate.
 
-**Claim 24.** The method of Claim 22, wherein the lead time interval increases from 14 microseconds at year 0 to 22.4 microseconds at year 5, tracking capacitor ESR degradation.
+**Claim 38.** The method of Claim 36, wherein the lead time interval increases from an initial value at year 0 to an aged value at year 5, tracking capacitor ESR degradation.
 
-**Claim 25.** The method of Claim 22, further comprising synchronizing the updated lead time interval across a plurality of network switches via a precision timing protocol.
-
----
-
-### Dependent Claims — System Implementation (Claims 26-28)
-
-**Claim 26.** The system of Claim 2, wherein the network switch comprises a programmable packet processor implementing the egress buffer hold logic in a P4 or NPL program.
-
-**Claim 27.** The system of Claim 2, wherein the VRM comprises a multi-phase buck converter having 16 to 32 interleaved phases and a digital control loop with programmable reference voltage.
-
-**Claim 28.** The system of Claim 2, wherein the compute node is a Graphics Processing Unit (GPU) or AI accelerator capable of load current transients of at least 500 Amperes in 1 microsecond.
+**Claim 39.** The method of Claim 36, further comprising synchronizing the updated lead time interval across a plurality of network processing nodes via a precision timing protocol.
 
 ---
 
-### Dependent Claims — Scale Coordination (Claims 29-31)
+### Dependent Claims — System Implementation (Claims 40-42)
 
-**Claim 29.** The method of Claim 1, further comprising rack-level coordination:
+**Claim 40.** The system of Claim 2, wherein the network processing node comprises a programmable packet processor implementing buffer hold logic in a P4 or NPL program.
+
+**Claim 41.** The system of Claim 2, wherein the VRM comprises a multi-phase buck converter having 8 to 32 interleaved phases and a digital control loop with programmable reference voltage.
+
+**Claim 42.** The system of Claim 2, wherein the compute node is a Graphics Processing Unit (GPU), Tensor Processing Unit (TPU), or AI accelerator capable of load current transients of at least 200 Amperes in 2 microseconds.
+
+---
+
+### Dependent Claims — Scale Coordination (Claims 43-45)
+
+**Claim 43.** The method of Claim 1, further comprising rack-level coordination:
 (a) detecting power-intensive packets destined for a plurality of compute nodes in a rack;
 (b) computing a staggered release schedule that distributes packet releases across a time window to limit aggregate inrush current below a rack power distribution unit rating;
 (c) transmitting pre-charge trigger signals to respective VRMs according to the staggered schedule.
 
-**Claim 30.** The method of Claim 29, wherein the plurality of compute nodes comprises at least 50 GPUs, the time window comprises at least 200 microseconds, and a stagger increment is at least 20 microseconds.
+**Claim 44.** The method of Claim 43, wherein the plurality of compute nodes comprises at least 8 compute nodes, the time window comprises at least 100 microseconds, and a stagger increment is at least 10 microseconds.
 
-**Claim 31.** The method of Claim 1, further comprising facility-level coordination:
+**Claim 45.** The method of Claim 1, further comprising facility-level coordination:
 (a) receiving, at a spine switch, power budget requests from a plurality of leaf switches;
 (b) transmitting power tokens to leaf switches authorizing specific power increments;
 (c) leaf switches releasing compute packets only upon receiving valid power tokens.
 
 ---
 
-### Implementation Media Claims (Claims 32-33)
+### Implementation Media Claims (Claims 46-47)
 
-**Claim 32.** A non-transitory computer-readable medium storing instructions that, when executed by a processor of a network switch, cause the processor to perform the method of Claim 1.
+**Claim 46.** A non-transitory computer-readable medium storing instructions that, when executed by a processor of a network processing node, cause the processor to perform the method of Claim 1.
 
-**Claim 33.** An integrated circuit comprising:
+**Claim 47.** An integrated circuit comprising:
 (i) packet classification logic configured to identify power-intensive network packets;
-(ii) pre-charge trigger assertion logic with timing accuracy of ±100 nanoseconds;
-(iii) egress buffer hold logic with a programmable delay period;
-(iv) a handshake state machine configured to release packets only upon receiving voltage settling confirmation;
+(ii) pre-charge trigger assertion logic;
+(iii) buffer hold logic with a programmable delay period computed based on a characteristic response time;
+(iv) release logic implementing at least one of closed-loop handshake or open-loop timer release;
 (v) fail-safe logic implementing both packet-absent clamp and trigger-absent limp mode sequences;
-wherein the integrated circuit is implemented in a network switch ASIC or FPGA.
+wherein the integrated circuit is implemented in one of: a network switch ASIC, a SmartNIC, a DPU, or an FPGA.
 
 ---
 
 ## ABSTRACT OF THE DISCLOSURE
 
-A closed-loop power coordination system and method for preventing voltage collapse in high-performance compute nodes. A network switch classifies power-intensive network packets based on objective metadata (RDMA opcodes 0x0A/0x0B/0x04/0x05, payload size >1KB, or DSCP 40-47). Upon detection, the switch simultaneously: (1) transmits a pre-charge trigger signal to a voltage regulator module (VRM) with ±100ns timing accuracy, and (2) holds the packet in an egress buffer for a lead time interval computed as τ + safety_margin, where τ (10-20µs) is the measured VRM control-loop response time constant. Packet release is conditioned on a closed-loop handshake: the VRM transmits a settling confirmation when output voltage reaches ≥90% of setpoint and dV/dt < 10mV/µs. Fail-safe state machines protect against faults: a packet-absent clamp sequence ramps down VRM voltage (100-500mV/µs slew) if no packet arrives within maximum hold time; a trigger-absent limp mode limits compute node current to ≤50% if no trigger preceded the packet. The deliberate coupling of network-layer scheduling to VRM dynamics, combined with bidirectional handshake and dual fail-safe sequences, distinguishes this invention from prior art "power hints" (open-loop, no timing coupling, no fault tolerance). SPICE simulation demonstrates 0.900V stability during 500A/1µs transients versus 0.687V crash baseline.
+A power coordination system and method for compute systems, wherein a network processing node (switch, SmartNIC, DPU, optical transceiver, or NIC) classifies power-intensive network packets based on objective metadata and coordinates with a voltage regulator module (VRM) to prevent voltage collapse during load transients. Upon packet detection, the network processing node: (1) transmits a pre-charge trigger signal to the VRM, and (2) holds the packet in a buffer for a lead time interval computed as a function of a characteristic response time of the power delivery network—including VRM control-loop response time constant (τ), voltage settling time, or LC time constant. Packet release is conditioned on either: (a) a closed-loop handshake wherein the VRM transmits a settling confirmation, or (b) an open-loop timer expiration. Fail-safe state machines protect against faults: a packet-absent clamp sequence prevents over-voltage; a trigger-absent limp mode prevents under-voltage. A key embodiment provides a reduced-capacitance power delivery network, wherein the network-side buffering and pre-charge signaling enable at least 20% reduction in output capacitance compared to systems lacking network-power coordination, reducing bill-of-materials cost and board area. The lead time is physics-based (tied to characteristic response time), not arbitrary, distinguishing this invention from prior art "power hints." SPICE simulation demonstrates 0.900V stability during 500A/1µs transients versus 0.687V crash baseline.
 
 ---
 
