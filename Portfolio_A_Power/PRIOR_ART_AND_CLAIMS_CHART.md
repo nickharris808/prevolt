@@ -94,6 +94,10 @@ All viable alternatives to AIPP-Omega violate the fundamental laws of thermodyna
 2.  **The Economic Trap:** $17B/year in TCO savings makes the licensing fee a fiduciary requirement for hyperscale boards.
 3.  **The Insurance Trap:** Unpriced systemic risks (Transformer Fatigue) make AIPP-less facilities uninsurable.
 
+**📋 COMPLETE ANALYSIS:** See **[`DESIGN_AROUNDS_AND_ALTERNATIVE_EMBODIMENTS.md`](DESIGN_AROUNDS_AND_ALTERNATIVE_EMBODIMENTS.md)** for:
+- **25 Design-Arounds Blocked** (with physics/economics explanations)
+- **32 Alternative Embodiments** (for claim broadening)
+
 ---
 
 ## 6. THE SECURITY DIFFERENTIATION (Sovereign Lock)
