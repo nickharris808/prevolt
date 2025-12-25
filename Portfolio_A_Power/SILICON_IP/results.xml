@@ -1,6 +1,0 @@
-<testsuites name="results">
-  <testsuite name="all" package="all">
-    <property name="random_seed" value="1766024144" />
-    <testcase name="test_aipp_trigger_latency" classname="test_aipp_parser" file="/Users/nharris/Desktop/portfolio/Portfolio_A_Power/SILICON_IP/test_aipp_parser.py" lineno="5" time="0.0006380081176757812" sim_time_ns="11.0" ratio_time="17241.15994020927" />
-  </testsuite>
-</testsuites>

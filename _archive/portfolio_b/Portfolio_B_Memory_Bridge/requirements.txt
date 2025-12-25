@@ -1,0 +1,38 @@
+# Portfolio B: Cross-Layer Memory Bridge
+# Dependencies for all 4 tournament simulations
+# Install with: pip install -r requirements.txt
+
+# Core simulation engine - Discrete Event Simulation
+simpy>=4.1.1
+
+# Numerical computing
+numpy>=1.26.0
+
+# Data manipulation and analysis
+pandas>=2.1.0
+
+# Statistical analysis (t-tests, effect sizes, distributions)
+scipy>=1.11.0
+
+# Publication-quality statistical visualization
+seaborn>=0.13.0
+
+# Core plotting library
+matplotlib>=3.8.0
+
+# Graph/network topology modeling (for Deadlock simulation)
+networkx>=3.2
+
+# Progress bars for long-running simulations
+tqdm>=4.66.0
+
+
+
+
+
+
+
+
+
+
+

@@ -1,6 +1,0 @@
-Family,Mechanism,Benefit,Valuation
-3.1,Uniform Jitter,Proven Peak Smearing,Low
-3.2,Surgical Notch,Lower Latency Penalty,High
-3.3,Phase Interleaving,Zero-Jitter Hardware,Very High
-3.4,Harmonic Damping,Total Facility Safety,High
-3.5,Pink Noise SNR,Dirty-Rail Robustness,Industrial Tier

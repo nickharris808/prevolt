@@ -1,9 +1,0 @@
-Claim,Guarantee,Latency Overhead,PUE Efficiency,Complexity
-Static Lead Time,Voltage >= 0.9V,14us,Low,Low
-Kalman Predictor,Voltage >= 0.9V,1-14us (Adaptive),Medium,Medium
-Confidence Hybrid,No-Crash Fail-Safe,Low (Avg),Medium,High
-Amplitude Optimizer,Thermal Stability,Low,95% (Optimized),High
-Rack Collective Sync,Zero Breaker Trips,Staggered,Max Cluster Uptime,Network-Wide
-Global Budgeting,Total Facility Safety,Queued,Avoids Breaker Trips,Cluster-Aware
-PTP Robustness,Sync Jitter Tolerance,Lead-Time Buffering,Standard-Essential,PTP-Synchronized
-Safety Clamp,Zero Overvoltage (OVP),Autonomous,Silicon Insurance,Hardware-Locked
