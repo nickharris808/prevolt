@@ -60,7 +60,7 @@ This directory uses **PySpice + ngspice** to run an auditable R–L–C + VRM-co
 ## Reproduce
 
 ```bash
-# From Portfolio_A_Power/
+# From repository root
 pip install -r requirements.txt
 
 # Install ngspice
@@ -68,8 +68,8 @@ brew install ngspice      # macOS
 apt install ngspice       # Linux
 
 cd 01_PreCharge_Trigger
-python simulation.py
-python tournament.py
+python spice_vrm.py
+python master_tournament.py
 ```
 
 ## Patent Claim (Draft)

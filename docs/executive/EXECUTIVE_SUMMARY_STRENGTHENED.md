@@ -1,12 +1,14 @@
-# Portfolio A: AI Power Protocol (AIPP-Omega)
-### The Physical Constitution of the Intelligence Age
+# AIPP-Omega: AI Power Protocol
+### Network-Causal Power Orchestration for High-Density AI Infrastructure
 **COMPREHENSIVE EXECUTIVE SUMMARY - WITH COMPLETE MEASURED DATA**
 
-**Status:** ✅ Complete, Validated, & Acquisition-Ready  
-**Validation:** 53/53 Components (100% Pass Rate) | 16/16 Tiers Complete  
+**Status:** ✅ Simulation-Validated, Acquisition-Ready  
+**Validation:** 53/53 Components (100% Pass Rate)  
 **Forensic Integrity:** Counter-factual tests prove all simulations use real solvers  
-**Valuation Claim:** $100-140 Billion (Omega Sovereign Standard) / $2-5 Billion (Strategic Commercial Floor)  
-**Version:** 16.0 (Industrially Hardened)
+**Current Valuation:** $500K-$5M (As-Is IP Sale) / $10M-$50M (Post-Hardware Validation)  
+**Long-Term Potential:** $500M-$5B (If adopted as industry standard)  
+**Version:** 17.0 (Repository Reorganized)  
+**Date:** December 27, 2025
 
 **Core Thesis:** Moving control from reactive hardware sensors to the predictive network layer to solve the "Energy-Intelligence Paradox" at planetary scale.
 

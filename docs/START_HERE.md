@@ -1,10 +1,8 @@
-# 🎯 START HERE: PORTFOLIO A OMEGA TIER
-## The $100.0 Billion+ Physical Constitution
-### Ultimate Guided Onboarding for Strategic Acquirers
+# 🎯 START HERE: AIPP-Omega
+## Network-Causal Power Orchestration for AI Data Centers
+### Quick Start Guide for Technical Due Diligence
 
-**Welcome to the Source Code for Civilization.**
-
-This document provides a systematic onboarding path for executives, technical architects, patent attorneys, and sovereign investment committees to validate the **AI Power Protocol (AIPP-Omega)**. You are reviewing the most comprehensive physical-layer specification ever created for planetary-scale AGI infrastructure.
+This document provides a systematic onboarding path for executives, technical architects, and patent attorneys to evaluate the **AI Power Protocol (AIPP-Omega)**—a comprehensive IP portfolio for solving voltage, thermal, and timing challenges in high-density AI clusters.
 
 ---
 
@@ -23,10 +21,10 @@ We move orchestration from the **GPU/VRM** to the **Network Switch** - the only 
 3.  **Economy** - Joules-per-Token settlement via hardware-locked ledger
 4.  **Scale** - Planetary load balancing following solar/renewable peaks
 
-### The $100 Billion Value
-- **Reclaims:** $17B/year in TCO savings (BOM, power, cooling, performance)
-- **Unlocks:** $310B in new markets (Data-Vault, Settlement, Grid VPP, ESG)
-- **Owns:** The Physical Laws governing energy-to-intelligence conversion
+### The Value Proposition
+- **Potential TCO Impact:** $17B/year industry-wide savings (BOM, power, cooling, performance)
+- **Current Valuation:** $500K-$5M (As-Is IP) / $10M-$50M (Post-Hardware Validation)
+- **Long-Term Potential:** $500M-$5B (If adopted as industry standard)
 
 ---
 

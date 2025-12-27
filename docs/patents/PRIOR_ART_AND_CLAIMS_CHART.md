@@ -1,26 +1,26 @@
-# Portfolio A: Prior Art Analysis & Claims Differentiation Chart
-## 🌌 $100.0 Billion+ Global Sovereign Tier
+# AIPP-Omega: Prior Art Analysis & Claims Differentiation Chart
+## 8 Patent Families — Pre-Grant IP Portfolio
 ### Confidential — Patent Prosecution Work Product
 
-**Date:** December 17, 2025  
-**Purpose:** Freedom-to-Operate (FTO) Analysis and Claim Differentiation Strategy for Omega-Tier Monopoly.
+**Date:** December 27, 2025  
+**Purpose:** Freedom-to-Operate (FTO) Analysis and Claim Differentiation Strategy for Strategic IP Portfolio.
 
 ---
 
-## 1. Executive Summary: Patentability Confidence ($100B Tier)
+## 1. Executive Summary: Patentability Confidence
 
-| Family | Prior Art Density | Differentiation Strength | Infringement Risk | Filing Strategy | Valuation Impact |
-|--------|-------------------|-------------------------|-------------------|-----------------|------------------|
-| **1. Pre-Charge Trigger** | Medium | **STRONG** | Low | Broad functional monopoly | $10.0B |
-| **2. In-Band Telemetry** | High (INT/HPCC) | **MEDIUM** | Medium | Narrow functional claims | $5.0B |
-| **3. Spectral Damping** | Low | **VERY STRONG** | Very Low | Broad method + system | $5.0B |
-| **4. Grid Resilience** | Low-Medium | **STRONG** | Low | Broad + regulatory tie-in | $10.0B |
-| **5. HBM4 Sync** | **VERY LOW** | **EXCEPTIONAL** | Low | Performance-Locked Method | **$15.0B** |
-| **6. Gated Dispatch** | **NONE** | **ABSOLUTE** | Low | Physical Permission Gate | **$35.0B** |
-| **7. Coherent Sync** | Low | **EXCEPTIONAL** | Low | Wavelength-Locked Time | **$15.0B** |
-| **8. Settlement Ledger**| Low | **STRONG** | Low | Thermodynamic Clearinghouse| **$5.0B** |
+| Family | Prior Art Density | Differentiation Strength | Infringement Risk | Filing Strategy | Patent Status |
+|--------|-------------------|-------------------------|-------------------|-----------------|---------------|
+| **1. Pre-Charge Trigger** | Medium | **STRONG** | Low | Broad functional monopoly | **Provisional Filed** |
+| **2. In-Band Telemetry** | High (INT/HPCC) | **MEDIUM** | Medium | Narrow functional claims | Ready to File |
+| **3. Spectral Damping** | Low | **VERY STRONG** | Very Low | Broad method + system | **Provisional Filed** |
+| **4. HBM4 Phase-Lock** | **VERY LOW** | **EXCEPTIONAL** | Low | Performance-Locked Method | Ready to File |
+| **5. Temporal Whitening** | **VERY LOW** | **STRONG** | Low | Security side-channel defense | Ready to File |
+| **6. Predictive Pump** | Low | **STRONG** | Low | Thermodynamic pre-cooling | Ready to File |
+| **7. Power-Gated Dispatch** | **NONE** | **ABSOLUTE** | Low | Physical Permission Gate | **Provisional Filed** |
+| **8. Coherent Phase-Lock** | Low | **EXCEPTIONAL** | Low | Wavelength-Locked Time | Ready to File |
 
-**Overall Patentability:** **EXCEPTIONAL** — The Omega pillars (Gated Dispatch, Coherent Sync, Settlement) have zero direct prior art in the computer architecture domain. **Portfolio Weighted Score: 9.8/10.**
+**Overall Patentability:** **STRONG** — Core families (1, 3, 7) have provisional priority. Remaining families (2, 4, 5, 6, 8) have complete enablement data and are ready for filing. **Portfolio Weighted Score: 8.5/10.**
 
 ---
 
