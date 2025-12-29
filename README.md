@@ -64,18 +64,19 @@ python validate_all_acceptance_criteria.py
 | Metric | Value |
 |--------|-------|
 | Components Validated | 53/53 (100%) |
-| Verilog RTL Modules | 6 (silicon-ready) |
-| Formal Proofs (Z3/TLA+) | 15+ |
-| Patent Claims | 80+ |
+| Verilog RTL Modules | 11 (synthesizable, untested) |
+| Formal Proofs (Z3/TLA+) | 3 (TLA+, Z3, SVA) |
+| Patent Claims | 100+ (across 8 families) |
 | Code | 20,000+ lines |
 
 ---
 
 ## Valuation
 
-- **Conservative:** $500M-$1B (strategic licensing)
-- **Realistic:** $2B-$5B (licensing + SEP potential)
-- **Long-term:** $10B+ (global standard adoption)
+- **As-Is (Current):** $500K-$5M (simulation IP, 3 provisionals filed)
+- **Post-FPGA Demo:** $10M-$50M (hardware validation completed)
+- **Post-Pilot:** $50M-$200M (100-GPU field trial)
+- **Long-Term (Standard):** $500M-$5B (UEC adoption + licensing)
 
 ---
 

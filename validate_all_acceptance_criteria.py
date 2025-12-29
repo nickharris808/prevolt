@@ -1,11 +1,11 @@
 """
-Portfolio A: Master Acceptance Criteria Validator
-=================================================
+AIPP-Omega: Master Acceptance Criteria Validator
+================================================
 
-This script validates all core patent families and key components.
+This script validates all 53 core components across 8 patent families.
 Optimized for reliability and clear error reporting.
 
-Expected runtime: ~1-2 minutes
+Expected runtime: ~2-3 minutes (53 components)
 """
 
 import subprocess
@@ -54,10 +54,10 @@ def run_test(path, name, timeout=60):
 
 def validate_all():
     print("="*80)
-    print("PORTFOLIO A: MASTER ACCEPTANCE CRITERIA VALIDATION")
+    print("AIPP-OMEGA: MASTER ACCEPTANCE CRITERIA VALIDATION")
     print("="*80)
-    print("\nThis script validates that all patent families meet their")
-    print("explicit acceptance criteria, including the $100B+ Omega Tier.")
+    print("\nThis script validates that all 53 components across 8 patent")
+    print("families meet their explicit acceptance criteria.")
     
     results = []
     
@@ -181,7 +181,10 @@ def validate_all():
     print(f"\nFinal Score: {passed_tests}/{total_tests} components passed")
     
     if passed_tests == total_tests:
-        print("\n🎯 PORTFOLIO A IS VALIDATED AT THE $100 BILLION+ GLOBAL SOVEREIGN TIER")
+        print("\n✅ AIPP-OMEGA: ALL 53 COMPONENTS VALIDATED")
+        print("   Technical Quality: Simulation-proven, hardware validation required")
+        print("   Current Stage: TRL-3 (Proof of Concept)")
+        print("   Next Step: FPGA demo per docs/specs/HARDWARE_EXECUTION_PLAN.md")
     else:
         print("\n⚠️ Some components failed validation. Review logs above.")
 
