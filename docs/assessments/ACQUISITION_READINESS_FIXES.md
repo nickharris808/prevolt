@@ -10,7 +10,7 @@
 ## CRITICAL FIX 1: VALIDATION SUITE RELIABILITY
 
 ### **The Problem:**
-`validate_all_acceptance_criteria.py` times out or gets aborted during runs. This makes the "53/53 PASS in 60 seconds" claim **unverified**.
+`validate_all_acceptance_criteria.py` times out or gets aborted during runs. This makes the "59/59 PASS in 60 seconds" claim **unverified**.
 
 ### **Root Cause Analysis:**
 Likely issues:

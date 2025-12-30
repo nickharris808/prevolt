@@ -242,7 +242,7 @@ python -c "from spice_vrm import check_acceptance_criteria, SpiceVRMConfig; \
 python validate_all_acceptance_criteria.py
 ```
 
-**Expected Output:** `53/53 PASS`
+**Expected Output:** `59/59 PASS`
 
 ---
 
