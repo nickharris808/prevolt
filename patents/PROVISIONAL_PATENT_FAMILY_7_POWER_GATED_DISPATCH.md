@@ -51,6 +51,18 @@ Modern artificial intelligence (AI) training and inference workloads create unpr
 
 ### Deficiencies of Prior Art
 
+**CRITICAL CLARIFICATION: THIS INVENTION IS NOT:**
+- A "Cloud Marketplace" or pricing mechanism (it's hardware clock gating)
+- A "Logic Gate Duplicator" (it uses ICG cells, not duplicate functional logic)
+- A "Business Method" (it's synthesizable Verilog RTL with ~5,000 gates)
+
+| This Invention IS NOT | What It Actually Is |
+|----------------------|---------------------|
+| Cloud pricing/marketplace | Hardware clock gating at CP-to-SM boundary |
+| Duplicate logic gates | ICG (Integrated Clock Gating) cells on clock tree |
+| Business method | Synthesizable Verilog RTL (< 5,000 gates) |
+| Software throttling | Combinational hardware (no firmware override) |
+
 **Software Throttling (Prior Art):** Existing approaches rely on software-based power management, such as GPU driver limits or hypervisor-enforced caps. These approaches suffer from:
 - **Bypass Vulnerability:** Malicious or misconfigured software can circumvent driver-level limits.
 - **Latency Penalty:** Software-based control operates on millisecond timescales, too slow for microsecond power transients.
@@ -65,6 +77,18 @@ Modern artificial intelligence (AI) training and inference workloads create unpr
 - **Software-Only:** These limits are enforced in firmware/software and can be modified or bypassed.
 - **No External Authorization:** The GPU alone decides whether to execute; there is no external authority.
 - **No Coordination Mechanism:** Each GPU operates independently without knowledge of facility-level constraints.
+
+### Key Differentiators From All Prior Art
+
+This invention combines four elements that no prior art has together:
+
+1. **In-Band Token Delivery:** Authorization token embedded in packet header and validated at line-rate (not slow control plane)
+
+2. **Hardware Gating at CP-to-SM Boundary:** Physical clock gating inserted between Command Processor and Streaming Multiprocessors (the dispatch boundary)
+
+3. **Microsecond-Scale Temporal Validity:** Token validity windows of 10-100µs synchronized to facility power dynamics
+
+4. **Network Switch as Authorization Authority:** Switch has unique visibility into egress queues (predicting imminent power demand) and traffic class (enabling priority allocation)
 
 ### Objects of the Invention
 

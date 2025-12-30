@@ -43,6 +43,21 @@ The present invention relates generally to power quality management in high-perf
 
 ## BACKGROUND OF THE INVENTION
 
+### CRITICAL CLARIFICATION: THIS INVENTION IS NOT DVFS (Dynamic Voltage Frequency Scaling)
+
+Before describing the technical problem, it is essential to clarify what this invention is **NOT**:
+
+| Feature | DVFS (Prior Art) | This Invention |
+|---------|-----------------|----------------|
+| **What varies** | CPU/GPU clock frequency | Network packet timing |
+| **Trigger** | Chip temperature sensor | Facility power spectrum |
+| **Goal** | Reduce chip power consumption | Protect facility transformer |
+| **Domain** | Semiconductor thermal management | Electrical infrastructure protection |
+| **Timescale** | Milliseconds (individual chip) | Seconds (facility-wide aggregate) |
+| **Actor** | GPU/CPU firmware | Network switch scheduler |
+
+**This invention has nothing to do with varying chip frequency or voltage.** It operates at the **network layer** to shape the **aggregate power spectral density** of an entire facility, preventing mechanical resonance in transformers—a completely different problem domain than thermal management of individual chips.
+
 ### The Mechanical Resonance Problem in AI Data Centers
 
 Modern artificial intelligence (AI) training and inference facilities draw power in patterns fundamentally different from traditional computing workloads. AI inference services process requests at regular intervals, typically aligned to batch schedulers operating at frequencies between 50-200 Hz. This creates **coherent periodic power draw** that concentrates energy at specific frequencies in the electrical spectrum.
@@ -56,6 +71,10 @@ Facility-scale power transformers (10-100 MVA) are large electromechanical devic
 3. **Core lamination fatigue** reducing transformer lifespan
 4. **Winding insulation degradation** from mechanical movement
 5. **Catastrophic failure** in extreme cases
+
+**THIS IS A FACILITY INFRASTRUCTURE PROBLEM, NOT A CHIP THERMAL PROBLEM.**
+
+The problem exists at the **utility transformer** (located outside the building), not at the GPU die. No amount of chip-level DVFS can address it because the aggregate power draw pattern is created by the coordination of thousands of GPUs, not by any individual chip's thermal state.
 
 **The Spectral Concentration Problem:**
 
@@ -118,6 +137,31 @@ For a resonance peak at 100 Hz operating 24/7:
 - Design life at this rate: Reduced by **10-50x** compared to non-resonant operation
 
 ### Prior Art Limitations
+
+#### CRITICAL DISTINCTION FROM DVFS (Dynamic Voltage Frequency Scaling)
+
+**Nvidia/AMD DVFS** and related prior art (Intel RAPL, Turbo Boost, etc.) are often cited as "power management." However, they solve a fundamentally different problem:
+
+| Aspect | DVFS (Nvidia/AMD) | This Invention |
+|--------|-------------------|----------------|
+| **Problem Solved** | Chip overheating | Transformer mechanical fatigue |
+| **Measurement Input** | Junction temperature (°C) | Facility power spectrum (FFT) |
+| **Control Output** | Clock frequency/voltage | Packet transmission timing |
+| **Location of Action** | GPU die | Network switch egress queue |
+| **Affected Component** | Individual GPU | Facility-wide aggregate |
+| **Frequency of Interest** | N/A (not frequency-domain) | 50-200 Hz (mechanical resonance) |
+
+**DVFS cannot solve transformer resonance because:**
+1. DVFS is triggered by local thermal sensors, not facility-wide spectral analysis
+2. DVFS operates on individual chips; resonance is created by the aggregate of thousands of chips
+3. DVFS has no awareness of the power spectral density—it doesn't compute FFTs
+4. DVFS cannot coordinate timing across GPUs to achieve spectral spreading
+
+**No prior art combines:**
+- FFT-based spectral analysis of facility power
+- Network-layer jitter injection at packet granularity
+- Multi-harmonic suppression targeting transformer resonance frequencies
+- Coordination across thousands of GPUs via centralized switch scheduling
 
 #### Utility-Side Harmonic Filters
 
@@ -831,26 +875,39 @@ Insurance actuaries increasingly assess harmonic loading in facility underwritin
 
 ## CLAIMS
 
+*Note: Claims are structured to anchor patentability on the combination of: (1) FFT-based facility power spectral analysis, (2) network switch egress queue jitter injection, (3) transformer mechanical resonance protection. This is fundamentally different from DVFS which operates on chip temperature/voltage—not facility power spectra or network timing.*
+
 ### Independent Claims
 
-**Claim 1.** A method for eliminating mechanical resonance in data center power infrastructure, comprising:
-- (a) monitoring power consumption at a facility power distribution point;
-- (b) computing a frequency spectrum of said power consumption via Fast Fourier Transform;
-- (c) identifying a resonance peak at a dangerous frequency;
-- (d) introducing controlled timing jitter to packet transmissions at a network switch egress queue;
-- wherein the spectral energy at said dangerous frequency is reduced by at least 20 dB.
+**Claim 1.** A method for protecting facility power transformers from mechanical resonance damage caused by periodic compute workloads, comprising:
 
-**Claim 2.** A system for spectral traffic shaping, comprising:
-- a power monitoring interface configured to receive facility power consumption data;
-- a spectral analyzer configured to compute a frequency spectrum of said power consumption;
-- a jitter scheduler configured to introduce random delays to packet transmissions;
-- wherein periodic compute traffic is transformed into a broadband spectral distribution that does not excite transformer resonance.
+- (a) sampling power consumption at a facility power distribution point serving a plurality of compute nodes;
+- (b) computing, via Fast Fourier Transform (FFT), a power spectral density of said sampled power consumption, thereby identifying spectral energy concentration at one or more frequencies;
+- (c) determining that a spectral peak at a frequency within the mechanical resonance band of a facility transformer (50-200 Hz) exceeds a danger threshold;
+- (d) in response to said determination, introducing controlled timing jitter to packet transmissions at a network switch egress queue, said jitter having a statistical distribution configured to spread spectral energy across a broader frequency band;
+- (e) wherein said jitter is applied to packets destined for compute nodes, thereby desynchronizing their aggregate power consumption;
+- (f) wherein the spectral energy at said mechanical resonance frequency is reduced by at least 20 dB, preventing magnetostriction-induced vibration and fatigue damage in said transformer.
 
-**Claim 3.** A network switch comprising:
-- an egress queue configured to hold packets pending transmission;
-- a pseudo-random number generator configured to generate delay values;
-- a delay controller configured to release packets after jitter-determined delays;
-- wherein the aggregate power draw of compute nodes connected to the switch exhibits no spectral peaks above a threshold power level.
+**Claim 2.** A system for network-layer spectral shaping to protect electrical infrastructure, comprising:
+
+- a power monitoring interface configured to continuously sample facility power consumption at a distribution point;
+- an FFT spectral analyzer configured to compute power spectral density and identify peaks at dangerous frequencies corresponding to transformer mechanical resonance (50-200 Hz);
+- a network switch comprising:
+  - egress queues configured to hold packets pending transmission to compute nodes;
+  - a jitter scheduler configured to add random delays to packet transmission times based on a configured jitter distribution;
+  - a pseudo-random number generator providing delay values;
+- wherein periodic compute traffic arriving at said compute nodes is desynchronized by said jitter, transforming coherent spectral peaks into broadband noise that does not excite transformer resonance.
+
+**Claim 3.** A network switch configured for facility infrastructure protection, comprising:
+
+- a plurality of egress queues, each corresponding to a destination compute node;
+- a power spectral monitor interface receiving facility power spectrum data;
+- a jitter scheduler configured to:
+  - receive target resonance frequency from said spectral monitor;
+  - compute jitter parameters (distribution type, range) to suppress said target frequency;
+  - apply per-packet random delays to egress transmissions;
+- a pseudo-random number generator providing statistically independent delay values;
+- wherein the aggregate power draw of all connected compute nodes exhibits no spectral peak above a danger threshold at the transformer resonance frequency.
 
 ### Dependent Claims
 
@@ -916,7 +973,13 @@ Insurance actuaries increasingly assess harmonic loading in facility underwritin
 
 ## ABSTRACT
 
-A network scheduler-driven spectral traffic shaping system eliminates dangerous mechanical resonance in data center power infrastructure. The system monitors facility power consumption and computes its frequency spectrum using FFT analysis. When a dangerous resonance peak is detected (typically at 100 Hz from AI inference batch scheduling), the system introduces controlled timing jitter to packet transmissions at the network switch egress queue. By adding small random delays (25-50 ms average) with a uniform distribution, the coherent periodic power draw is transformed into a broadband spectral distribution. Measured results show 20.2 dB reduction in resonance peak power, corresponding to 100x reduction in transformer mechanical stress. Multiple jitter modes support different latency requirements, including surgical notch jitter for latency-sensitive traffic and multi-harmonic jitter for broadband suppression. Implementation requires fewer than 1,000 logic gates in the switch ASIC.
+A network-layer spectral traffic shaping system that protects facility power transformers from mechanical resonance damage caused by periodic AI workloads. Unlike chip-level DVFS (which adjusts voltage/frequency based on temperature), this invention operates at the **network switch** to reshape the **aggregate power spectral density** of an entire facility.
+
+The system continuously monitors facility power consumption and computes its FFT power spectrum to identify dangerous spectral peaks in the 50-200 Hz range—the mechanical resonance band of utility-scale transformers. When coherent AI batch processing creates spectral concentration (e.g., 74.5 dB at 100 Hz from synchronized inference requests), the system introduces controlled timing jitter at the network switch egress queue.
+
+The jitter scheduler adds small random delays (25-50 ms average, uniform distribution) to packet transmissions, desynchronizing the compute activity across thousands of GPUs. This transforms coherent periodic power draw into broadband spectral noise, reducing the resonance peak by 20.2 dB (100x power reduction at the danger frequency). Multiple jitter modes are supported: uniform (maximum spreading), surgical notch (frequency-selective, low latency), and multi-harmonic (broadband suppression across 100-500 Hz).
+
+The invention prevents magnetostriction-induced vibration, acoustic noise exceeding OSHA limits, core lamination fatigue, and potential transformer failure—problems that cannot be addressed by chip-level power management. Implementation requires fewer than 1,000 logic gates in the switch ASIC.
 
 ---
 
