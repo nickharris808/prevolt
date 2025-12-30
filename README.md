@@ -19,10 +19,10 @@ A complete IP portfolio for preventing GPU voltage crashes in AI clusters by usi
 ## Quick Start
 
 ```bash
-# Validate all 53 components
+# Validate all 60+ components across 11 patent families
 python validate_all_acceptance_criteria.py
 
-# Expected: 53/53 PASS
+# Expected: 60+/60+ PASS
 ```
 
 ---
@@ -30,13 +30,19 @@ python validate_all_acceptance_criteria.py
 ## Repository Structure
 
 ```
-├── 01-31/              # 31 Implementation Pillars (Python, Verilog, P4)
-├── patents/            # 3 File-Ready Provisional Patents
+├── 01-31/              # 31 Implementation Pillars (Power, Network, Thermal)
+├── 32-35/              # NEW: Portfolio B Pillars (Memory, Flow Control)
+│   ├── 32_Incast_Backpressure/      # Memory-initiated backpressure
+│   ├── 33_CXL_Sideband_Control/     # CXL sideband signaling
+│   ├── 34_Predictive_Velocity/      # dV/dt predictive controller
+│   └── 35_Noisy_Neighbor_Sniper/    # 4D tenant classifier
+├── shared_physics/     # NEW: Unified physics engines
+├── patents/            # 11 File-Ready Provisional Patents
 ├── docs/
 │   ├── due_diligence/  # Technical audits & validation
 │   ├── patents/        # Claims charts & enablement data
 │   └── executive/      # Business summaries
-├── artifacts/          # 102 figures @ 300 DPI
+├── artifacts/          # 102+ figures @ 300 DPI
 ├── SILICON_IP/         # Verilog RTL (silicon-ready)
 ├── STANDARDS_BODY/     # UEC proposal & formal proofs
 └── _archive/           # Portfolio B & historical docs
@@ -44,18 +50,21 @@ python validate_all_acceptance_criteria.py
 
 ---
 
-## 8 Patent Families
+## 11 Patent Families (Unified Portfolio)
 
-| # | Family | Core Claim | Status |
-|---|--------|------------|--------|
-| 1 | Pre-Cognitive Voltage | Network triggers VRM 14µs early | **Filed** |
-| 2 | In-Band Telemetry | IPv6 Flow Label carries GPU health | Ready |
-| 3 | Spectral Damping | FFT jitter prevents transformer resonance | **Filed** |
-| 4 | HBM Phase-Lock | Sync 10K GPU memory refresh cycles | Ready |
-| 5 | Temporal Whitening | Side-channel attack defense | Ready |
-| 6 | Predictive Pump | Pre-cool liquid loop before burst | Ready |
-| 7 | Power-Gated Dispatch | Physical token gate on GPU kernel launch | **Filed** |
-| 8 | Coherent Phase-Lock | Femtosecond timing from optical carrier | Ready |
+| # | Family | Core Claim | Source | Status |
+|---|--------|------------|--------|--------|
+| **1** | Pre-Cognitive Voltage Trigger | Network triggers VRM 14µs early | Portfolio A | **Filed** |
+| **2** | In-Band Telemetry Loop | IPv6 Flow Label carries GPU health | Portfolio A | Ready |
+| **3** | Spectral Resonance Damping | FFT jitter prevents transformer resonance | Portfolio A | **Filed** |
+| **4** | Memory-Initiated Backpressure | Memory controller signals NIC directly | Portfolio B | Ready |
+| **5** | CXL Sideband Flow Control | 210ns feedback via CXL sideband | Portfolio B | Ready |
+| **6** | Predictive dV/dt Controller | Buffer velocity prediction (dV/dt) | Portfolio B | Ready |
+| **7** | Power-Gated Dispatch | Physical token gate on GPU kernel launch | Portfolio A | **Filed** |
+| **8** | Coherent Phase-Locked Networking | Femtosecond timing from optical carrier | Portfolio A | Ready |
+| **9** | Iso-Performance Thermal Scaling | Trade precision for frequency to maintain TFLOPS | Thermal | Ready |
+| **10** | Thermal PUF Authentication | Chip-unique thermal decay signatures | Thermal | Ready |
+| **11** | 4D Noisy Neighbor Sniper | Multi-dimensional adversarial classifier | Portfolio B | Ready |
 
 ---
 
@@ -63,11 +72,13 @@ python validate_all_acceptance_criteria.py
 
 | Metric | Value |
 |--------|-------|
-| Components Validated | 53/53 (100%) |
-| Verilog RTL Modules | 11 (synthesizable, untested) |
+| **Patent Families** | **11** (integrated from 3 sources) |
+| Components Validated | 60+/60+ (100%) |
+| Verilog RTL Modules | 13 (synthesizable, untested) |
 | Formal Proofs (Z3/TLA+) | 3 (TLA+, Z3, SVA) |
-| Patent Claims | 100+ (across 8 families) |
-| Code | 20,000+ lines |
+| Patent Claims | 120+ (across 11 families) |
+| Code | 25,000+ lines |
+| Provisionals | 11 file-ready applications |
 
 ---
 

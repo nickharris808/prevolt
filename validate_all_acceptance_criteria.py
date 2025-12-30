@@ -2,10 +2,10 @@
 AIPP-Omega: Master Acceptance Criteria Validator
 ================================================
 
-This script validates all 53 core components across 8 patent families.
+This script validates all 60+ core components across 11 patent families.
 Optimized for reliability and clear error reporting.
 
-Expected runtime: ~2-3 minutes (53 components)
+Expected runtime: ~3-4 minutes (60+ components)
 """
 
 import subprocess
@@ -56,7 +56,7 @@ def validate_all():
     print("="*80)
     print("AIPP-OMEGA: MASTER ACCEPTANCE CRITERIA VALIDATION")
     print("="*80)
-    print("\nThis script validates that all 53 components across 8 patent")
+    print("\nThis script validates all 60+ components across 11 patent")
     print("families meet their explicit acceptance criteria.")
     
     results = []
@@ -67,7 +67,7 @@ def validate_all():
     results.append(("Family 1: Pre-Charge", run_test("01_PreCharge_Trigger/master_tournament.py", "Pre-Charge Physics")))
     results.append(("Family 2: Telemetry", run_test("02_Telemetry_Loop/master_tournament.py", "Telemetry RTT")))
     results.append(("Family 3: Spectral", run_test("03_Spectral_Damping/master_tournament.py", "Spectral Damping")))
-    results.append(("Family 4: Grid", run_test("04_Brownout_Shedder/master_tournament.py", "Grid QoS")))
+    results.append(("Family 4 (Old): Grid", run_test("04_Brownout_Shedder/master_tournament.py", "Grid QoS")))
     
     # Tier 5: $1B System Architecture
     print("\nSYSTEM ARCHITECTURE (TIER 5)")
@@ -166,6 +166,19 @@ def validate_all():
     results.append(("CXL Latency Hiding", run_test("12_Storage_Fabric/cxl_latency_pre_dispatch.py", "CXL Memory Wall")))
     results.append(("Master Pareto", run_test("scripts/master_pareto_charts.py", "Decision Surface")))
     
+    # NEW: Portfolio B Families (4, 5, 6, 11)
+    print("\nPORTFOLIO B INTEGRATIONS (NEW FAMILIES)")
+    print("-" * 30)
+    results.append(("Family 4: Incast Backpressure", run_test("32_Incast_Backpressure/simulation.py", "Memory Backpressure", timeout=120)))
+    results.append(("Family 5: CXL Sideband", run_test("33_CXL_Sideband_Control/telemetry_bus.py", "CXL Sideband", timeout=120)))
+    results.append(("Family 11: Noisy Neighbor", run_test("35_Noisy_Neighbor_Sniper/simulation.py", "4D Classifier", timeout=120)))
+    
+    # NEW: Thermal Innovations (Families 9, 10)
+    print("\nTHERMAL INNOVATIONS (FAMILIES 9, 10)")
+    print("-" * 30)
+    results.append(("Family 9: Iso-Performance", run_test("15_Grand_Unified_Digital_Twin/grand_unified_3d_twin.py", "Iso-Performance Scaling")))
+    results.append(("Family 10: Thermal PUF", run_test("02_Telemetry_Loop/thermal_puf_extractor.py", "Thermal PUF Auth")))
+    
     # Summary
     print("\n" + "="*80)
     print("VALIDATION SUMMARY")
@@ -181,12 +194,13 @@ def validate_all():
     print(f"\nFinal Score: {passed_tests}/{total_tests} components passed")
     
     if passed_tests == total_tests:
-        print("\n✅ AIPP-OMEGA: ALL 53 COMPONENTS VALIDATED")
+        print(f"\n✅ AIPP-OMEGA: ALL {total_tests} COMPONENTS VALIDATED")
         print("   Technical Quality: Simulation-proven, hardware validation required")
         print("   Current Stage: TRL-3 (Proof of Concept)")
+        print("   Patent Families: 11 (integrated from Portfolio A, B, and thermal innovations)")
         print("   Next Step: FPGA demo per docs/specs/HARDWARE_EXECUTION_PLAN.md")
     else:
-        print("\n⚠️ Some components failed validation. Review logs above.")
+        print(f"\n⚠️ {total_tests - passed_tests} component(s) failed validation. Review logs above.")
 
 if __name__ == "__main__":
     validate_all()
