@@ -25,10 +25,19 @@ import heapq
 import sys
 import os
 
-# Add parent directory to path for imports
+# Add parent directory and shared_physics to path for imports
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'shared_physics'))
 
-from shared.physics_engine import Physics
+try:
+    from physics_engine import Physics
+except ImportError:
+    # Fallback for standalone testing
+    class Physics:
+        TIMING = type('obj', (object,), {'CXL_SIDEBAND_SIGNAL': 120.0})()
+        BUFFER = type('obj', (object,), {'HBM_CAPACITY_GB': 16})()
+        THRESHOLDS = type('obj', (object,), {'BUFFER_HWM': 0.8, 'BUFFER_LWM': 0.2})()
+        ARBITRATION = type('obj', (object,), {'VICTIM_QUOTA_PCT': 0.5})()
 
 # PF8: Telemetry Bus Integration (Optional)
 try:

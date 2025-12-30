@@ -31,9 +31,24 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 sys.path.insert(0, os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'shared_physics'))
 
 try:
-    from physics_engine_v2 import Physics
+    from physics_engine import Physics
 except ImportError:
-    from shared.physics_engine import Physics
+    # Fallback for standalone testing
+    class Physics:
+        TIMING = type('obj', (object,), {'CXL_SIDEBAND_SIGNAL': 120.0})()
+        BUFFER = type('obj', (object,), {'HBM_CAPACITY_GB': 16})()
+        THRESHOLDS = type('obj', (object,), {'BUFFER_HWM': 0.8, 'BUFFER_LWM': 0.2})()
+        SIMULATION = type('obj', (object,), {'TIME_STEP_NS': 1.0})()
+        NETWORK = type('obj', (object,), {'LINK_RATE_GBPS': 100})()
+        MEMORY = type('obj', (object,), {'DRAIN_RATE_GBPS': 50})()
+        DEADLINES = type('obj', (object,), {'TAIL_LATENCY_TARGET_NS': 1000})()
+        ARBITRATION = type('obj', (object,), {'VICTIM_QUOTA_PCT': 0.5})()
+        TELEMETRY = type('obj', (object,), {'PUBLISH_INTERVAL_NS': 100})()
+        POWER = type('obj', (object,), {'COMPUTE_DENSITY_W_MM2': 0.5})()
+        THERMAL = type('obj', (object,), {'JUNCTION_TEMP_MAX_C': 105})()
+        PLATFORM = type('obj', (object,), {'NUM_HBM_STACKS': 8})()
+        SAFETY = type('obj', (object,), {'MAX_RETRIES': 3})()
+        LATENCIES = {'cxl_sideband': 210}
 
 
 # =============================================================================
