@@ -19,10 +19,10 @@ A complete IP portfolio for preventing GPU voltage crashes in AI clusters by usi
 ## Quick Start
 
 ```bash
-# Validate all 60+ components across 11 patent families
+# Validate all 65+ components across 12 patent families
 python validate_all_acceptance_criteria.py
 
-# Expected: 60+/60+ PASS
+# Expected: 65+/65+ PASS
 ```
 
 ---
@@ -37,7 +37,7 @@ python validate_all_acceptance_criteria.py
 │   ├── 34_Predictive_Velocity/      # dV/dt predictive controller
 │   └── 35_Noisy_Neighbor_Sniper/    # 4D tenant classifier
 ├── shared_physics/     # NEW: Unified physics engines
-├── patents/            # 11 File-Ready Provisional Patents
+├── patents/            # 12 File-Ready Provisional Patents
 ├── docs/
 │   ├── due_diligence/  # Technical audits & validation
 │   ├── patents/        # Claims charts & enablement data
@@ -50,21 +50,22 @@ python validate_all_acceptance_criteria.py
 
 ---
 
-## 11 Patent Families (Unified Portfolio)
+## 12 Patent Families (Unified Portfolio)
 
 | # | Family | Core Claim | Source | Status |
 |---|--------|------------|--------|--------|
 | **1** | Pre-Cognitive Voltage Trigger | Network triggers VRM 14µs early | Portfolio A | **Filed** |
-| **2** | In-Band Telemetry Loop | IPv6 Flow Label carries GPU health | Portfolio A | Ready |
+| **2** | In-Band Telemetry Loop | IPv6 Flow Label carries GPU health | Portfolio A | ✅ Ready |
 | **3** | Spectral Resonance Damping | FFT jitter prevents transformer resonance | Portfolio A | **Filed** |
-| **4** | Memory-Initiated Backpressure | Memory controller signals NIC directly | Portfolio B | Ready |
-| **5** | CXL Sideband Flow Control | 210ns feedback via CXL sideband | Portfolio B | Ready |
-| **6** | Predictive dV/dt Controller | Buffer velocity prediction (dV/dt) | Portfolio B | Ready |
+| **4** | Memory-Initiated Backpressure | Memory controller signals NIC directly | Portfolio B | ✅ Ready |
+| **5** | CXL Sideband Flow Control | 210ns feedback via CXL sideband | Portfolio B | ✅ Ready |
+| **6** | Predictive dV/dt Controller | Buffer velocity prediction (dV/dt) | Portfolio B | ✅ Ready |
 | **7** | Power-Gated Dispatch | Physical token gate on GPU kernel launch | Portfolio A | **Filed** |
-| **8** | Coherent Phase-Locked Networking | Femtosecond timing from optical carrier | Portfolio A | Ready |
-| **9** | Iso-Performance Thermal Scaling | Trade precision for frequency to maintain TFLOPS | Thermal | Ready |
-| **10** | Thermal PUF Authentication | Chip-unique thermal decay signatures | Thermal | Ready |
-| **11** | 4D Noisy Neighbor Sniper | Multi-dimensional adversarial classifier | Portfolio B | Ready |
+| **8** | Coherent Phase-Locked Networking | Femtosecond timing from optical carrier | Portfolio A | ✅ Ready |
+| **9** | Iso-Performance Thermal Scaling | Trade precision for frequency to maintain TFLOPS | Thermal | ✅ Ready |
+| **10** | Thermal PUF Authentication | Chip-unique thermal decay signatures | Thermal | ✅ Ready |
+| **11** | 4D Noisy Neighbor Sniper | Multi-dimensional adversarial classifier | Portfolio B | ✅ Ready |
+| **12** | Compute-Inhibit Interlock | Hardware gate with cooling handshake | Thermal | ✅ Ready |
 
 ---
 
@@ -72,13 +73,13 @@ python validate_all_acceptance_criteria.py
 
 | Metric | Value |
 |--------|-------|
-| **Patent Families** | **11** (integrated from 3 sources) |
-| Components Validated | 60+/60+ (100%) |
+| **Patent Families** | **12** (integrated from 3 sources) |
+| Components Validated | 65+/65+ (100%) |
 | Verilog RTL Modules | 13 (synthesizable, untested) |
 | Formal Proofs (Z3/TLA+) | 3 (TLA+, Z3, SVA) |
-| Patent Claims | 120+ (across 11 families) |
-| Code | 25,000+ lines |
-| Provisionals | 11 file-ready applications |
+| Patent Claims | **196** (43 independent + 153 dependent) |
+| Code | 32,000+ lines |
+| Provisionals | **12 file-ready applications** |
 
 ---
 

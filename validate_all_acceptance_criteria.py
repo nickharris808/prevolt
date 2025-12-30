@@ -2,7 +2,7 @@
 AIPP-Omega: Master Acceptance Criteria Validator
 ================================================
 
-This script validates all 60+ core components across 11 patent families.
+This script validates all 65+ core components across 12 patent families.
 Optimized for reliability and clear error reporting.
 
 Expected runtime: ~3-4 minutes (60+ components)
@@ -56,7 +56,7 @@ def validate_all():
     print("="*80)
     print("AIPP-OMEGA: MASTER ACCEPTANCE CRITERIA VALIDATION")
     print("="*80)
-    print("\nThis script validates all 60+ components across 11 patent")
+    print("\nThis script validates all 65+ components across 12 patent")
     print("families meet their explicit acceptance criteria.")
     
     results = []
@@ -173,11 +173,12 @@ def validate_all():
     results.append(("Family 5: CXL Sideband", run_test("33_CXL_Sideband_Control/telemetry_bus.py", "CXL Sideband", timeout=120)))
     results.append(("Family 11: Noisy Neighbor", run_test("35_Noisy_Neighbor_Sniper/simulation.py", "4D Classifier", timeout=120)))
     
-    # NEW: Thermal Innovations (Families 9, 10)
-    print("\nTHERMAL INNOVATIONS (FAMILIES 9, 10)")
+    # NEW: Thermal Innovations (Families 9, 10, 12)
+    print("\nTHERMAL INNOVATIONS (FAMILIES 9, 10, 12)")
     print("-" * 30)
     results.append(("Family 9: Iso-Performance", run_test("15_Grand_Unified_Digital_Twin/grand_unified_3d_twin.py", "Iso-Performance Scaling")))
     results.append(("Family 10: Thermal PUF", run_test("02_Telemetry_Loop/thermal_puf_extractor.py", "Thermal PUF Auth")))
+    results.append(("Family 12: Compute-Inhibit", run_test("14_ASIC_Implementation/power_aware_rtl_synthesis.py", "Compute-Inhibit Interlock")))
     
     # Summary
     print("\n" + "="*80)
@@ -197,7 +198,7 @@ def validate_all():
         print(f"\n✅ AIPP-OMEGA: ALL {total_tests} COMPONENTS VALIDATED")
         print("   Technical Quality: Simulation-proven, hardware validation required")
         print("   Current Stage: TRL-3 (Proof of Concept)")
-        print("   Patent Families: 11 (integrated from Portfolio A, B, and thermal innovations)")
+        print("   Patent Families: 12 (integrated from Portfolio A, B, and thermal innovations)")
         print("   Next Step: FPGA demo per docs/specs/HARDWARE_EXECUTION_PLAN.md")
     else:
         print(f"\n⚠️ {total_tests - passed_tests} component(s) failed validation. Review logs above.")
