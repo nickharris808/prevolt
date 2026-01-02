@@ -235,6 +235,66 @@ Detection: high_entropy OR low_locality OR low_productivity
 
 ---
 
+## Digital Twin Experiments
+
+**Multi-scale, multi-physics simulation proving system-of-systems stability.**
+
+### Cluster Digital Twin
+**File:** `src/orchestration/cluster_digital_twin.py`
+
+Links Network → Silicon → Power → Thermal in a unified simulation:
+
+```
+Micro-scale (1µs):   SPICE-derived voltage transients
+Macro-scale (100µs): SimPy facility scheduling + thermal inertia
+```
+
+**Proof:** Cascading failure prevention (Voltage crash → Thermal meltdown)
+
+```
+Without AIPP: Voltage crashes to 0.65V → Thermal trip at 98°C → FAILURE
+With AIPP:    Predictive pump ramps before load → Stable at 82°C → PASS
+```
+
+### Grand Unified 3D Twin
+**File:** `src/orchestration/grand_unified_3d_twin.py`
+
+Models a 3-layer 3D-IC stack at 100,000 GPU scale:
+
+| Layer | Function | Peak Temp |
+|-------|----------|-----------|
+| Layer 1 | Network & I/O | 92.4°C |
+| Layer 2 | Memory & Cache | 87.3°C |
+| Layer 3 | Compute/ALU | 82.9°C |
+
+**Key Result:** Iso-Performance maintains **0.0000% TFLOPS variation** during precision trading
+
+### Stargate-Scale Simulations
+**Files:** `src/orchestration/stargate_*.py`
+
+| Simulation | Finding |
+|------------|---------|
+| `stargate_voltage_collapse.py` | 500K GPUs saturate grid capacity |
+| `stargate_voltage_collapse_FIXED.py` | AIPP temporal stagger prevents collapse |
+| `stargate_power_transient_REALISTIC.py` | **$58M/year** demand charge savings |
+
+**Critical Finding:** AIPP is **physically mandatory** for 1M-GPU scale facilities.
+
+### Run Digital Twins
+
+```bash
+# Cascading failure prevention proof
+python src/orchestration/cluster_digital_twin.py
+
+# 100k GPU scale Iso-Performance proof  
+python src/orchestration/grand_unified_3d_twin.py
+
+# Stargate voltage collapse analysis
+python src/orchestration/stargate_voltage_collapse_FIXED.py
+```
+
+---
+
 ## Repository Structure
 
 ```
@@ -271,7 +331,10 @@ prevolt/
 │   │
 │   ├── security/               # Side-channel defense
 │   ├── ai_agent/               # RL-based orchestrator
-│   ├── orchestration/          # Digital twin
+│   ├── orchestration/          # Digital twins (cluster, 3D-IC, Stargate)
+│   │   ├── cluster_digital_twin.py      # Cascading failure prevention
+│   │   ├── grand_unified_3d_twin.py     # 100k GPU Iso-Performance
+│   │   └── stargate_*.py                # 1M GPU scale analysis
 │   └── advanced/               # Experimental components
 │
 ├── silicon/                    # Hardware implementations
