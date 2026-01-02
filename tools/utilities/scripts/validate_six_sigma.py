@@ -24,13 +24,16 @@ from pathlib import Path
 from multiprocessing import Pool
 import importlib.util
 
-# Add required paths
-root = Path(__file__).parent.parent
+# Add required paths - navigate to repo root
+# __file__ = tools/utilities/scripts/validate_six_sigma.py
+# .parent = tools/utilities/scripts -> .parent = tools/utilities -> .parent = tools -> .parent = root
+root = Path(__file__).parent.parent.parent.parent  # tools/utilities/scripts -> root
 sys.path.insert(0, str(root))
-sys.path.insert(0, str(root / "01_PreCharge_Trigger"))
+sys.path.insert(0, str(root / "src" / "power" / "precharge_trigger"))
 
 # Load SPICE dynamically to avoid numeric folder import issue
-spec = importlib.util.spec_from_file_location("spice_vrm", root / "01_PreCharge_Trigger/spice_vrm.py")
+spice_path = root / "src" / "power" / "precharge_trigger" / "spice_vrm.py"
+spec = importlib.util.spec_from_file_location("spice_vrm", spice_path)
 spice_vrm = importlib.util.module_from_spec(spec)
 sys.modules["spice_vrm"] = spice_vrm
 spec.loader.exec_module(spice_vrm)

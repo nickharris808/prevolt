@@ -18,8 +18,6 @@ perfectly neutralizes the inductor's magnetic discharge.
 import numpy as np
 import matplotlib.pyplot as plt
 from pathlib import Path
-from PySpice.Spice.Netlist import Circuit
-from PySpice.Unit import u_Ohm, u_H, u_F, u_s, u_V
 from dataclasses import dataclass
 
 @dataclass(frozen=True)

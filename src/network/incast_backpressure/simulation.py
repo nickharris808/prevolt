@@ -27,12 +27,11 @@ from enum import Enum
 import sys
 import os
 
-# Add parent directory to path for imports
-sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-
-import sys
 from pathlib import Path
-sys.path.insert(0, str(Path(__file__).parent.parent / "shared_physics"))
+
+# Ensure repo root is on sys.path so `physics_engine.py` is importable.
+sys.path.insert(0, str(Path(__file__).resolve().parents[3]))
+
 from physics_engine import Physics
 
 # PF8: Telemetry Bus Integration (Optional)

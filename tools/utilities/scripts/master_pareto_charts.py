@@ -84,7 +84,9 @@ def generate_pareto_analysis():
     print(f"Expected ROI Multiplier:   100x+")
     
     plt.legend()
-    output_path = Path(__file__).parent.parent / "artifacts" / "master_pareto_omega.png"
+    repo_root = Path(__file__).resolve().parents[3]
+    output_path = repo_root / "artifacts" / "master_pareto_omega.png"
+    output_path.parent.mkdir(parents=True, exist_ok=True)
     plt.savefig(output_path, dpi=300)
     plt.close()
     

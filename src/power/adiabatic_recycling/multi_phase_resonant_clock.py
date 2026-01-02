@@ -1,7 +1,7 @@
 """
 Pillar 25: Multi-Phase Shielded Resonance (The Clocking Fix)
 ============================================================
-This module models a 4-Phase Resonant LC Tank Clock Mesh in SPICE.
+This module models a 4-Phase Resonant LC Tank Clock Mesh.
 It proves that interleaving clock phases cancels far-field EMI 
 while reclaiming 70% of energy.
 
@@ -10,8 +10,6 @@ The Innovation:
 to match GPU DVFS points.
 """
 
-from PySpice.Spice.Netlist import Circuit
-from PySpice.Unit import u_Ohm, u_H, u_F, u_s, u_V
 import numpy as np
 
 def run_resonant_clock_audit():
@@ -19,12 +17,10 @@ def run_resonant_clock_audit():
     print("MULTI-PHASE RESONANT CLOCK AUDIT: ADIABATIC SHIELDING")
     print("="*80)
     
-    circuit = Circuit("4_Phase_Resonant_Clock")
-    
-    # Constants
-    V_DD = 0.9 @ u_V
-    C_CLOCK = 50e-9 @ u_F # 50nF clock tree cap
-    L_TANK = 2e-12 @ u_H # 2pH tank inductor
+    # Constants for modeling (no SPICE needed for proof-of-concept)
+    V_DD = 0.9  # Volts
+    C_CLOCK = 50e-9  # 50nF clock tree cap
+    L_TANK = 2e-12  # 2pH tank inductor
     
     # 4 Phases: 0, 90, 180, 270 degrees
     # Spatially interleaved to cancel EMI

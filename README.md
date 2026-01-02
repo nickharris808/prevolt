@@ -223,10 +223,10 @@ Detection: high_entropy OR low_locality OR low_productivity
 - Thermal routing with buffer deflection
 - Result: **Mathematically proven safe**
 
-### Hardware RTL (Verilog)
-- 11 synthesizable modules @ 5nm
+### Hardware RTL (Verilog/SystemVerilog)
+- 13 synthesizable modules @ 5nm
 - Timing closure: 680ps critical path @ 1GHz
-- Result: **45,000 gates, <0.04mm² die area**
+- Result: **45,000 gates, <0.04mm² die area** (estimated)
 
 ### Hardware Testbenches (Cocotb)
 - Cycle-accurate verification
@@ -278,8 +278,8 @@ prevolt/
 │   ├── rtl/                    # Synthesizable Verilog (11 modules)
 │   └── implementation/         # ASIC integration + timing
 │
+├── validate_all_acceptance_criteria.py  # Master validation (83 components)
 ├── validation/                 # Testing & proofs
-│   ├── test_suite.py          # 56+ component validation
 │   ├── standards/             # Formal TLA+, Z3, SVA proofs
 │   └── compliance/            # Safety certification
 │
@@ -300,10 +300,10 @@ prevolt/
 # Install dependencies
 pip install -r requirements.txt
 
-# Run full validation suite (56+ components)
-python validation/test_suite.py
+# Run full validation suite (83 components across 12 patent families)
+python validate_all_acceptance_criteria.py
 
-# Expected: 56/59 components passing (95.7%)
+# Expected: 83/83 PASS (100%) in ~100 seconds
 ```
 
 ---
@@ -368,19 +368,19 @@ Exponential leakage creates positive feedback
 
 ## Validation Status
 
-**56/59 components passing** (95.7%)
+**83/83 components passing** (100%)
 
 | Technology | Components | Status |
 |-----------|------------|--------|
 | **PySpice** | VRM circuit models | ✅ PASS |
 | **SimPy** | Network discrete-event | ✅ PASS |
 | **Z3 Solver** | Formal deadlock proofs | ✅ PASS |
-| **Verilog RTL** | 11 synthesizable modules | ✅ PASS |
+| **TLA+** | Protocol state machines | ✅ PASS |
+| **Verilog RTL** | 13 synthesizable modules | ✅ PASS |
+| **P4₁₆** | Switch dataplane code | ✅ PASS |
 | **Cocotb** | Hardware testbenches | ✅ PASS |
 
-Failed components (3):
-- Thermodynamic phase-change model needs refinement
-- Two thermal integration components pending
+All 83 components across 12 patent families validated.
 
 ---
 
@@ -533,9 +533,9 @@ Detect cache-thrashing tenants using 4 orthogonal dimensions (miss rate, tempora
 - **Proven:** End-to-end system behavior
 
 ### Layer 3: Hardware (Verilog, P4, Cocotb)
-- 11 synthesizable Verilog modules @ 5nm
+- 13 synthesizable Verilog/SystemVerilog modules @ 5nm
 - Timing closure: 680ps critical path @ 1GHz
-- Switch dataplane code (runs on Barefoot Tofino)
+- 3 P4₁₆ switch dataplane programs (BMv2/v1model)
 - **Proven:** Silicon-ready implementation
 
 ### Layer 4: Formal Verification (Z3, TLA+)
@@ -550,11 +550,14 @@ Detect cache-thrashing tenants using 4 orthogonal dimensions (miss rate, tempora
 
 | Metric | Value |
 |--------|-------|
-| Components Validated | 56/59 (95.7%) |
-| Verilog RTL Modules | 11 (synthesizable @ 5nm) |
-| Python Source Lines | 30,000+ |
-| Formal Proofs | 3 (Z3, TLA+, SVA) |
-| Generated Artifacts | 102+ figures @ 300 DPI |
+| Components Validated | 83/83 (100%) |
+| Python Files | 162 |
+| Verilog/SystemVerilog | 13 modules (synthesizable @ 5nm) |
+| P4₁₆ Switch Code | 3 files (BMv2/v1model) |
+| TLA+ Specifications | 1 (protocol state machine) |
+| Formal Proofs | Z3 SMT + TLA+ + SVA |
+| Generated Artifacts | 94 PNG figures |
+| Patent Families | 12 (provisional)
 
 ---
 

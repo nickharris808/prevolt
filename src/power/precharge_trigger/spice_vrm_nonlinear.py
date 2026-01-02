@@ -11,8 +11,6 @@ Hard-Proof Features:
 4. 90% Cap Reduction: Validation of 1.5mF stability under dirty power.
 """
 
-from PySpice.Spice.Netlist import Circuit
-from PySpice.Unit import u_Ohm, u_H, u_F, u_s, u_V
 import numpy as np
 import matplotlib.pyplot as plt
 from pathlib import Path

@@ -250,7 +250,9 @@ if __name__ == "__main__":
     plt.title('Thermal PUF: Unique Decay Signatures from Manufacturing Variance')
     plt.legend()
     plt.grid(True, alpha=0.3)
-    plt.savefig('02_Telemetry_Loop/thermal_puf_signatures.png')
+    from pathlib import Path
+    output_path = Path(__file__).parent / "thermal_puf_signatures.png"
+    plt.savefig(output_path)
     
     print("\n--- SECURITY VECTOR ANALYSIS ---")
     print("Integration Points:")

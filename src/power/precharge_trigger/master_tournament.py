@@ -12,6 +12,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import subprocess
 import os
+import sys
 from pathlib import Path
 
 def run_all_variations():
@@ -20,7 +21,7 @@ def run_all_variations():
     
     for script in scripts:
         print(f"Executing {script.name}...")
-        subprocess.run(["python", str(script)], check=True)
+        subprocess.run([sys.executable, str(script)], check=True)
 
 def generate_family_summary():
     # Synthetic results representing the outcomes of the 5 variations

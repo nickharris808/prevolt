@@ -25,19 +25,17 @@ import heapq
 import sys
 import os
 
-# Add parent directory and shared_physics to path for imports
-sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-sys.path.insert(0, os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'shared_physics'))
+from pathlib import Path
+
+# Ensure repo root is on sys.path so `physics_engine.py` is importable.
+sys.path.insert(0, str(Path(__file__).resolve().parents[3]))
 
 try:
     from physics_engine import Physics
-except ImportError:
-    # Fallback for standalone testing
-    class Physics:
-        TIMING = type('obj', (object,), {'CXL_SIDEBAND_SIGNAL': 120.0})()
-        BUFFER = type('obj', (object,), {'HBM_CAPACITY_GB': 16})()
-        THRESHOLDS = type('obj', (object,), {'BUFFER_HWM': 0.8, 'BUFFER_LWM': 0.2})()
-        ARBITRATION = type('obj', (object,), {'VICTIM_QUOTA_PCT': 0.5})()
+except ImportError as e:  # pragma: no cover
+    raise ImportError(
+        "Missing `physics_engine.py`. Run from the repo root or set PYTHONPATH to the repo root."
+    ) from e
 
 # PF8: Telemetry Bus Integration (Optional)
 try:

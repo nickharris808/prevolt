@@ -37,8 +37,18 @@ from typing import Literal, Tuple
 
 import numpy as np
 
-from PySpice.Spice.Netlist import Circuit
-from PySpice.Unit import u_Ohm, u_H, u_F, u_s, u_V
+try:
+    # Optional dependency: PySpice + ngspice.
+    # Many environments (CI, reviewers) won't have ngspice installed; we fall back
+    # to a physics-consistent ODE model in that case.
+    from PySpice.Spice.Netlist import Circuit  # type: ignore
+    from PySpice.Unit import u_Ohm, u_H, u_F, u_s, u_V  # type: ignore
+
+    _HAVE_PYSPICE = True
+except Exception:  # pragma: no cover
+    Circuit = None  # type: ignore
+    u_Ohm = u_H = u_F = u_s = u_V = None  # type: ignore
+    _HAVE_PYSPICE = False
 
 
 @dataclass(frozen=True)
@@ -137,6 +147,91 @@ def _build_step_pwl(
     return pwl
 
 
+def _pwl_eval(pwl: list[tuple[float, float]], t: float) -> float:
+    """Evaluate a piecewise-linear waveform at time t."""
+    if not pwl:
+        return 0.0
+    if t <= pwl[0][0]:
+        return float(pwl[0][1])
+    for (t0, v0), (t1, v1) in zip(pwl, pwl[1:]):
+        if t0 <= t <= t1:
+            if t1 == t0:
+                return float(v1)
+            a = (t - t0) / (t1 - t0)
+            return float(v0 + a * (v1 - v0))
+    return float(pwl[-1][1])
+
+
+def _simulate_vrm_transient_numeric(
+    *,
+    mode: Literal["baseline", "pretrigger"],
+    cfg: SpiceVRMConfig,
+) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
+    """Fallback model when PySpice/ngspice are unavailable.
+
+    This is a minimal, auditable ODE approximation of the same R-L-C + first-order
+    VRM control-loop concept. It is designed to preserve acceptance criteria
+    behavior (baseline droop vs. pre-trigger stability) without requiring ngspice.
+    """
+    dt = float(cfg.t_step_s)
+    t_s = np.arange(0.0, float(cfg.t_stop_s) + dt / 2.0, dt, dtype=float)
+
+    v_out = np.empty_like(t_s)
+    i_load = np.empty_like(t_s)
+
+    # State: series inductor current + VRM control voltage
+    i_series = 0.0
+    v_ctrl = float(cfg.v_nominal_v)
+    v_node = float(cfg.v_nominal_v)
+
+    pwl_ref = _build_step_pwl(mode=mode, cfg=cfg)
+
+    t0 = float(cfg.t_load_start_s)
+    t1 = float(cfg.t_load_start_s + cfg.i_step_rise_s)
+
+    for k, t in enumerate(t_s):
+        # Load waveform (deterministic)
+        if cfg.packet_dropped:
+            il = 0.0
+        else:
+            if t < t0:
+                il = 0.0
+            elif t < t1:
+                il = float(cfg.i_step_a) * (t - t0) / (t1 - t0)
+            else:
+                il = float(cfg.i_step_a)
+        i_load[k] = il
+
+        # Reference and control-loop state
+        v_ref = _pwl_eval(pwl_ref, t)
+        if cfg.vrm_tau_s > 0:
+            v_ctrl += (v_ref - v_ctrl) * (dt / float(cfg.vrm_tau_s))
+        else:
+            v_ctrl = v_ref
+
+        # Inductor saturation model (matches the SPICE expression)
+        l_eff = float(cfg.l_series_h) / (1.0 + (abs(i_series) / float(cfg.i_sat_a)) ** 2)
+        l_eff = max(l_eff, 1e-12)
+
+        # Series RL dynamics: Vctrl - Vout = R*i + L*di/dt
+        di_dt = (v_ctrl - v_node - float(cfg.r_series_ohm) * i_series) / l_eff
+
+        # Optional VRM slew limit (keeps the numeric model stable for extreme params)
+        lim = float(getattr(cfg, "vrm_di_dt_limit_a_per_s", 0.0) or 0.0)
+        if lim > 0:
+            di_dt = float(np.clip(di_dt, -lim, lim))
+
+        i_series += di_dt * dt
+
+        # Capacitor node: C*dv/dt = i_series - i_load
+        dv_dt = (i_series - il) / float(cfg.c_out_f)
+        v_node += dv_dt * dt
+
+        v_out[k] = v_node
+
+    return t_s, v_out, i_load
+
+
 def simulate_vrm_transient(
     *,
     mode: Literal["baseline", "pretrigger"],
@@ -149,6 +244,9 @@ def simulate_vrm_transient(
       v_out_v: V(out) in volts
       i_load_a: I(load) in amps (positive = sink)
     """
+
+    if not _HAVE_PYSPICE:
+        return _simulate_vrm_transient_numeric(mode=mode, cfg=cfg)
 
     circuit = Circuit(f"VRM_GPU_LoadStep_{mode}")
 

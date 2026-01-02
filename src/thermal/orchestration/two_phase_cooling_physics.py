@@ -228,7 +228,9 @@ if __name__ == "__main__":
     plt.grid(True, alpha=0.2)
     
     plt.tight_layout()
-    plt.savefig('08_Thermal_Orchestration/tournament_graph_CORRECTED.png')
-    print("\nData Room Asset Created: 08_Thermal_Orchestration/tournament_graph_CORRECTED.png")
+    from pathlib import Path
+    output_path = Path(__file__).parent / "tournament_graph_CORRECTED.png"
+    plt.savefig(output_path)
+    print(f"\nData Room Asset Created: {output_path}")
     print("\nNOTE: Conservative CHF (400 W/cm²) reflects production micro-channel reality")
 

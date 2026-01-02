@@ -155,8 +155,10 @@ def run_digital_twin_audit():
     ax2.set_title('Iso-Performance: Precision-for-Frequency Trade'); ax2.legend(loc='upper left'); ax2_twin.legend(loc='upper right'); ax2.grid(True, alpha=0.2)
     
     plt.tight_layout()
-    plt.savefig('15_Grand_Unified_Digital_Twin/system_stability_digital_twin.png')
-    print("\nArtifact Generated: 15_Grand_Unified_Digital_Twin/system_stability_digital_twin.png")
+    from pathlib import Path
+    output_path = Path(__file__).parent / "system_stability_digital_twin.png"
+    plt.savefig(output_path)
+    print(f"\nArtifact Generated: {output_path}")
 
 if __name__ == "__main__":
     run_digital_twin_audit()
