@@ -611,7 +611,7 @@ Detect cache-thrashing tenants using 4 orthogonal dimensions (miss rate, tempora
 |----------|----------|
 | **Quick Start** | `docs/START_HERE.md` |
 | **Technical Audit** | `docs/due_diligence/COMPREHENSIVE_TECHNICAL_AUDIT.md` |
-| **Physics Validation** | `validation/test_suite.py` (run this!) |
+| **Physics Validation** | `python validate_all_acceptance_criteria.py` (83/83 PASS) |
 | **Whitepapers** | `whitepapers/` |
 | **Verilog RTL** | `silicon/rtl/` |
 
