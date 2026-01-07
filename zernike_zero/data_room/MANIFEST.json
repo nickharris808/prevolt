@@ -1,0 +1,31 @@
+{
+  "data_room_version": "1.0",
+  "generated": "2026-01-06T07:54:27.067970",
+  "contents": {
+    "01_GDSII_MASKS": [
+      "prevolt_complete_mask.gds"
+    ],
+    "02_SIMULATION_REPORTS": [],
+    "03_MANUFACTURING_CERTIFICATE": [
+      "immunity_statistics.json",
+      "manufacturing_certificate.json",
+      "monte_carlo_results.csv"
+    ],
+    "04_TCO_LEDGER": [
+      "cost_savings_analysis.json"
+    ],
+    "05_PATENT_FILINGS": [
+      "PROVISIONAL_PATENT_APPLICATION.md"
+    ]
+  },
+  "deliverables": {
+    "gdsii_masks": "Foundry-ready silicon blueprints",
+    "fdtd_atlas": "gprMax optical transmission proof (Ground Truth)",
+    "flux_atlas": "Elmer 3D magnetic field maps",
+    "warpage_report": "CalculiX HBM4 yield insurance",
+    "cfd_report": "OpenFOAM liquid cooling proof",
+    "immunity_cert": "Monte Carlo manufacturing certificate",
+    "tco_ledger": "Financial value quantification",
+    "patents": "12-14 provisional patent applications"
+  }
+}

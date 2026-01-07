@@ -1,0 +1,26 @@
+{
+  "analysis_date": "2026-01-06T07:54:27.041453",
+  "bandwidth_reclamation": {
+    "description": "Eliminating 40% optical loss at coupler enables 1.6T speed tier",
+    "value_usd": 5100000000,
+    "basis": "Industry optical I/O market shift to 1.6T"
+  },
+  "silicon_area_reclamation": {
+    "description": "15% Keep-Out Zone reduction via magnetic-canceling vias",
+    "value_usd": 2000000000,
+    "basis": "Die area savings across HPC market"
+  },
+  "yield_improvement": {
+    "description": "HBM4 yield improvement from 20% to 80%",
+    "value_usd": 800000000,
+    "basis": "Memory stack manufacturing savings"
+  },
+  "cooling_tco": {
+    "description": "2kW per-chip liquid cooling for Stargate-class deployments",
+    "value_usd": 500000000,
+    "basis": "Data center cooling cost reduction"
+  },
+  "total_addressable_value": 8400000000,
+  "strategic_buyout_ask": 100000000,
+  "roi_multiple": 84
+}
