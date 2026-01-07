@@ -1,9 +1,0 @@
-{
-  "library_name": "PREVOLT",
-  "cells": [
-    "BSPD_VIA_PATTERN",
-    "BSPD_VIA_ARRAY"
-  ],
-  "unit": 1e-09,
-  "generated": "2026-01-06T06:41:01.370510"
-}
